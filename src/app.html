@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="id" class="light">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+		<meta name="text-scale" content="scale" />
+		<meta name="description" content="MemFinance - Aplikasi Pengelolaan Keuangan Pribadi" />
+		<meta name="theme-color" content="#3b82f6" />
+		<meta name="mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+		<meta name="apple-mobile-web-app-title" content="MemFinance" />
+		<link rel="manifest" href="%sveltekit.assets%/manifest.json" />
+		<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><text y='28' font-size='28'>💰</text></svg>" />
+		%sveltekit.head%
+		<script>
+			(function() {
+				const stored = localStorage.getItem('memfinance_dark_mode');
+				if (stored === 'true' || (!stored && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+					document.documentElement.classList.add('dark');
+					document.documentElement.classList.remove('light');
+				}
+			})();
+		</script>
+		<script>
+			if ('serviceWorker' in navigator) {
+				window.addEventListener('load', () => {
+					navigator.serviceWorker.register('/sw.js').catch((err) => {
+						console.warn('SW registration failed:', err);
+					});
+				});
+			}
+		</script>
+	</head>
+	<body data-sveltekit-preload-data="hover">
+		<div style="display: contents">%sveltekit.body%</div>
+	</body>
+</html>

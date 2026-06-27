@@ -1,0 +1,21 @@
+# 🐴 Lightweight Docker Compose for VPS deployment
+services:
+  app:
+    image: ghcr.io/${GITHUB_REPOSITORY:-memfinance}/app:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: memfinance
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3000:3000"
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"

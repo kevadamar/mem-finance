@@ -1,0 +1,28 @@
+<script lang="ts">
+	import { app, showToast } from '$lib/state/app.svelte';
+	import { getTransactionRepo } from '$lib/data/repository-factory';
+
+	async function refresh() {
+		app.transactionsLoading = true;
+		try {
+			const fresh = await getTransactionRepo().getAll();
+			app.transactions = fresh;
+			app.transactionsStale = false;
+			showToast('Data diperbarui', 'success');
+		} catch (err) {
+			showToast('Gagal memperbarui data', 'error');
+		} finally {
+			app.transactionsLoading = false;
+		}
+	}
+</script>
+
+{#if app.transactionsStale}
+	<div class="flex items-center gap-2 text-xs text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 px-3 py-1.5 rounded-md">
+		<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M5.07 19h13.86c1.54 0 2.5-1.67 1.73-3L13.73 4a2 2 0 00-3.46 0L3.34 16c-.77 1.33.19 3 1.73 3z" /></svg>
+		<span>Data mungkin usang</span>
+		<button onclick={refresh} disabled={app.transactionsLoading} class="ml-1 underline hover:no-underline">
+			{app.transactionsLoading ? 'Memuat...' : 'Coba lagi'}
+		</button>
+	</div>
+{/if}
