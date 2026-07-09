@@ -87,7 +87,7 @@
 		formType = t.type;
 		formAmount = String(t.amount);
 		formCategory = t.categoryId;
-		formDate = t.date;
+		formDate = (t.date ?? '').split('T')[0];
 		formNote = t.note || '';
 		formErrors = {};
 		modalOpen = true;

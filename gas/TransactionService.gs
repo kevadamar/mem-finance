@@ -21,26 +21,40 @@ class TransactionService {
     }
   }
 
+  static _formatDate(value) {
+    if (value instanceof Date) {
+      const y = value.getFullYear();
+      const m = String(value.getMonth() + 1).padStart(2, '0');
+      const d = String(value.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+    if (typeof value === 'string') {
+      const parts = value.split('T')[0].split(' ')[0];
+      if (/^\d{4}-\d{2}-\d{2}$/.test(parts)) return parts;
+    }
+    return String(value);
+  }
+
+  static _toObj(headers, row) {
+    const obj = {};
+    headers.forEach((h, i) => {
+      obj[h] = h === 'date' ? this._formatDate(row[i]) : row[i];
+    });
+    return obj;
+  }
+
   static list(sheet) {
     const rows = sheet.getDataRange().getValues();
     if (rows.length <= 1) return [];
     const headers = rows[0];
-    return rows.slice(1).map(row => {
-      const obj = {};
-      headers.forEach((h, i) => obj[h] = row[i]);
-      return obj;
-    });
+    return rows.slice(1).map(row => this._toObj(headers, row));
   }
 
   static get(sheet, id) {
     const rows = sheet.getDataRange().getValues();
     const headers = rows[0];
     for (let i = 1; i < rows.length; i++) {
-      if (rows[i][0] === id) {
-        const obj = {};
-        headers.forEach((h, j) => obj[h] = rows[i][j]);
-        return obj;
-      }
+      if (rows[i][0] === id) return this._toObj(headers, rows[i]);
     }
     throw new Error('NOT_FOUND');
   }
@@ -51,7 +65,7 @@ class TransactionService {
     const row = [id, data.type, Number(data.amount), data.categoryId, data.date, data.note || '', now, now, true];
     sheet.appendRow(row);
     const obj = {};
-    this.HEADERS.forEach((h, i) => obj[h] = row[i]);
+    this.HEADERS.forEach((h, i) => obj[h] = h === 'date' ? this._formatDate(row[i]) : row[i]);
     return obj;
   }
 
@@ -69,9 +83,7 @@ class TransactionService {
         if (data.flagActive !== undefined) rows[i][8] = data.flagActive;
         rows[i][7] = now;
         sheet.getRange(i + 1, 1, 1, this.HEADERS.length).setValues([rows[i]]);
-        const obj = {};
-        headers.forEach((h, j) => obj[h] = rows[i][j]);
-        return obj;
+        return this._toObj(headers, rows[i]);
       }
     }
     throw new Error('NOT_FOUND');
