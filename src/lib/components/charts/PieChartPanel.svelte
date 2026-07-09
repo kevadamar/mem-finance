@@ -64,7 +64,7 @@
 			.sort((a, b) => b.value - a.value);
 
 		return {
-			tooltip: { trigger: 'item', formatter: (p: { name: string; value: number; percent: number }) => `<strong>${p.name}</strong><br/>${formatRupiah(p.value)} (${p.percent}%)` },
+			tooltip: { trigger: 'item', appendToBody: true, formatter: (p: { name: string; value: number; percent: number }) => `<strong>${p.name}</strong><br/>${formatRupiah(p.value)} (${p.percent}%)` },
 			legend: { orient: 'vertical', right: 10, top: 'center', textStyle: { fontSize: 12 } },
 			series: [{ type: 'pie', radius: ['45%', '75%'], center: ['40%', '50%'], avoidLabelOverlap: false, padAngle: 1, itemStyle: { borderRadius: 4, borderColor: 'transparent', borderWidth: 2 }, label: { show: false }, emphasis: { label: { show: true, fontSize: 14, fontWeight: 'bold' }, scaleSize: 8 }, data }]
 		} as EChartsOption;

@@ -2,19 +2,25 @@
 	import { onMount } from 'svelte';
 	import SummaryCards from '$lib/components/dashboard/SummaryCards.svelte';
 	import RecentTransactions from '$lib/components/dashboard/RecentTransactions.svelte';
-	import { app, loadTransactionsFromCache, loadCategoriesFromCache } from '$lib/state/app.svelte';
-	import { getTransactionRepo, getCategoryRepo } from '$lib/data/repository-factory';
+	import { app, loadTransactionsFromCache, loadCategoriesFromCache, loadBudgetsFromCache } from '$lib/state/app.svelte';
+	import { getTransactionRepo, getCategoryRepo, getBudgetRepo } from '$lib/data/repository-factory';
 
 	let ChartPanel: typeof import('$lib/components/charts/PieChartPanel.svelte').default | undefined = $state();
+	let BudgetOverview: typeof import('$lib/components/charts/BudgetOverview.svelte').default | undefined = $state();
 	let loaded = $state(false);
 
 	async function loadAll() {
-		await Promise.all([loadTransactionsFromCache(), loadCategoriesFromCache()]);
+		await Promise.all([loadTransactionsFromCache(), loadCategoriesFromCache(), loadBudgetsFromCache()]);
 		app.transactionsLoading = app.transactions.length === 0;
 		try {
-			const [txs, cats] = await Promise.all([getTransactionRepo().getAll(), getCategoryRepo().getAll()]);
-			app.transactions = txs;
-			app.categories = cats;
+			const [txs, cats, budgets] = await Promise.allSettled([
+				getTransactionRepo().getAll(),
+				getCategoryRepo().getAll(),
+				getBudgetRepo().getAll()
+			]);
+			if (txs.status === 'fulfilled') app.transactions = txs.value;
+			if (cats.status === 'fulfilled') app.categories = cats.value;
+			if (budgets.status === 'fulfilled') app.budgets = budgets.value;
 			app.transactionsStale = false;
 		} catch {
 			if (app.transactions.length > 0) app.transactionsStale = true;
@@ -24,8 +30,12 @@
 	}
 
 	onMount(async () => {
-		const mod = await import('$lib/components/charts/PieChartPanel.svelte');
-		ChartPanel = mod.default;
+		const [chartMod, budgetMod] = await Promise.all([
+			import('$lib/components/charts/PieChartPanel.svelte'),
+			import('$lib/components/charts/BudgetOverview.svelte')
+		]);
+		ChartPanel = chartMod.default;
+		BudgetOverview = budgetMod.default;
 		loaded = true;
 
 		await loadAll();
@@ -46,6 +56,9 @@
 <div class="space-y-6">
 	<h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">Dashboard</h1>
 	<SummaryCards />
+	{#if loaded && BudgetOverview}
+		<BudgetOverview />
+	{/if}
 	<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 		<div class="lg:col-span-2">
 			{#if loaded && ChartPanel}

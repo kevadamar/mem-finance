@@ -1,6 +1,21 @@
 class BudgetService {
   static get SHEET_NAME() { return 'budgets'; }
   static get HEADERS() { return ['id', 'categoryId', 'amount', 'month', 'year', 'createdAt']; }
+  static get NUMERIC_FIELDS() { return ['amount', 'month', 'year']; }
+
+  static _headerMap(headers) {
+    const map = {};
+    headers.forEach((h, i) => map[h] = i);
+    return map;
+  }
+
+  static _toObj(headers, row) {
+    const obj = {};
+    headers.forEach((h, i) => {
+      obj[h] = this.NUMERIC_FIELDS.includes(h) ? Number(row[i]) : row[i];
+    });
+    return obj;
+  }
 
   static handle(action, id, data) {
     const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(this.SHEET_NAME);
@@ -20,22 +35,15 @@ class BudgetService {
     const rows = sheet.getDataRange().getValues();
     if (rows.length <= 1) return [];
     const headers = rows[0];
-    return rows.slice(1).map(row => {
-      const obj = {};
-      headers.forEach((h, i) => obj[h] = ['amount', 'month', 'year'].includes(h) ? Number(row[i]) : row[i]);
-      return obj;
-    });
+    return rows.slice(1).map(row => this._toObj(headers, row));
   }
 
   static get(sheet, id) {
     const rows = sheet.getDataRange().getValues();
     const headers = rows[0];
+    const map = this._headerMap(headers);
     for (let i = 1; i < rows.length; i++) {
-      if (rows[i][0] === id) {
-        const obj = {};
-        headers.forEach((h, j) => obj[h] = ['amount', 'month', 'year'].includes(h) ? Number(rows[i][j]) : rows[i][j]);
-        return obj;
-      }
+      if (rows[i][map.id] === id) return this._toObj(headers, rows[i]);
     }
     throw new Error('NOT_FOUND');
   }
@@ -47,25 +55,28 @@ class BudgetService {
 
     const id = Utilities.getUuid();
     const now = new Date().toISOString();
-    const row = [id, data.categoryId, Number(data.amount), Number(data.month), Number(data.year), now];
+    const headers = sheet.getDataRange().getValues()[0];
+    const row = [];
+    this.HEADERS.forEach(h => {
+      if (h === 'id') row.push(id);
+      else if (h === 'createdAt') row.push(now);
+      else row.push(data && data[h] !== undefined ? (this.NUMERIC_FIELDS.includes(h) ? Number(data[h]) : data[h]) : '');
+    });
     sheet.appendRow(row);
-    const obj = {};
-    this.HEADERS.forEach((h, i) => obj[h] = ['amount', 'month', 'year'].includes(h) ? row[i] : row[i]);
-    return obj;
+    return this._toObj(headers, row);
   }
 
   static update(sheet, id, data) {
     const rows = sheet.getDataRange().getValues();
     const headers = rows[0];
+    const map = this._headerMap(headers);
     for (let i = 1; i < rows.length; i++) {
-      if (rows[i][0] === id) {
-        if (data.amount !== undefined) rows[i][2] = Number(data.amount);
-        if (data.month !== undefined) rows[i][3] = Number(data.month);
-        if (data.year !== undefined) rows[i][4] = Number(data.year);
-        sheet.getRange(i + 1, 1, 1, this.HEADERS.length).setValues([rows[i]]);
-        const obj = {};
-        headers.forEach((h, j) => obj[h] = ['amount', 'month', 'year'].includes(h) ? Number(rows[i][j]) : rows[i][j]);
-        return obj;
+      if (rows[i][map.id] === id) {
+        this.NUMERIC_FIELDS.forEach(f => {
+          if (data[f] !== undefined) rows[i][map[f]] = Number(data[f]);
+        });
+        sheet.getRange(i + 1, 1, 1, headers.length).setValues([rows[i]]);
+        return this._toObj(headers, rows[i]);
       }
     }
     throw new Error('NOT_FOUND');
@@ -73,8 +84,10 @@ class BudgetService {
 
   static remove(sheet, id) {
     const rows = sheet.getDataRange().getValues();
+    const headers = rows[0];
+    const map = this._headerMap(headers);
     for (let i = 1; i < rows.length; i++) {
-      if (rows[i][0] === id) {
+      if (rows[i][map.id] === id) {
         sheet.deleteRow(i + 1);
         return { deleted: true };
       }

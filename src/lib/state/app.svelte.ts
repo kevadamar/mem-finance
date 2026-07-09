@@ -15,6 +15,7 @@ class AppStore {
 
 	budgets = $state<Budget[]>([]);
 	budgetsLoading = $state(false);
+	budgetsStale = $state(false);
 
 	chatMessages = $state<import('$lib/domain/entities/chat').ChatMessage[]>([]);
 

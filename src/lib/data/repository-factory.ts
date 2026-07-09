@@ -59,7 +59,18 @@ async function loadFromGas<T>(table: typeof STORES.TRANSACTIONS | typeof STORES.
 async function syncToGas<T>(table: typeof STORES.TRANSACTIONS | typeof STORES.CATEGORIES | typeof STORES.BUDGETS): Promise<T[]> {
 	const fresh = await loadFromGas<T>(table);
 	if (Array.isArray(fresh) && fresh.length > 0) {
-		await idb.bulkPut<T>(table, fresh);
+		const allLocal = await idb.getAll<T>(table);
+		const freshIds = new Set(
+			(fresh as Array<Record<string, unknown>>)
+				.filter((item) => typeof item.id === 'string')
+				.map((item) => item.id as string)
+		);
+		const extras = (allLocal as Array<Record<string, unknown>>).filter(
+			(item) => typeof item.id === 'string' && !freshIds.has(item.id as string)
+		);
+		const merged = extras.length > 0 ? ([...fresh, ...extras] as unknown as T[]) : fresh;
+		await idb.bulkPut<T>(table, merged);
+		return merged;
 	}
 	return fresh;
 }
@@ -390,6 +401,10 @@ export function getCategoryRepo(): ICategoryRepository {
 export function getBudgetRepo(): IBudgetRepository {
 	if (!_budgetRepo) _budgetRepo = new IndexedDBBudgetRepository();
 	return _budgetRepo;
+}
+
+export function invalidateBudgetCache() {
+	meta.budgets.lastSync = 0;
 }
 
 export function resetRepos() {
