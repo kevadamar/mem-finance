@@ -9,6 +9,8 @@
 	import EmptyState from '$lib/components/ui/EmptyState.svelte';
 	import Skeleton from '$lib/components/ui/Skeleton.svelte';
 	import { getTransactionRepo, getCategoryRepo, getBudgetRepo, invalidateBudgetCache } from '$lib/data/repository-factory';
+	import * as idb from '$lib/data/idb';
+	import { STORES } from '$lib/data/idb';
 	import { app, loadCategoriesFromCache, loadTransactionsFromCache, loadBudgetsFromCache, showToast, withMutation } from '$lib/state/app.svelte';
 	import { formatRupiah, formatDate } from '$lib/utils/format';
 	import type { Budget, BudgetSummary } from '$lib/domain/entities/budget';
@@ -79,6 +81,13 @@
 			.reduce((s, t) => s + t.amount, 0)
 	);
 
+	let inactiveBudgets = $state<Budget[]>([]);
+
+	async function loadInactive() {
+		const all = await idb.getAll<Budget>(STORES.BUDGETS);
+		inactiveBudgets = all.filter((b) => b.flagActive === false);
+	}
+
 	let _monthLoading = false;
 
 	async function load() {
@@ -106,7 +115,7 @@
 		app.budgetsLoading = false;
 	}
 
-	onMount(load);
+	onMount(() => { load(); loadInactive(); });
 
 	async function ensureMonthData(cm: number, cy: number) {
 		if (_monthLoading) return;
@@ -170,6 +179,19 @@
 			modalOpen = false;
 		} catch {
 			showToast(isEditing ? 'Gagal memperbarui budget' : 'Gagal menambah budget', 'error');
+		}
+	}
+
+	async function restoreBudget(id: string) {
+		try {
+			const budget = await idb.getOne<Budget>(STORES.BUDGETS, id);
+			if (!budget) return;
+			const restored = await withMutation(() => getBudgetRepo().restore(id));
+			app.budgets = [...app.budgets, restored];
+			inactiveBudgets = inactiveBudgets.filter((b) => b.id !== id);
+			showToast('Budget dipulihkan', 'success');
+		} catch {
+			showToast('Gagal memulihkan budget', 'error');
 		}
 	}
 
@@ -244,6 +266,23 @@
 					</div>
 				</Card>
 			{/each}
+		</div>
+	{/if}
+
+	{#if inactiveBudgets.length > 0}
+		<div class="pt-2">
+			<p class="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">Budget Nonaktif</p>
+			<div class="space-y-2">
+				{#each inactiveBudgets.filter((b) => Number(b.month) === month && Number(b.year) === year) as b}
+					<div class="flex items-center justify-between gap-3 px-4 py-3 rounded-lg bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700">
+						<div class="flex items-center gap-2 min-w-0">
+							<span class="text-sm text-gray-500 dark:text-gray-400 line-through truncate">{app.categories.find((c) => c.id === b.categoryId)?.name ?? 'Unknown'}</span>
+							<span class="text-xs text-gray-400">{formatRupiah(b.amount)}</span>
+						</div>
+						<button onclick={() => restoreBudget(b.id)} class="px-3 py-1.5 rounded-lg bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-medium hover:bg-green-200 dark:hover:bg-green-900/50 transition-colors shrink-0">Pulihkan</button>
+					</div>
+				{/each}
+			</div>
 		</div>
 	{/if}
 </div>

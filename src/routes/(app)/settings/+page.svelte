@@ -24,11 +24,12 @@
 	let catDeleteConfirm = $state<string | null>(null);
 
 	let isEditingCat = $derived(catEditId !== null);
+	let inactiveCats = $derived(app.categories.filter((c) => c.flagActive === false));
 
 	const COLOR_PRESETS = ['#FF6B6B', '#F59E0B', '#F97316', '#4ECDC4', '#06B6D4', '#F43F5E', '#FFE66D', '#8B5CF6', '#A78BFA', '#EC4899', '#22C55E', '#3B82F6', '#10B981', '#6366F1', '#14B8A6', '#6B7280'];
 
-	let expenseCats = $derived(app.categories.filter((c) => c.type === 'expense'));
-	let incomeCats = $derived(app.categories.filter((c) => c.type === 'income'));
+	let expenseCats = $derived(app.categories.filter((c) => c.type === 'expense' && c.flagActive !== false));
+	let incomeCats = $derived(app.categories.filter((c) => c.type === 'income' && c.flagActive !== false));
 
 	function openCatAdd() {
 		catEditId = null;
@@ -78,11 +79,21 @@
 		}
 		try {
 			await getCategoryRepo().delete(id);
-			app.categories = app.categories.filter((c) => c.id !== id);
-			showToast('Kategori dihapus', 'success');
+			app.categories = app.categories.map((c) => c.id === id ? { ...c, flagActive: false } : c);
+			showToast('Kategori dinonaktifkan', 'success');
 			catDeleteConfirm = null;
 		} catch {
-			showToast('Gagal menghapus kategori', 'error');
+			showToast('Gagal menonaktifkan kategori', 'error');
+		}
+	}
+
+	async function restoreCat(id: string) {
+		try {
+			const restored = await getCategoryRepo().restore(id);
+			app.categories = app.categories.map((c) => c.id === id ? restored : c);
+			showToast('Kategori dipulihkan', 'success');
+		} catch {
+			showToast('Gagal memulihkan kategori', 'error');
 		}
 	}
 
@@ -372,6 +383,23 @@
 				</div>
 			</div>
 		</div>
+
+		{#if inactiveCats.length > 0}
+			<div class="p-5">
+				<p class="font-medium text-gray-900 dark:text-gray-100 mb-1">Kategori Nonaktif</p>
+				<p class="text-sm text-gray-500 dark:text-gray-400 mb-3">Kategori yang sudah dinonaktifkan. Pulihkan jika diperlukan.</p>
+				<div class="space-y-1">
+					{#each inactiveCats as c}
+						<div class="flex items-center gap-3 px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-800/50">
+							<div class="w-3 h-3 rounded-full shrink-0 opacity-40" style="background-color: {c.color}"></div>
+							<span class="flex-1 text-sm text-gray-500 dark:text-gray-400 line-through truncate">{c.name}</span>
+							<span class="text-[10px] text-gray-400 uppercase">{c.type}</span>
+							<button onclick={() => restoreCat(c.id)} class="px-2.5 py-1 rounded-lg bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-medium hover:bg-green-200 dark:hover:bg-green-900/50 transition-colors">Pulihkan</button>
+						</div>
+					{/each}
+				</div>
+			</div>
+		{/if}
 
 		<div class="p-5">
 			<p class="font-medium text-gray-900 dark:text-gray-100 mb-1">Tentang</p>

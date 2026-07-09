@@ -208,7 +208,7 @@ class IndexedDBTransactionRepository implements ITransactionRepository {
 
 class IndexedDBCategoryRepository implements ICategoryRepository {
 	async getAll(): Promise<Category[]> {
-		const cached = await idb.getAll<Category>(STORES.CATEGORIES);
+		const cached = (await idb.getAll<Category>(STORES.CATEGORIES)).filter((c) => c.flagActive !== false);
 		if (cached.length === 0 && browser && navigator.onLine) {
 			try {
 				const fresh = await syncToGas<Category>(STORES.CATEGORIES);
@@ -282,24 +282,51 @@ class IndexedDBCategoryRepository implements ICategoryRepository {
 	}
 
 	async delete(id: string): Promise<void> {
-		await idb.remove(STORES.CATEGORIES, id);
+		const existing = await idb.getOne<Category>(STORES.CATEGORIES, id);
+		if (!existing) return;
+
+		const softDeleted: Category = { ...existing, flagActive: false };
+		await idb.put(STORES.CATEGORIES, softDeleted);
 		emitChange();
 
 		if (browser && navigator.onLine && !id.startsWith('local_')) {
 			try {
-				await apiCall(`/api/categories/${id}`, 'DELETE');
+				await apiCall(`/api/categories/${id}`, 'PUT', { flagActive: false });
 			} catch {
-				await addToSyncQueue({ entity: 'categories', action: 'delete', payload: { id } });
+				await addToSyncQueue({ entity: 'categories', action: 'update', payload: { id, flagActive: false } });
 			}
 		} else {
-			await addToSyncQueue({ entity: 'categories', action: 'delete', payload: { id } });
+			await addToSyncQueue({ entity: 'categories', action: 'update', payload: { id, flagActive: false } });
 		}
+	}
+
+	async restore(id: string): Promise<Category> {
+		const existing = await idb.getOne<Category>(STORES.CATEGORIES, id);
+		if (!existing) throw new Error('Category not found');
+
+		const restored: Category = { ...existing, flagActive: true };
+		await idb.put(STORES.CATEGORIES, restored);
+		emitChange();
+
+		if (browser && navigator.onLine && !id.startsWith('local_')) {
+			try {
+				const updated = await apiCall<Category>(`/api/categories/${id}`, 'PUT', { flagActive: true });
+				await idb.put(STORES.CATEGORIES, updated);
+				emitChange();
+				return updated;
+			} catch {
+				await addToSyncQueue({ entity: 'categories', action: 'update', payload: { id, flagActive: true } });
+			}
+		} else {
+			await addToSyncQueue({ entity: 'categories', action: 'update', payload: { id, flagActive: true } });
+		}
+		return restored;
 	}
 }
 
 class IndexedDBBudgetRepository implements IBudgetRepository {
 	async getAll(): Promise<Budget[]> {
-		const cached = await idb.getAll<Budget>(STORES.BUDGETS);
+		const cached = (await idb.getAll<Budget>(STORES.BUDGETS)).filter((b) => b.flagActive !== false);
 		if (isFresh(meta.budgets) || !browser) return cached;
 
 		try {
@@ -369,18 +396,45 @@ class IndexedDBBudgetRepository implements IBudgetRepository {
 	}
 
 	async delete(id: string): Promise<void> {
-		await idb.remove(STORES.BUDGETS, id);
+		const existing = await idb.getOne<Budget>(STORES.BUDGETS, id);
+		if (!existing) return;
+
+		const softDeleted: Budget = { ...existing, flagActive: false };
+		await idb.put(STORES.BUDGETS, softDeleted);
 		emitChange();
 
 		if (browser && navigator.onLine && !id.startsWith('local_')) {
 			try {
-				await apiCall(`/api/budgets/${id}`, 'DELETE');
+				await apiCall(`/api/budgets/${id}`, 'PUT', { flagActive: false });
 			} catch {
-				await addToSyncQueue({ entity: 'budgets', action: 'delete', payload: { id } });
+				await addToSyncQueue({ entity: 'budgets', action: 'update', payload: { id, flagActive: false } });
 			}
 		} else {
-			await addToSyncQueue({ entity: 'budgets', action: 'delete', payload: { id } });
+			await addToSyncQueue({ entity: 'budgets', action: 'update', payload: { id, flagActive: false } });
 		}
+	}
+
+	async restore(id: string): Promise<Budget> {
+		const existing = await idb.getOne<Budget>(STORES.BUDGETS, id);
+		if (!existing) throw new Error('Budget not found');
+
+		const restored: Budget = { ...existing, flagActive: true };
+		await idb.put(STORES.BUDGETS, restored);
+		emitChange();
+
+		if (browser && navigator.onLine && !id.startsWith('local_')) {
+			try {
+				const updated = await apiCall<Budget>(`/api/budgets/${id}`, 'PUT', { flagActive: true });
+				await idb.put(STORES.BUDGETS, updated);
+				emitChange();
+				return updated;
+			} catch {
+				await addToSyncQueue({ entity: 'budgets', action: 'update', payload: { id, flagActive: true } });
+			}
+		} else {
+			await addToSyncQueue({ entity: 'budgets', action: 'update', payload: { id, flagActive: true } });
+		}
+		return restored;
 	}
 }
 

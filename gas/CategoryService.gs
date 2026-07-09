@@ -1,6 +1,6 @@
 class CategoryService {
   static get SHEET_NAME() { return 'categories'; }
-  static get HEADERS() { return ['id', 'name', 'type', 'color', 'icon', 'isDefault']; }
+  static get HEADERS() { return ['id', 'name', 'type', 'color', 'icon', 'isDefault', 'flagActive']; }
 
   static handle(action, id, data) {
     const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(this.SHEET_NAME);
@@ -13,30 +13,32 @@ class CategoryService {
       case 'update': return this.update(sheet, id, data);
       case 'delete': return this.remove(sheet, id);
       case 'seed': return this.seed(sheet);
+      case 'restore': return this.restore(sheet, id);
       default: throw new Error('Unknown action: ' + action);
     }
+  }
+
+  static _toObj(headers, row) {
+    const obj = {};
+    headers.forEach((h, i) => {
+      if (h === 'isDefault' || h === 'flagActive') obj[h] = row[i] === true || row[i] === 'TRUE' || row[i] === true;
+      else obj[h] = row[i];
+    });
+    return obj;
   }
 
   static list(sheet) {
     const rows = sheet.getDataRange().getValues();
     if (rows.length <= 1) return [];
     const headers = rows[0];
-    return rows.slice(1).map(row => {
-      const obj = {};
-      headers.forEach((h, i) => obj[h] = h === 'isDefault' ? row[i] === true || row[i] === 'TRUE' : row[i]);
-      return obj;
-    });
+    return rows.slice(1).map(row => this._toObj(headers, row));
   }
 
   static get(sheet, id) {
     const rows = sheet.getDataRange().getValues();
     const headers = rows[0];
     for (let i = 1; i < rows.length; i++) {
-      if (rows[i][0] === id) {
-        const obj = {};
-        headers.forEach((h, j) => obj[h] = h === 'isDefault' ? rows[i][j] === true || rows[i][j] === 'TRUE' : rows[i][j]);
-        return obj;
-      }
+      if (rows[i][0] === id) return this._toObj(headers, rows[i]);
     }
     throw new Error('NOT_FOUND');
   }
@@ -47,11 +49,9 @@ class CategoryService {
       throw new Error('DUPLICATE_NAME');
     }
     const id = Utilities.getUuid();
-    const row = [id, data.name, data.type, data.color, data.icon, false];
+    const row = [id, data.name, data.type, data.color, data.icon, false, true];
     sheet.appendRow(row);
-    const obj = {};
-    this.HEADERS.forEach((h, i) => obj[h] = h === 'isDefault' ? false : row[i]);
-    return obj;
+    return this._toObj(this.HEADERS, row);
   }
 
   static update(sheet, id, data) {
@@ -62,10 +62,9 @@ class CategoryService {
         if (data.name !== undefined) rows[i][1] = data.name;
         if (data.color !== undefined) rows[i][3] = data.color;
         if (data.icon !== undefined) rows[i][4] = data.icon;
+        if (data.flagActive !== undefined) rows[i][6] = data.flagActive === true;
         sheet.getRange(i + 1, 1, 1, this.HEADERS.length).setValues([rows[i]]);
-        const obj = {};
-        headers.forEach((h, j) => obj[h] = h === 'isDefault' ? rows[i][j] === true || rows[i][j] === 'TRUE' : rows[i][j]);
-        return obj;
+        return this._toObj(headers, rows[i]);
       }
     }
     throw new Error('NOT_FOUND');
@@ -73,11 +72,26 @@ class CategoryService {
 
   static remove(sheet, id) {
     const rows = sheet.getDataRange().getValues();
+    const headers = rows[0];
     for (let i = 1; i < rows.length; i++) {
       if (rows[i][0] === id) {
         if (rows[i][5] === true || rows[i][5] === 'TRUE') throw new Error('Cannot delete default category');
-        sheet.deleteRow(i + 1);
-        return { deleted: true };
+        rows[i][6] = false;
+        sheet.getRange(i + 1, 1, 1, this.HEADERS.length).setValues([rows[i]]);
+        return this._toObj(headers, rows[i]);
+      }
+    }
+    throw new Error('NOT_FOUND');
+  }
+
+  static restore(sheet, id) {
+    const rows = sheet.getDataRange().getValues();
+    const headers = rows[0];
+    for (let i = 1; i < rows.length; i++) {
+      if (rows[i][0] === id) {
+        rows[i][6] = true;
+        sheet.getRange(i + 1, 1, 1, this.HEADERS.length).setValues([rows[i]]);
+        return this._toObj(headers, rows[i]);
       }
     }
     throw new Error('NOT_FOUND');
@@ -119,8 +133,8 @@ class CategoryService {
     const results = [];
     for (const [name, type, color, icon] of defaults) {
       const id = Utilities.getUuid();
-      sheet.appendRow([id, name, type, color, icon, true]);
-      results.push({ id, name, type, color, icon, isDefault: true });
+      sheet.appendRow([id, name, type, color, icon, true, true]);
+      results.push({ id, name, type, color, icon, isDefault: true, flagActive: true });
     }
     return results;
   }
