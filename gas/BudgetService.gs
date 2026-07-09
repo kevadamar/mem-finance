@@ -9,7 +9,7 @@ class BudgetService {
     return map;
   }
 
-  static BOOLEAN_FIELDS() { return ['flagActive']; }
+  static get BOOLEAN_FIELDS() { return ['flagActive']; }
 
   static _toObj(headers, row) {
     const obj = {};
