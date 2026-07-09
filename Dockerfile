@@ -1,5 +1,11 @@
 # 🐴 Lightweight multi-stage Docker build
 FROM oven/bun:alpine AS builder
+ARG GAS_WEBAPP_URL
+ARG GEMINI_API_KEY
+ARG GROQ_API_KEY
+ENV GAS_WEBAPP_URL=$GAS_WEBAPP_URL
+ENV GEMINI_API_KEY=$GEMINI_API_KEY
+ENV GROQ_API_KEY=$GROQ_API_KEY
 WORKDIR /app
 COPY package.json bun.lock ./
 RUN bun install --frozen-lockfile
@@ -7,6 +13,12 @@ COPY . .
 RUN bun run build
 
 FROM oven/bun:alpine AS runner
+ARG GAS_WEBAPP_URL
+ARG GEMINI_API_KEY
+ARG GROQ_API_KEY
+ENV GAS_WEBAPP_URL=$GAS_WEBAPP_URL
+ENV GEMINI_API_KEY=$GEMINI_API_KEY
+ENV GROQ_API_KEY=$GROQ_API_KEY
 WORKDIR /app
 COPY --from=builder /app/build ./build
 COPY --from=builder /app/package.json ./
