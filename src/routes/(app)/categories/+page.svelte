@@ -7,7 +7,7 @@
 	import { getCategoryRepo } from '$lib/data/repository-factory';
 	import * as idb from '$lib/data/idb';
 	import { STORES } from '$lib/data/idb';
-	import { app, showToast } from '$lib/state/app.svelte';
+	import { app, showToast, loadCategoriesFromCache } from '$lib/state/app.svelte';
 	import type { Category, CategoryType, CreateCategoryInput, UpdateCategoryInput } from '$lib/domain/entities/category';
 
 	const COLOR_PRESETS = ['#FF6B6B', '#F59E0B', '#F97316', '#4ECDC4', '#06B6D4', '#F43F5E', '#FFE66D', '#8B5CF6', '#A78BFA', '#EC4899', '#22C55E', '#3B82F6', '#10B981', '#6366F1', '#14B8A6', '#6B7280'];
@@ -26,12 +26,17 @@
 	let expenseCats = $derived(app.categories.filter((c) => c.type === 'expense' && c.flagActive !== false));
 	let incomeCats = $derived(app.categories.filter((c) => c.type === 'income' && c.flagActive !== false));
 
-	async function loadInactive() {
+	async function load() {
+		await loadCategoriesFromCache();
+		try {
+			const cats = await getCategoryRepo().getAll();
+			app.categories = cats;
+		} catch { /* keep cached */ }
 		const all = await idb.getAll<Category>(STORES.CATEGORIES);
 		inactiveCats = all.filter((c) => c.flagActive === false);
 	}
 
-	onMount(loadInactive);
+	onMount(load);
 
 	function openCatAdd() {
 		catEditId = null;
