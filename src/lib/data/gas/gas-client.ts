@@ -34,6 +34,23 @@ function signPayload(action: string, table: string, data?: unknown, id?: string)
 	return { signature, timestamp };
 }
 
+function normalizeBody(action: string, table: string, data?: { sheetId?: string } | unknown, id?: string): Record<string, unknown> {
+	const body: Record<string, unknown> = { action, table, id };
+	if (data && typeof data === 'object' && !Array.isArray(data)) {
+		const d = data as Record<string, unknown>;
+		if (d.sheetId) {
+			body.sheetId = d.sheetId;
+			const { sheetId: _, ...rest } = d;
+			if (Object.keys(rest).length > 0) body.data = rest;
+		} else {
+			body.data = d;
+		}
+	} else if (data) {
+		body.data = data;
+	}
+	return { ...body, ...signPayload(action, table, body.data, id) };
+}
+
 export async function gasRequest<T = unknown>(
 	action: string,
 	table: string,
@@ -61,7 +78,7 @@ export async function gasRequest<T = unknown>(
 				const response = await fetch(runtimeEnv.gasWebappUrl, {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({ action, table, data, id, ...signPayload(action, table, data, id) }),
+					body: JSON.stringify(normalizeBody(action, table, data, id)),
 					redirect: 'follow',
 					signal: controller.signal
 				});

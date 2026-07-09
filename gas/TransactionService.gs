@@ -2,8 +2,13 @@ class TransactionService {
   static get SHEET_NAME() { return 'transactions'; }
   static get HEADERS() { return ['id', 'type', 'amount', 'categoryId', 'date', 'note', 'createdAt', 'updatedAt', 'flagActive', 'userId']; }
 
-  static handle(action, id, data) {
-    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(this.SHEET_NAME);
+  static handle(action, id, data, sheetId) {
+    var sheet;
+    if (sheetId) {
+      sheet = SpreadsheetApp.openById(sheetId).getSheetByName(this.SHEET_NAME);
+    } else {
+      sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(this.SHEET_NAME);
+    }
     if (!sheet) throw new Error('Sheet "transactions" not found');
 
     const headers = sheet.getDataRange().getValues()[0] || [];

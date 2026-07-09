@@ -21,8 +21,13 @@ class BudgetService {
     return obj;
   }
 
-  static handle(action, id, data) {
-    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(this.SHEET_NAME);
+  static handle(action, id, data, sheetId) {
+    var sheet;
+    if (sheetId) {
+      sheet = SpreadsheetApp.openById(sheetId).getSheetByName(this.SHEET_NAME);
+    } else {
+      sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(this.SHEET_NAME);
+    }
     if (!sheet) throw new Error('Sheet "budgets" not found');
 
     switch (action) {

@@ -4,13 +4,18 @@ function doPost(e) {
   try {
     const payload = JSON.parse(e.postData.contents);
     if (!validateSignature(e)) return Utils.errorResponse('INVALID_SIGNATURE', 'Unauthorized');
-    const { action, table, id, data } = payload;
+    const { action, table, id, data, sheetId } = payload;
+
+    // Handle create_sheet before table routing
+    if (action === 'create_sheet') {
+      return handleCreateSheet(e);
+    }
 
     let result;
     switch (table) {
-      case 'transactions': result = TransactionService.handle(action, id, data); break;
-      case 'categories': result = CategoryService.handle(action, id, data); break;
-      case 'budgets': result = BudgetService.handle(action, id, data); break;
+      case 'transactions': result = TransactionService.handle(action, id, data, sheetId); break;
+      case 'categories': result = CategoryService.handle(action, id, data, sheetId); break;
+      case 'budgets': result = BudgetService.handle(action, id, data, sheetId); break;
       default: return Utils.errorResponse('INVALID_TABLE', 'Unknown table: ' + table);
     }
 
