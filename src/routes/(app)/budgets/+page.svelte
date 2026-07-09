@@ -12,7 +12,7 @@
 	import * as idb from '$lib/data/idb';
 	import { STORES } from '$lib/data/idb';
 	import { app, loadCategoriesFromCache, loadTransactionsFromCache, loadBudgetsFromCache, showToast, withMutation } from '$lib/state/app.svelte';
-	import { formatRupiah, formatDate } from '$lib/utils/format';
+	import { formatRupiah, formatDateTime } from '$lib/utils/format';
 	import type { Budget, BudgetSummary } from '$lib/domain/entities/budget';
 
 	let month = $state(new Date().getMonth() + 1);
@@ -335,7 +335,7 @@
 						<div class="flex items-center justify-between p-2 rounded-lg bg-gray-50 dark:bg-gray-800">
 							<div class="min-w-0 flex-1">
 								<p class="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{t.note || 'Tanpa catatan'}</p>
-								<p class="text-xs text-gray-400">{formatDate(t.date)}</p>
+								<p class="text-xs text-gray-400">{formatDateTime(t.date)}</p>
 							</div>
 							<p class="text-sm font-semibold text-red-600 ml-3 shrink-0">{formatRupiah(t.amount)}</p>
 						</div>

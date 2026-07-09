@@ -12,7 +12,7 @@
 	import { CreateTransactionUseCase, TransactionValidationError } from '$lib/domain/usecases/create-transaction.usecase';
 	import { validateTransaction } from '$lib/domain/validators/transaction.validator';
 	import { app, loadTransactionsFromCache, loadCategoriesFromCache, showToast, withMutation } from '$lib/state/app.svelte';
-	import { formatRupiah, formatDate } from '$lib/utils/format';
+	import { formatRupiah, formatDateTime } from '$lib/utils/format';
 	import type { Transaction, TransactionType, CreateTransactionInput, UpdateTransactionInput } from '$lib/domain/entities/transaction';
 	import type { Category } from '$lib/domain/entities/category';
 
@@ -179,22 +179,30 @@
 
 	<div class="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800">
 		<div class="p-3 sm:p-4 space-y-3">
-			<div class="flex items-center gap-2 sm:gap-3">
-				<div class="relative flex-1">
+			<div class="flex flex-col sm:flex-row sm:items-end gap-2 sm:gap-3">
+				<div class="relative flex-1 w-full">
 					<input type="text" placeholder="Cari transaksi..." bind:value={filterSearch}
-						class="w-full pl-9 pr-3 py-2 rounded-lg border text-sm transition-colors bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500" />
+						class="w-full pl-9 pr-3 py-2.5 rounded-lg border text-sm transition-colors bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500" />
 					<svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
 				</div>
-				<div class="hidden sm:flex items-center gap-2 shrink-0">
-					<Select label="Urut" options={[{ value: 'date-desc', label: 'Terbaru' }, { value: 'date-asc', label: 'Terlama' }, { value: 'amount-desc', label: 'Terbesar' }, { value: 'amount-asc', label: 'Terkecil' }]} value={sortBy} onchange={(e) => sortBy = (e.target as HTMLSelectElement).value as typeof sortBy} />
-					<Button variant="ghost" onclick={load} disabled={app.transactionsRefreshing} class="mt-5">↻</Button>
+				<div class="flex items-center gap-2 sm:gap-2 shrink-0">
+					<select value={sortBy} onchange={(e) => sortBy = (e.target as HTMLSelectElement).value as typeof sortBy}
+						class="px-3 py-2.5 rounded-lg border text-sm transition-colors bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500">
+						<option value="date-desc">Terbaru</option>
+						<option value="date-asc">Terlama</option>
+						<option value="amount-desc">Terbesar</option>
+						<option value="amount-asc">Terkecil</option>
+					</select>
+					<button onclick={load} disabled={app.transactionsRefreshing} class="p-2.5 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors disabled:opacity-50" aria-label="Refresh">
+						<svg class="w-4 h-4 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+					</button>
+					<button onclick={() => showFilters = !showFilters} class="relative p-2.5 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" aria-label="Filter">
+						<svg class="w-4 h-4 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" /></svg>
+						{#if filterCount > 0}
+							<span class="absolute -top-1.5 -right-1.5 w-4 h-4 bg-primary-600 text-white text-[10px] font-bold rounded-full flex items-center justify-center">{filterCount}</span>
+						{/if}
+					</button>
 				</div>
-				<button onclick={() => showFilters = !showFilters} class="relative p-2 mt-5 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors" aria-label="Filter">
-					<svg class="w-5 h-5 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" /></svg>
-					{#if filterCount > 0}
-						<span class="absolute -top-1 -right-1 w-4 h-4 bg-primary-600 text-white text-[10px] font-bold rounded-full flex items-center justify-center">{filterCount}</span>
-					{/if}
-				</button>
 			</div>
 
 			<div class="hidden sm:grid sm:grid-cols-4 gap-3">
@@ -213,9 +221,15 @@
 						<Input label="Sampai" type="date" value={filterEnd} onchange={(e) => filterEnd = (e.target as HTMLInputElement).value} />
 					</div>
 					<div class="flex items-center gap-2">
-						<Select label="Urut" options={[{ value: 'date-desc', label: 'Terbaru' }, { value: 'date-asc', label: 'Terlama' }, { value: 'amount-desc', label: 'Terbesar' }, { value: 'amount-asc', label: 'Terkecil' }]} value={sortBy} onchange={(e) => sortBy = (e.target as HTMLSelectElement).value as typeof sortBy} />
-						<div class="flex gap-2 pt-5">
-							<Button variant="ghost" onclick={load} disabled={app.transactionsRefreshing}>↻</Button>
+						<select value={sortBy} onchange={(e) => sortBy = (e.target as HTMLSelectElement).value as typeof sortBy}
+							class="flex-1 px-3 py-2 rounded-lg border text-sm transition-colors bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500">
+							<option value="date-desc">Urut: Terbaru</option>
+							<option value="date-asc">Urut: Terlama</option>
+							<option value="amount-desc">Urut: Terbesar</option>
+							<option value="amount-asc">Urut: Terkecil</option>
+						</select>
+						<div class="flex gap-2">
+							<button onclick={load} disabled={app.transactionsRefreshing} class="p-2 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors disabled:opacity-50" aria-label="Refresh">↻</button>
 							{#if filterCount > 0}
 								<Button variant="secondary" onclick={clearFilters}>Reset</Button>
 							{/if}
@@ -253,11 +267,11 @@
 								{app.categories.find((c) => c.id === t.categoryId)?.name ?? 'Lainnya'}
 								{#if t.id.startsWith('local_')}<span class="ml-1 text-[10px] text-amber-600">(belum sync)</span>{/if}
 							</p>
-							<p class="text-xs text-gray-500 truncate">{t.note || formatDate(t.date)}</p>
+							<p class="text-xs text-gray-500 truncate">{t.note || formatDateTime(t.date)}</p>
 						</div>
 						<div class="text-right shrink-0">
 							<p class="text-sm font-semibold {t.type === 'expense' ? 'text-red-600' : 'text-green-600'} whitespace-nowrap">{t.type === 'expense' ? '-' : '+'}{formatRupiah(t.amount)}</p>
-							<p class="text-xs text-gray-400">{formatDate(t.date)}</p>
+							<p class="text-xs text-gray-400">{formatDateTime(t.date)}</p>
 						</div>
 						<button onclick={(e) => { e.stopPropagation(); deleteConfirm = t.id; }} class="p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 shrink-0" aria-label="Hapus">
 							<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
