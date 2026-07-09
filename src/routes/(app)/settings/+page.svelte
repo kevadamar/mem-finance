@@ -1,13 +1,23 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { fade } from 'svelte/transition';
 	import { exportCSV } from '$lib/data/export-csv';
 	import { parseCSVFile, executeCSVImport } from '$lib/data/import-csv';
 	import { loadTransactionsFromCache } from '$lib/state/app.svelte';
+	import { app } from '$lib/state/app.svelte';
+	import { setGmtOffset } from '$lib/utils/format';
 	import ImportPreviewModal from '$lib/components/settings/ImportPreviewModal.svelte';
 	import ImportReportModal from '$lib/components/settings/ImportReportModal.svelte';
 
 	let darkMode = $state(false);
 	let message = $state('');
+
+	const gmtOptions = Array.from({ length: 19 }, (_, i) => {
+		const val = i - 9;
+		return { value: val, label: `GMT ${val >= 0 ? '+' : ''}${val}` };
+	});
+
+
 
 	let csvBusy = $state(false);
 	let sqliteBusy = $state(false);
@@ -214,10 +224,23 @@
 	<h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">Pengaturan</h1>
 
 	{#if message}
-		<div class="px-4 py-3 rounded-lg bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-sm">{message}</div>
+		<div class="px-4 py-3 rounded-lg bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-sm" transition:fade={{ duration: 200 }}>{message}</div>
 	{/if}
 
 	<div class="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 divide-y divide-gray-200 dark:divide-gray-800">
+		<div class="p-5 flex items-center justify-between">
+			<div>
+				<p class="font-medium text-gray-900 dark:text-gray-100">Zona Waktu (GMT)</p>
+				<p class="text-sm text-gray-500 dark:text-gray-400">Atur tampilan waktu sesuai zona Anda</p>
+			</div>
+			<select value={app.gmtOffset} onchange={(e) => { const v = Number((e.target as HTMLSelectElement).value); app.gmtOffset = v; setGmtOffset(v); }}
+				class="px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500">
+				{#each gmtOptions as opt}
+					<option value={opt.value}>{opt.label}</option>
+				{/each}
+			</select>
+		</div>
+
 		<div class="p-5 flex items-center justify-between">
 			<div>
 				<p class="font-medium text-gray-900 dark:text-gray-100">Mode Gelap</p>

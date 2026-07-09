@@ -1,6 +1,6 @@
 class BudgetService {
   static get SHEET_NAME() { return 'budgets'; }
-  static get HEADERS() { return ['id', 'categoryId', 'amount', 'month', 'year', 'createdAt']; }
+  static get HEADERS() { return ['id', 'categoryId', 'amount', 'month', 'year', 'createdAt', 'flagActive']; }
   static get NUMERIC_FIELDS() { return ['amount', 'month', 'year']; }
 
   static _headerMap(headers) {
@@ -9,10 +9,14 @@ class BudgetService {
     return map;
   }
 
+  static get BOOLEAN_FIELDS() { return ['flagActive']; }
+
   static _toObj(headers, row) {
     const obj = {};
     headers.forEach((h, i) => {
-      obj[h] = this.NUMERIC_FIELDS.includes(h) ? Number(row[i]) : row[i];
+      if (this.NUMERIC_FIELDS.includes(h)) obj[h] = Number(row[i]);
+      else if (this.BOOLEAN_FIELDS.includes(h)) obj[h] = row[i] === true || row[i] === 'TRUE' || row[i] === true;
+      else obj[h] = row[i];
     });
     return obj;
   }
@@ -27,6 +31,7 @@ class BudgetService {
       case 'create': return this.create(sheet, data);
       case 'update': return this.update(sheet, id, data);
       case 'delete': return this.remove(sheet, id);
+      case 'restore': return this.restore(sheet, id);
       default: throw new Error('Unknown action: ' + action);
     }
   }
@@ -60,6 +65,7 @@ class BudgetService {
     this.HEADERS.forEach(h => {
       if (h === 'id') row.push(id);
       else if (h === 'createdAt') row.push(now);
+      else if (h === 'flagActive') row.push(true);
       else row.push(data && data[h] !== undefined ? (this.NUMERIC_FIELDS.includes(h) ? Number(data[h]) : data[h]) : '');
     });
     sheet.appendRow(row);
@@ -75,6 +81,7 @@ class BudgetService {
         this.NUMERIC_FIELDS.forEach(f => {
           if (data[f] !== undefined) rows[i][map[f]] = Number(data[f]);
         });
+        if (data.flagActive !== undefined) rows[i][map.flagActive] = data.flagActive === true || data.flagActive === 'TRUE';
         sheet.getRange(i + 1, 1, 1, headers.length).setValues([rows[i]]);
         return this._toObj(headers, rows[i]);
       }
@@ -88,8 +95,23 @@ class BudgetService {
     const map = this._headerMap(headers);
     for (let i = 1; i < rows.length; i++) {
       if (rows[i][map.id] === id) {
-        sheet.deleteRow(i + 1);
-        return { deleted: true };
+        rows[i][map.flagActive] = false;
+        sheet.getRange(i + 1, 1, 1, headers.length).setValues([rows[i]]);
+        return this._toObj(headers, rows[i]);
+      }
+    }
+    throw new Error('NOT_FOUND');
+  }
+
+  static restore(sheet, id) {
+    const rows = sheet.getDataRange().getValues();
+    const headers = rows[0];
+    const map = this._headerMap(headers);
+    for (let i = 1; i < rows.length; i++) {
+      if (rows[i][map.id] === id) {
+        rows[i][map.flagActive] = true;
+        sheet.getRange(i + 1, 1, 1, headers.length).setValues([rows[i]]);
+        return this._toObj(headers, rows[i]);
       }
     }
     throw new Error('NOT_FOUND');

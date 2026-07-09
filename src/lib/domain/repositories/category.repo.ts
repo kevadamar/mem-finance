@@ -6,4 +6,5 @@ export interface ICategoryRepository {
 	create(input: CreateCategoryInput): Promise<Category>;
 	update(id: string, input: UpdateCategoryInput): Promise<Category>;
 	delete(id: string): Promise<void>;
+	restore(id: string): Promise<Category>;
 }

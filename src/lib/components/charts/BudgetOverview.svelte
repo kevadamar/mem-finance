@@ -3,6 +3,7 @@
 	import EmptyState from '$lib/components/ui/EmptyState.svelte';
 	import Skeleton from '$lib/components/ui/Skeleton.svelte';
 	import { app } from '$lib/state/app.svelte';
+	import { fade } from 'svelte/transition';
 	import { formatRupiah } from '$lib/utils/format';
 	import { Chart } from 'svelte-echarts';
 	import { init, use } from 'echarts/core';
@@ -60,10 +61,11 @@
 		<p class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">Ringkasan Budget</p>
 		<EmptyState title="Belum ada budget" description="Buat budget untuk bulan ini di halaman Budget" />
 	{:else}
-		<p class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Ringkasan Budget</p>
-		<div class="flex flex-col sm:flex-row items-center gap-6">
-			<div class="w-48 h-48 shrink-0">{#if chartOption}<Chart {init} options={chartOption} />{/if}</div>
-			<div class="flex-1 grid grid-cols-1 sm:grid-cols-3 gap-3 w-full">
+		<div transition:fade={{ duration: 300 }}>
+			<p class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Ringkasan Budget</p>
+			<div class="flex flex-col sm:flex-row items-center gap-6">
+				<div class="w-48 h-48 shrink-0">{#if chartOption}<Chart {init} options={chartOption} />{/if}</div>
+				<div class="flex-1 grid grid-cols-1 sm:grid-cols-3 gap-3 w-full">
 				<div class="text-center sm:text-left p-3 rounded-lg bg-gray-50 dark:bg-gray-800">
 					<p class="text-xs text-gray-500 dark:text-gray-400">Total Budget</p>
 					<p class="text-lg font-bold text-gray-900 dark:text-gray-100">{formatRupiah(budgetData.totalBudget)}</p>
@@ -82,5 +84,6 @@
 				</div>
 			</div>
 		</div>
+	</div>
 	{/if}
 </Card>

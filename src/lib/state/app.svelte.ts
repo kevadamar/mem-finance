@@ -19,6 +19,7 @@ class AppStore {
 
 	chatMessages = $state<import('$lib/domain/entities/chat').ChatMessage[]>([]);
 
+	gmtOffset = $state(typeof localStorage !== 'undefined' ? Number(localStorage.getItem('memfinance_gmt') ?? '7') : 7);
 	pendingSync = $state(0);
 	online = $state(true);
 	toast = $state<{ message: string; type: 'success' | 'error' | 'warning' | 'info' } | null>(null);

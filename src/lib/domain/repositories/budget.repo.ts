@@ -7,4 +7,5 @@ export interface IBudgetRepository {
 	create(input: CreateBudgetInput): Promise<Budget>;
 	update(id: string, input: Partial<CreateBudgetInput>): Promise<Budget>;
 	delete(id: string): Promise<void>;
+	restore(id: string): Promise<Budget>;
 }
