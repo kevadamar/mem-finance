@@ -51,10 +51,10 @@
 		}
 
 		switch (sortBy) {
-			case 'date-asc': result.sort((a, b) => a.date.localeCompare(b.date)); break;
+			case 'date-asc': result.sort((a, b) => a.createdAt.localeCompare(b.createdAt)); break;
 			case 'amount-desc': result.sort((a, b) => b.amount - a.amount); break;
 			case 'amount-asc': result.sort((a, b) => a.amount - b.amount); break;
-			default: result.sort((a, b) => b.date.localeCompare(a.date));
+			default: result.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 		}
 		return result;
 	});
@@ -267,11 +267,11 @@
 								{app.categories.find((c) => c.id === t.categoryId)?.name ?? 'Lainnya'}
 								{#if t.id.startsWith('local_')}<span class="ml-1 text-[10px] text-amber-600">(belum sync)</span>{/if}
 							</p>
-							<p class="text-xs text-gray-500 truncate">{t.note || formatDateTime(t.date)}</p>
+							<p class="text-xs text-gray-500 truncate">{t.note || formatDateTime(t.createdAt)}</p>
 						</div>
 						<div class="text-right shrink-0">
 							<p class="text-sm font-semibold {t.type === 'expense' ? 'text-red-600' : 'text-green-600'} whitespace-nowrap">{t.type === 'expense' ? '-' : '+'}{formatRupiah(t.amount)}</p>
-							<p class="text-xs text-gray-400">{formatDateTime(t.date)}</p>
+							<p class="text-xs text-gray-400">{formatDateTime(t.createdAt)}</p>
 						</div>
 						<button onclick={(e) => { e.stopPropagation(); deleteConfirm = t.id; }} class="p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 shrink-0" aria-label="Hapus">
 							<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
