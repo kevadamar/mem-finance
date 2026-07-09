@@ -9,7 +9,9 @@ function requireEnv(name: string): string {
 }
 
 export const runtimeEnv = {
-	gasWebappUrl: requireEnv('GAS_WEBAPP_URL'),
+	get gasWebappUrl() {
+		return requireEnv('GAS_WEBAPP_URL');
+	},
 	geminiApiKey: env.GEMINI_API_KEY ?? '',
 	groqApiKey: env.GROQ_API_KEY ?? '',
 	host: env.HOST ?? '0.0.0.0',
