@@ -1,4 +1,4 @@
-import { GAS_WEBAPP_URL } from '$env/static/private';
+import { runtimeEnv } from '$lib/server/env';
 
 interface GasResponse<T = unknown> {
 	success: boolean;
@@ -12,7 +12,7 @@ const inFlight = new Map<string, Promise<unknown>>();
 async function warmUp(): Promise<void> {
 	if (warmedUp) return;
 	try {
-		await fetch(GAS_WEBAPP_URL, { method: 'GET', signal: AbortSignal.timeout(10000) });
+		await fetch(runtimeEnv.gasWebappUrl, { method: 'GET', signal: AbortSignal.timeout(10000) });
 	} catch { /* ignore */ }
 	warmedUp = true;
 }
@@ -49,7 +49,7 @@ export async function gasRequest<T = unknown>(
 			const timeout = setTimeout(() => controller.abort(), timeouts[attempt]);
 
 			try {
-				const response = await fetch(GAS_WEBAPP_URL, {
+				const response = await fetch(runtimeEnv.gasWebappUrl, {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
 					body: JSON.stringify({ action, table, data, id }),

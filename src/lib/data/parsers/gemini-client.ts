@@ -1,12 +1,13 @@
-import { GEMINI_API_KEY } from '$env/static/private';
+import { runtimeEnv } from '$lib/server/env';
 import type { ParsedTransaction } from '../../domain/entities/chat';
 import { buildParserPrompt } from './prompt-builder';
 
 export async function parseWithGemini(message: string): Promise<{ success: boolean; data: ParsedTransaction | null; fallbackLevel: 'gemini'; message: string }> {
-	if (!GEMINI_API_KEY) throw new Error('Gemini API key not configured');
+	const apiKey = runtimeEnv.geminiApiKey;
+	if (!apiKey) throw new Error('Gemini API key not configured');
 
 	const response = await fetch(
-		`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
+		`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
 		{
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },

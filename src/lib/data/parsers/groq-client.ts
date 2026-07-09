@@ -1,15 +1,16 @@
-import { GROQ_API_KEY } from '$env/static/private';
+import { runtimeEnv } from '$lib/server/env';
 import type { ParsedTransaction } from '../../domain/entities/chat';
 import { buildParserPrompt } from './prompt-builder';
 
 export async function parseWithGroq(message: string): Promise<{ success: boolean; data: ParsedTransaction | null; fallbackLevel: 'groq'; message: string }> {
-	if (!GROQ_API_KEY) throw new Error('Groq API key not configured');
+	const apiKey = runtimeEnv.groqApiKey;
+	if (!apiKey) throw new Error('Groq API key not configured');
 
 	const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json',
-			'Authorization': `Bearer ${GROQ_API_KEY}`
+			'Authorization': `Bearer ${apiKey}`
 		},
 		body: JSON.stringify({
 			model: 'llama-3.3-70b-versatile',
