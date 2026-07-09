@@ -17,8 +17,12 @@
 	let year = $state(new Date().getFullYear());
 
 	let modalOpen = $state(false);
+	let editBudgetId = $state<string | null>(null);
 	let formCat = $state('');
 	let formAmount = $state('');
+
+	let isEditing = $derived(editBudgetId !== null);
+	let formTitle = $derived(isEditing ? 'Edit Budget' : 'Tambah Budget');
 
 	const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 
@@ -47,6 +51,8 @@
 	});
 
 	let unbudgetedCats = $derived(expenseCats.filter((c) => !summaries.some((s) => s.categoryId === c.id)));
+
+	let availableCats = $derived(isEditing ? expenseCats : unbudgetedCats);
 
 	let detailBudgetSummary = $state<BudgetSummary | null>(null);
 
@@ -131,25 +137,44 @@
 	}
 
 	function openAdd() {
+		editBudgetId = null;
 		formCat = '';
 		formAmount = '';
 		modalOpen = true;
 	}
 
-	async function addBudget() {
+	function openEdit(s: BudgetSummary) {
+		closeDetail();
+		const budget = app.budgets.find((b) => b.categoryId === s.categoryId && Number(b.month) === month && Number(b.year) === year);
+		if (!budget) return;
+		editBudgetId = budget.id;
+		formCat = budget.categoryId;
+		formAmount = String(budget.amount);
+		modalOpen = true;
+	}
+
+	async function saveBudget() {
 		const amount = parseInt(formAmount, 10);
 		if (!formCat || isNaN(amount) || amount <= 0) return;
 		try {
-			const result = await withMutation(() => getBudgetRepo().create({ categoryId: formCat, amount, month, year }));
-			app.budgets = [...app.budgets, result];
+			if (isEditing && editBudgetId) {
+				const id: string = editBudgetId;
+				const result = await withMutation(() => getBudgetRepo().update(id, { amount }));
+				app.budgets = app.budgets.map((b) => b.id === editBudgetId ? result : b);
+				showToast('Budget diperbarui', 'success');
+			} else {
+				const result = await withMutation(() => getBudgetRepo().create({ categoryId: formCat, amount, month, year }));
+				app.budgets = [...app.budgets, result];
+				showToast('Budget ditambahkan', 'success');
+			}
 			modalOpen = false;
-			showToast('Budget ditambahkan', 'success');
 		} catch {
-			showToast('Gagal menambah budget', 'error');
+			showToast(isEditing ? 'Gagal memperbarui budget' : 'Gagal menambah budget', 'error');
 		}
 	}
 
-	async function removeBudget(catId: string) {
+	async function removeBudget(catId: string | null) {
+		if (!catId) return;
 		const budget = app.budgets.find((b) => b.categoryId === catId && Number(b.month) === month && Number(b.year) === year);
 		if (!budget) return;
 		try {
@@ -223,13 +248,13 @@
 	{/if}
 </div>
 
-<Modal open={modalOpen} title="Tambah Budget" onclose={() => modalOpen = false}>
+<Modal open={modalOpen} title={formTitle} onclose={() => modalOpen = false}>
 	<div class="space-y-4">
-		<Select label="Kategori" options={unbudgetedCats.map((c) => ({ value: c.id, label: c.name }))} value={formCat} required onchange={(e) => formCat = (e.target as HTMLSelectElement).value} />
+		<Select label="Kategori" options={availableCats.map((c) => ({ value: c.id, label: c.name }))} value={formCat} required disabled={isEditing} onchange={(e) => formCat = (e.target as HTMLSelectElement).value} />
 		<Input label="Limit Budget" type="number" placeholder="Masukkan nominal" value={formAmount} oninput={(e) => formAmount = (e.target as HTMLInputElement).value} />
 		<div class="flex gap-3 pt-2">
 			<Button variant="secondary" class="flex-1" onclick={() => modalOpen = false}>Batal</Button>
-			<Button variant="primary" class="flex-1" onclick={addBudget} disabled={!formCat || !formAmount}>Simpan</Button>
+			<Button variant="primary" class="flex-1" onclick={saveBudget} disabled={!formCat || !formAmount}>{isEditing ? 'Simpan' : 'Tambah'}</Button>
 		</div>
 	</div>
 </Modal>
@@ -255,6 +280,11 @@
 			<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-2 text-xs text-gray-500">
 				<span>{detailBudgetSummary.percentage}% terpakai</span>
 				<span class="sm:text-right">Pemasukan bulan ini: <span class="font-semibold text-green-600">{formatRupiah(detailMonthIncome)}</span></span>
+			</div>
+			<hr class="border-gray-200 dark:border-gray-800" />
+			<div class="flex gap-2">
+				<Button variant="secondary" class="flex-1" onclick={() => detailBudgetSummary && openEdit(detailBudgetSummary)}>Edit Budget</Button>
+				<Button variant="danger" class="flex-1" onclick={() => { if (detailBudgetSummary) { removeBudget(detailBudgetSummary.categoryId); closeDetail(); } }}>Hapus</Button>
 			</div>
 			<hr class="border-gray-200 dark:border-gray-800" />
 			<h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300">Transaksi Pengeluaran</h4>
