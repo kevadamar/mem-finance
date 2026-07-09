@@ -1,6 +1,6 @@
 class TransactionService {
   static get SHEET_NAME() { return 'transactions'; }
-  static get HEADERS() { return ['id', 'type', 'amount', 'categoryId', 'date', 'note', 'createdAt', 'updatedAt', 'flagActive']; }
+  static get HEADERS() { return ['id', 'type', 'amount', 'categoryId', 'date', 'note', 'createdAt', 'updatedAt', 'flagActive', 'userId']; }
 
   static handle(action, id, data) {
     const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(this.SHEET_NAME);
@@ -62,7 +62,7 @@ class TransactionService {
   static create(sheet, data) {
     const now = new Date().toISOString();
     const id = Utilities.getUuid();
-    const row = [id, data.type, Number(data.amount), data.categoryId, data.date, data.note || '', now, now, true];
+    const row = [id, data.type, Number(data.amount), data.categoryId, data.date, data.note || '', now, now, true, data.userId || 'default-admin'];
     sheet.appendRow(row);
     const obj = {};
     this.HEADERS.forEach((h, i) => obj[h] = h === 'date' ? this._formatDate(row[i]) : row[i]);

@@ -1,4 +1,6 @@
 import { runtimeEnv } from '$lib/server/env';
+import { createHmac } from 'node:crypto';
+import { GAS_SHARED_SECRET } from '$env/static/private';
 
 interface GasResponse<T = unknown> {
 	success: boolean;
@@ -23,6 +25,13 @@ function getCacheKey(action: string, table: string, data?: unknown, id?: string)
 
 async function sleep(ms: number): Promise<void> {
 	return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function signPayload(action: string, table: string, data?: unknown, id?: string): { signature: string; timestamp: number } {
+	const timestamp = Math.floor(Date.now() / 1000);
+	const payload = JSON.stringify({ action, table, data, id, timestamp });
+	const signature = createHmac('sha256', GAS_SHARED_SECRET).update(payload).digest('hex');
+	return { signature, timestamp };
 }
 
 export async function gasRequest<T = unknown>(
@@ -52,7 +61,7 @@ export async function gasRequest<T = unknown>(
 				const response = await fetch(runtimeEnv.gasWebappUrl, {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({ action, table, data, id }),
+					body: JSON.stringify({ action, table, data, id, ...signPayload(action, table, data, id) }),
 					redirect: 'follow',
 					signal: controller.signal
 				});
