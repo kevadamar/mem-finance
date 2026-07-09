@@ -1,12 +1,13 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { fade, fly } from 'svelte/transition';
 	import SummaryCards from '$lib/components/dashboard/SummaryCards.svelte';
 	import RecentTransactions from '$lib/components/dashboard/RecentTransactions.svelte';
 	import { app, loadTransactionsFromCache, loadCategoriesFromCache, loadBudgetsFromCache } from '$lib/state/app.svelte';
 	import { getTransactionRepo, getCategoryRepo, getBudgetRepo } from '$lib/data/repository-factory';
 
-	let ChartPanel: typeof import('$lib/components/charts/PieChartPanel.svelte').default | undefined = $state();
-	let BudgetOverview: typeof import('$lib/components/charts/BudgetOverview.svelte').default | undefined = $state();
+	let ChartPanel: any = $state();
+	let BudgetOverview: any = $state();
 	let loaded = $state(false);
 
 	async function loadAll() {
@@ -57,18 +58,24 @@
 	<h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">Dashboard</h1>
 	<SummaryCards />
 	{#if loaded && BudgetOverview}
-		<BudgetOverview />
+		<div transition:fly={{ y: 10, duration: 300 }}>
+			<BudgetOverview />
+		</div>
 	{/if}
 	<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 		<div class="lg:col-span-2">
 			{#if loaded && ChartPanel}
-				<ChartPanel />
+				<div transition:fly={{ y: 10, duration: 300, delay: 100 }}>
+					<ChartPanel />
+				</div>
 			{:else}
-				<div class="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 p-5 h-64 flex items-center justify-center">
+				<div class="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 p-5 h-64 flex items-center justify-center" transition:fade={{ duration: 150 }}>
 					<div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
 				</div>
 			{/if}
 		</div>
-		<div><RecentTransactions /></div>
+		<div transition:fly={{ y: 10, duration: 300, delay: 150 }}>
+			<RecentTransactions />
+		</div>
 	</div>
 </div>

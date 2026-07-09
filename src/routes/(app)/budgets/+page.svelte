@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { fade, fly } from 'svelte/transition';
 	import Modal from '$lib/components/ui/Modal.svelte';
 	import Button from '$lib/components/ui/Button.svelte';
 	import Input from '$lib/components/ui/Input.svelte';
@@ -191,33 +192,37 @@
 	{/if}
 
 	{#if app.budgetsLoading && app.budgets.length === 0}
-		<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+		<div class="grid grid-cols-1 md:grid-cols-2 gap-4" transition:fade={{ duration: 150 }}>
 			{#each [1,2,3,4] as _}<Card><Skeleton height="h-4" class="w-1/2 mb-3" /><Skeleton height="h-3" class="mb-2" /><Skeleton height="h-6" /></Card>{/each}
 		</div>
 	{:else if summaries.length === 0}
-		<EmptyState title="Belum ada budget" description="Buat budget untuk mengontrol pengeluaran bulan ini" actionLabel="Tambah Budget" onaction={openAdd} />
+		<div transition:fade={{ duration: 200 }}>
+			<EmptyState title="Belum ada budget" description="Buat budget untuk mengontrol pengeluaran bulan ini" actionLabel="Tambah Budget" onaction={openAdd} />
+		</div>
 	{:else}
 		<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-			{#each summaries as s}
-				<Card>
-					<div role="button" tabindex="0" class="cursor-pointer" onclick={() => openDetail(s)} onkeydown={(e) => e.key === 'Enter' && openDetail(s)}>
-						<div class="flex items-center justify-between mb-2">
-							<div class="flex items-center gap-2">
-								<div class="w-3 h-3 rounded-full" style="background-color: {s.categoryColor}"></div>
-								<span class="font-medium text-gray-900 dark:text-gray-100">{s.categoryName}</span>
+			{#each summaries as s (s.categoryId)}
+				<div transition:fly={{ y: 8, duration: 250, delay: 50 }}>
+					<Card>
+						<div role="button" tabindex="0" class="cursor-pointer" onclick={() => openDetail(s)} onkeydown={(e) => e.key === 'Enter' && openDetail(s)}>
+							<div class="flex items-center justify-between mb-2">
+								<div class="flex items-center gap-2">
+									<div class="w-3 h-3 rounded-full" style="background-color: {s.categoryColor}"></div>
+									<span class="font-medium text-gray-900 dark:text-gray-100">{s.categoryName}</span>
+								</div>
+								<button onclick={(e) => { e.stopPropagation(); removeBudget(s.categoryId); }} class="p-1.5 text-gray-400 hover:text-red-500 rounded-lg" aria-label="Hapus budget">
+									<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+								</button>
 							</div>
-							<button onclick={(e) => { e.stopPropagation(); removeBudget(s.categoryId); }} class="p-1.5 text-gray-400 hover:text-red-500 rounded-lg" aria-label="Hapus budget">
-								<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-							</button>
+							<ProgressBar value={s.spentAmount} max={s.budgetAmount} class="mb-2" />
+							<div class="flex items-center justify-between text-xs text-gray-500">
+								<span>Terpakai {formatRupiah(s.spentAmount)}</span>
+								<span>Sisa {formatRupiah(s.remainingAmount)}</span>
+							</div>
+							<p class="text-right text-xs text-gray-400 mt-1">dari {formatRupiah(s.budgetAmount)}</p>
 						</div>
-						<ProgressBar value={s.spentAmount} max={s.budgetAmount} class="mb-2" />
-						<div class="flex items-center justify-between text-xs text-gray-500">
-							<span>Terpakai {formatRupiah(s.spentAmount)}</span>
-							<span>Sisa {formatRupiah(s.remainingAmount)}</span>
-						</div>
-						<p class="text-right text-xs text-gray-400 mt-1">dari {formatRupiah(s.budgetAmount)}</p>
-					</div>
-				</Card>
+					</Card>
+				</div>
 			{/each}
 		</div>
 	{/if}

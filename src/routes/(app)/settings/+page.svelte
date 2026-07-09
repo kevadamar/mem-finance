@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { fade } from 'svelte/transition';
 	import { exportCSV } from '$lib/data/export-csv';
 	import { parseCSVFile, executeCSVImport } from '$lib/data/import-csv';
 	import { loadTransactionsFromCache } from '$lib/state/app.svelte';
@@ -214,7 +215,7 @@
 	<h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">Pengaturan</h1>
 
 	{#if message}
-		<div class="px-4 py-3 rounded-lg bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-sm">{message}</div>
+		<div class="px-4 py-3 rounded-lg bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-sm" transition:fade={{ duration: 200 }}>{message}</div>
 	{/if}
 
 	<div class="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 divide-y divide-gray-200 dark:divide-gray-800">
