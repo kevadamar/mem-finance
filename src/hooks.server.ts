@@ -63,7 +63,7 @@ async function getOrCreateGaSheetId(userId: string, email: string): Promise<stri
 }
 
 export const handle: Handle = async ({ event, resolve }) => {
-	if (FORCE_AUTH_DISABLED === 'true') {
+	if (FORCE_AUTH_DISABLED === 'true' || !PUBLIC_SUPABASE_URL || !PUBLIC_SUPABASE_PUBLISHABLE_KEY) {
 		return resolve(event);
 	}
 
