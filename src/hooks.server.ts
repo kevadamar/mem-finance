@@ -5,7 +5,7 @@ import { env as privateEnv } from '$env/dynamic/private';
 import { createClient } from '@supabase/supabase-js';
 import { createHmac } from 'node:crypto';
 
-const PUBLIC_PATHS = ['/', '/login', '/auth/callback', '/healthz'];
+const PUBLIC_PATHS = ['/login', '/auth/callback', '/healthz'];
 const APP_SCHEMA = 'memfinance';
 
 function getPrivateEnv(name: string): string {
@@ -110,7 +110,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 		event.locals.userId = userId;
 		event.locals.gaSheetId = await getOrCreateGaSheetId(userId, (claimsData.claims.email as string) || '');
 	} else {
-		const isProtected = !PUBLIC_PATHS.some((p) => event.url.pathname.startsWith(p));
+		const isProtected = event.url.pathname !== '/' && !PUBLIC_PATHS.some((p) => event.url.pathname.startsWith(p));
 		if (isProtected) {
 			throw redirect(303, '/login');
 		}

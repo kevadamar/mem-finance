@@ -1,11 +1,6 @@
-const CACHE_NAME = 'memfinance-v1';
+const CACHE_NAME = 'memfinance-v2';
 const APP_SHELL = [
 	'/',
-	'/dashboard',
-	'/transactions',
-	'/chat',
-	'/budgets',
-	'/settings',
 	'/manifest.json'
 ];
 
@@ -31,7 +26,18 @@ self.addEventListener('fetch', (event) => {
 
 	const url = new URL(request.url);
 	if (url.pathname.startsWith('/api/')) return;
+	if (url.pathname.startsWith('/auth/')) return;
 	if (url.host !== self.location.host) return;
+
+	if (request.mode === 'navigate') {
+		event.respondWith(
+			fetch(request).catch(async () => {
+				const cached = await caches.match('/');
+				return cached ?? new Response('Offline', { status: 503, headers: { 'Content-Type': 'text/plain' } });
+			})
+		);
+		return;
+	}
 
 	event.respondWith(
 		caches.match(request).then((cached) => {
@@ -50,7 +56,10 @@ self.addEventListener('fetch', (event) => {
 					caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
 				}
 				return response;
-			}).catch(() => caches.match('/'));
+			}).catch(async () => {
+				const fallback = await caches.match(request);
+				return fallback ?? new Response('', { status: 504 });
+			});
 		})
 	);
 });
