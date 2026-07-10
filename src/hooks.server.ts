@@ -57,7 +57,10 @@ async function getOrCreateGaSheetId(userId: string, email: string): Promise<stri
 				.eq('id', userId);
 			return json.data.gaSheetId;
 		}
-	} catch { /* service unavailable, fallback to shared sheet */ }
+	} catch (err) {
+		console.error('[hooks] getOrCreateGaSheetId failed:', err instanceof Error ? err.message : err);
+		return null;
+	}
 
 	return null;
 }
