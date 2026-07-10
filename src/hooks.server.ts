@@ -5,7 +5,7 @@ import { env as privateEnv } from '$env/dynamic/private';
 import { createClient } from '@supabase/supabase-js';
 import { createHmac } from 'node:crypto';
 
-const PUBLIC_PATHS = ['/login', '/auth/callback', '/healthz'];
+const PUBLIC_PATHS = ['/', '/login', '/auth/callback', '/healthz'];
 const APP_SCHEMA = 'memfinance';
 
 function getPrivateEnv(name: string): string {
