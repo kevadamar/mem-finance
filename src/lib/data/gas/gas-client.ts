@@ -1,6 +1,6 @@
 import { runtimeEnv } from '$lib/server/env';
 import { createHmac } from 'node:crypto';
-import { GAS_SHARED_SECRET } from '$env/static/private';
+import { env as privateEnv } from '$env/dynamic/private';
 
 interface GasResponse<T = unknown> {
 	success: boolean;
@@ -30,7 +30,7 @@ async function sleep(ms: number): Promise<void> {
 function signPayload(action: string, table: string, data?: unknown, id?: string): { signature: string; timestamp: number } {
 	const timestamp = Math.floor(Date.now() / 1000);
 	const payload = JSON.stringify({ action, table, data, id, timestamp });
-	const signature = createHmac('sha256', GAS_SHARED_SECRET).update(payload).digest('hex');
+	const signature = createHmac('sha256', privateEnv.GAS_SHARED_SECRET ?? '').update(payload).digest('hex');
 	return { signature, timestamp };
 }
 
