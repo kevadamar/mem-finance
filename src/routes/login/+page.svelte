@@ -6,6 +6,8 @@
 	import { createBrowserClient } from '@supabase/ssr';
 	import Button from '$lib/components/ui/Button.svelte';
 
+	let supabaseConfigured = $state(!!PUBLIC_SUPABASE_URL && !!PUBLIC_SUPABASE_PUBLISHABLE_KEY);
+
 	let step = $state<'email' | 'otp'>('email');
 	let email = $state('');
 	let otpDigits = $state(['', '', '', '', '', '']);
@@ -17,7 +19,9 @@
 	let turnstileReady = $state(false);
 	let turnstileWidgetId: string | undefined;
 
-	let supabase = createBrowserClient(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_PUBLISHABLE_KEY);
+	let supabase = supabaseConfigured 
+		? createBrowserClient(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_PUBLISHABLE_KEY)
+		: null;
 
 	let emailValid = $derived(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email));
 	let otpToken = $derived(otpDigits.join(''));
@@ -47,7 +51,7 @@
 	});
 
 	async function handleSendOtp() {
-		if (!emailValid || loading) return;
+		if (!emailValid || loading || !supabase) return;
 		resetError();
 		loading = true;
 
@@ -74,7 +78,7 @@
 	}
 
 	async function handleVerifyOtp() {
-		if (!otpComplete || loading) return;
+		if (!otpComplete || loading || !supabase) return;
 		resetError();
 		loading = true;
 
@@ -149,7 +153,7 @@
 	}
 
 	async function handleGoogleLogin() {
-		if (loading) return;
+		if (loading || !supabase) return;
 		loading = true;
 		const { error: oauthError } = await supabase.auth.signInWithOAuth({
 			provider: 'google',
@@ -177,6 +181,13 @@
 			<h1 class="text-2xl font-bold text-primary-600 dark:text-primary-400">MemFinance</h1>
 			<p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Kelola keuangan pribadi Anda</p>
 		</div>
+
+		{#if !supabaseConfigured}
+			<div class="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 p-6 text-center space-y-3">
+				<p class="text-sm text-gray-500 dark:text-gray-400">Autentikasi belum dikonfigurasi.</p>
+				<p class="text-xs text-gray-400">Hubungi administrator untuk mengatur Supabase.</p>
+			</div>
+		{:else}
 
 		<div class="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 p-6 space-y-5">
 			<button
@@ -259,5 +270,6 @@
 				</div>
 			{/if}
 		</div>
-	</div>
+	{/if}
+</div>
 </div>
