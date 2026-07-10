@@ -1,6 +1,6 @@
 class BudgetService {
   static get SHEET_NAME() { return 'budgets'; }
-  static get HEADERS() { return ['id', 'categoryId', 'amount', 'month', 'year', 'createdAt', 'flagActive']; }
+  static get HEADERS() { return ['id', 'categoryId', 'amount', 'month', 'year', 'createdAt', 'flagActive', 'userId']; }
   static get NUMERIC_FIELDS() { return ['amount', 'month', 'year']; }
 
   static _headerMap(headers) {
@@ -21,8 +21,13 @@ class BudgetService {
     return obj;
   }
 
-  static handle(action, id, data) {
-    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(this.SHEET_NAME);
+  static handle(action, id, data, sheetId) {
+    var sheet;
+    if (sheetId) {
+      sheet = SpreadsheetApp.openById(sheetId).getSheetByName(this.SHEET_NAME);
+    } else {
+      sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(this.SHEET_NAME);
+    }
     if (!sheet) throw new Error('Sheet "budgets" not found');
 
     switch (action) {
@@ -66,6 +71,7 @@ class BudgetService {
       if (h === 'id') row.push(id);
       else if (h === 'createdAt') row.push(now);
       else if (h === 'flagActive') row.push(true);
+      else if (h === 'userId') row.push(data.userId || 'default-admin');
       else row.push(data && data[h] !== undefined ? (this.NUMERIC_FIELDS.includes(h) ? Number(data[h]) : data[h]) : '');
     });
     sheet.appendRow(row);

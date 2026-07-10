@@ -1,9 +1,14 @@
 class CategoryService {
   static get SHEET_NAME() { return 'categories'; }
-  static get HEADERS() { return ['id', 'name', 'type', 'color', 'icon', 'isDefault', 'flagActive']; }
+  static get HEADERS() { return ['id', 'name', 'type', 'color', 'icon', 'isDefault', 'flagActive', 'userId']; }
 
-  static handle(action, id, data) {
-    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(this.SHEET_NAME);
+  static handle(action, id, data, sheetId) {
+    var sheet;
+    if (sheetId) {
+      sheet = SpreadsheetApp.openById(sheetId).getSheetByName(this.SHEET_NAME);
+    } else {
+      sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(this.SHEET_NAME);
+    }
     if (!sheet) throw new Error('Sheet "categories" not found');
 
     switch (action) {
@@ -49,7 +54,7 @@ class CategoryService {
       throw new Error('DUPLICATE_NAME');
     }
     const id = Utilities.getUuid();
-    const row = [id, data.name, data.type, data.color, data.icon, false, true];
+    const row = [id, data.name, data.type, data.color, data.icon, false, true, data.userId || 'default-admin'];
     sheet.appendRow(row);
     return this._toObj(this.HEADERS, row);
   }

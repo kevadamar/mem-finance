@@ -9,7 +9,7 @@
 	import { initSyncManager, subscribe, getPendingSyncCount, getIsOnline, syncPending } from '$lib/data/sync-manager';
 	import { app, showToast } from '$lib/state/app.svelte';
 
-	let { children } = $props();
+	let { data, children } = $props();
 	let refreshTimer: ReturnType<typeof setInterval> | undefined;
 
 	onMount(() => {

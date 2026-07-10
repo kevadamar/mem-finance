@@ -1,4 +1,6 @@
 import { runtimeEnv } from '$lib/server/env';
+import { createHmac } from 'node:crypto';
+import { GAS_SHARED_SECRET } from '$env/static/private';
 
 interface GasResponse<T = unknown> {
 	success: boolean;
@@ -23,6 +25,30 @@ function getCacheKey(action: string, table: string, data?: unknown, id?: string)
 
 async function sleep(ms: number): Promise<void> {
 	return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function signPayload(action: string, table: string, data?: unknown, id?: string): { signature: string; timestamp: number } {
+	const timestamp = Math.floor(Date.now() / 1000);
+	const payload = JSON.stringify({ action, table, data, id, timestamp });
+	const signature = createHmac('sha256', GAS_SHARED_SECRET).update(payload).digest('hex');
+	return { signature, timestamp };
+}
+
+function normalizeBody(action: string, table: string, data?: { sheetId?: string } | unknown, id?: string): Record<string, unknown> {
+	const body: Record<string, unknown> = { action, table, id };
+	if (data && typeof data === 'object' && !Array.isArray(data)) {
+		const d = data as Record<string, unknown>;
+		if (d.sheetId) {
+			body.sheetId = d.sheetId;
+			const { sheetId: _, ...rest } = d;
+			if (Object.keys(rest).length > 0) body.data = rest;
+		} else {
+			body.data = d;
+		}
+	} else if (data) {
+		body.data = data;
+	}
+	return { ...body, ...signPayload(action, table, body.data, id) };
 }
 
 export async function gasRequest<T = unknown>(
@@ -52,7 +78,7 @@ export async function gasRequest<T = unknown>(
 				const response = await fetch(runtimeEnv.gasWebappUrl, {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({ action, table, data, id }),
+					body: JSON.stringify(normalizeBody(action, table, data, id)),
 					redirect: 'follow',
 					signal: controller.signal
 				});
