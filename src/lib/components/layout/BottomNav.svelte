@@ -2,11 +2,15 @@
 	import { page } from '$app/stores';
 	import { fade, fly } from 'svelte/transition';
 	import { navItems } from './nav-items';
+	import LogoutConfirm from './LogoutConfirm.svelte';
 
 	const primaryItems = navItems.filter((item) => ['/dashboard', '/transactions', '/budgets'].includes(item.href));
 	const moreItems = navItems.filter((item) => ['/chat', '/categories', '/settings'].includes(item.href));
 	let moreOpen = $state(false);
 	let isDark = $state(false);
+	let logoutOpen = $state(false);
+	let logoutTrigger = $state<HTMLButtonElement | null>(null);
+	let moreTrigger = $state<HTMLButtonElement | null>(null);
 
 	$effect(() => {
 		isDark = document.documentElement.classList.contains('dark');
@@ -55,12 +59,10 @@
 					<svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d={isDark ? 'M12 3v2m0 14v2m9-9h-2M5 12H3m15.364-6.364-1.414 1.414M7.05 16.95l-1.414 1.414m12.728 0-1.414-1.414M7.05 7.05 5.636 5.636M15 12a3 3 0 11-6 0 3 3 0 016 0z' : 'M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 10120.354 15.354z'} /></svg>
 					{isDark ? 'Mode terang' : 'Mode gelap'}
 				</button>
-				<form method="POST" action="/logout">
-					<button type="submit" class="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-danger-500/25 text-sm font-semibold text-danger-500 hover:bg-danger-50 dark:hover:bg-rose-950">
+				<button bind:this={logoutTrigger} type="button" onclick={() => { moreOpen = false; logoutOpen = true; }} class="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-danger-500/25 text-sm font-semibold text-danger-500 hover:bg-danger-50 dark:hover:bg-rose-950">
 						<svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
 						Keluar
-					</button>
-				</form>
+				</button>
 			</div>
 		</section>
 	</div>
@@ -83,9 +85,11 @@
 				<span>{item.short}</span>
 			</a>
 		{/each}
-		<button onclick={() => moreOpen = !moreOpen} aria-expanded={moreOpen} aria-controls="more-menu" class="flex min-h-12 flex-col items-center gap-1 rounded-xl px-1 pt-1 text-[10px] font-semibold {moreOpen || moreItems.some((item) => isActive(item.href)) ? 'text-primary-700 dark:text-primary-300' : 'text-[var(--text-tertiary)]'}">
+		<button bind:this={moreTrigger} onclick={() => moreOpen = !moreOpen} aria-expanded={moreOpen} aria-controls="more-menu" class="flex min-h-12 flex-col items-center gap-1 rounded-xl px-1 pt-1 text-[10px] font-semibold {moreOpen || moreItems.some((item) => isActive(item.href)) ? 'text-primary-700 dark:text-primary-300' : 'text-[var(--text-tertiary)]'}">
 			<svg class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12a2 2 0 114 0 2 2 0 01-4 0zm5 0a2 2 0 114 0 2 2 0 01-4 0zm5 0a2 2 0 114 0 2 2 0 01-4 0z" /></svg>
 			<span>Lainnya</span>
 		</button>
 	</div>
 </nav>
+
+<LogoutConfirm open={logoutOpen} oncancel={() => logoutOpen = false} returnFocusTo={logoutTrigger ?? moreTrigger} />
