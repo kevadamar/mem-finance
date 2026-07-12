@@ -21,9 +21,9 @@
 	};
 </script>
 
-<div class="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 overflow-hidden {className}">
+<div class="app-surface rounded-2xl border shadow-[var(--shadow-card)] overflow-hidden {className}">
 	{#if title}
-		<div class="px-5 py-4 border-b border-gray-200 dark:border-gray-800 font-semibold text-gray-900 dark:text-gray-100">
+		<div class="px-5 py-4 border-b font-semibold text-[var(--text-primary)]">
 			{@render title()}
 		</div>
 	{/if}
@@ -31,7 +31,7 @@
 		{@render children()}
 	</div>
 	{#if footer}
-		<div class="px-5 py-3 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50">
+		<div class="px-5 py-3 border-t bg-[var(--surface-2)]">
 			{@render footer()}
 		</div>
 	{/if}

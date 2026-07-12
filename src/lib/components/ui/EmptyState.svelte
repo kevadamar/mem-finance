@@ -17,10 +17,10 @@
 </script>
 
 <div class="flex flex-col items-center justify-center py-12 text-center {className}">
-	<svg class="w-16 h-16 text-gray-300 dark:text-gray-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d={icon} /></svg>
-	<h3 class="text-lg font-semibold text-gray-700 dark:text-gray-300">{title}</h3>
-	{#if description}<p class="mt-1 text-sm text-gray-500 dark:text-gray-400 max-w-sm">{description}</p>{/if}
+	<div class="mb-4 grid size-16 place-items-center rounded-2xl bg-primary-50 text-primary-700 dark:bg-primary-900/40 dark:text-primary-300"><svg class="size-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d={icon} /></svg></div>
+	<h3 class="text-lg font-bold tracking-tight text-[var(--text-primary)]">{title}</h3>
+	{#if description}<p class="mt-1 max-w-sm text-sm leading-6 text-[var(--text-secondary)]">{description}</p>{/if}
 	{#if actionLabel && onaction}
-		<button onclick={onaction} class="mt-4 inline-flex items-center px-4 py-2 rounded-lg bg-primary-600 text-white text-sm font-medium hover:bg-primary-700 transition-colors">{actionLabel}</button>
+		<button onclick={onaction} class="mt-5 inline-flex min-h-11 items-center rounded-xl bg-primary-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary-700">{actionLabel}</button>
 	{/if}
 </div>

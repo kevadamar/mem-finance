@@ -1,5 +1,6 @@
 import { json } from '@sveltejs/kit';
 import { gasRequest } from '$lib/data/gas/gas-client';
+import { validateTransaction } from '$lib/domain/validators/transaction.validator';
 import type { RequestHandler } from './$types';
 
 export const GET: RequestHandler = async ({ params, locals }) => {
@@ -12,6 +13,13 @@ export const GET: RequestHandler = async ({ params, locals }) => {
 
 export const PUT: RequestHandler = async ({ params, request, locals }) => {
 	const body = await request.json();
+	if (body.createdAt !== undefined) {
+		const validation = validateTransaction({ createdAt: body.createdAt });
+		const createdAtError = validation.errors.find((error) => error.field === 'createdAt');
+		if (createdAtError) {
+			return json({ success: false, error: { code: 'VALIDATION_ERROR', message: createdAtError.message, details: [createdAtError] } }, { status: 400 });
+		}
+	}
 	const result = await gasRequest('update', 'transactions', { ...body, sheetId: locals.gaSheetId, userId: locals.userId }, params.id);
 	if (!result.success) {
 		return json(result, { status: result.error?.code === 'NOT_FOUND' ? 404 : 502 });

@@ -108,7 +108,7 @@ class IndexedDBTransactionRepository implements ITransactionRepository {
 			id: `local_${crypto.randomUUID()}`,
 			...input,
 			note: input.note,
-			createdAt: now,
+			createdAt: input.createdAt ?? now,
 			updatedAt: now
 		};
 

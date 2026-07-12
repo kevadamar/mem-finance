@@ -220,59 +220,60 @@
 
 <svelte:head><title>Pengaturan — MemFinance</title></svelte:head>
 
-<div class="space-y-6 max-w-2xl">
-	<h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">Pengaturan</h1>
+<div class="mx-auto max-w-3xl space-y-5 sm:space-y-7">
+	<header><p class="text-sm font-medium text-primary-700 dark:text-primary-300">Preferensi aplikasi</p><h1 class="mt-1 text-2xl font-bold tracking-tight text-gray-950 dark:text-white sm:text-3xl">Pengaturan</h1><p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Atur tampilan dan kelola data Anda dengan aman.</p></header>
 
 	{#if message}
-		<div class="px-4 py-3 rounded-lg bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-sm" transition:fade={{ duration: 200 }}>{message}</div>
+		<div class="rounded-xl border border-primary-200 bg-primary-50 px-4 py-3 text-sm text-primary-800 dark:border-primary-900 dark:bg-primary-950/40 dark:text-primary-200" role="status" transition:fade={{ duration: 180 }}>{message}</div>
 	{/if}
 
-	<div class="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 divide-y divide-gray-200 dark:divide-gray-800">
-		<div class="p-5 flex items-center justify-between">
+	<section class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm divide-y divide-gray-200 dark:border-gray-800 dark:bg-gray-900 dark:divide-gray-800">
+		<div class="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
 			<div>
 				<p class="font-medium text-gray-900 dark:text-gray-100">Zona Waktu (GMT)</p>
 				<p class="text-sm text-gray-500 dark:text-gray-400">Atur tampilan waktu sesuai zona Anda</p>
 			</div>
-			<select value={app.gmtOffset} onchange={(e) => { const v = Number((e.target as HTMLSelectElement).value); app.gmtOffset = v; setGmtOffset(v); }}
-				class="px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500">
+			<select aria-label="Pilih zona waktu" value={app.gmtOffset} onchange={(e) => { const v = Number((e.target as HTMLSelectElement).value); app.gmtOffset = v; setGmtOffset(v); }}
+				class="min-h-11 rounded-xl border border-gray-300 bg-white px-3 text-sm font-medium text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500/30 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100">
 				{#each gmtOptions as opt}
 					<option value={opt.value}>{opt.label}</option>
 				{/each}
 			</select>
 		</div>
 
-		<div class="p-5 flex items-center justify-between">
+		<div class="flex items-center justify-between gap-4 p-4 sm:p-5">
 			<div>
 				<p class="font-medium text-gray-900 dark:text-gray-100">Mode Gelap</p>
 				<p class="text-sm text-gray-500 dark:text-gray-400">Ubah tampilan aplikasi</p>
 			</div>
 			<button
 				onclick={toggleDarkMode}
-				class="relative w-11 h-6 rounded-full transition-colors {darkMode ? 'bg-primary-600' : 'bg-gray-300 dark:bg-gray-600'}"
+				class="relative h-7 w-12 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 {darkMode ? 'bg-primary-600' : 'bg-gray-300 dark:bg-gray-600'}"
 				role="switch"
 				aria-checked={darkMode}
+				aria-label="{darkMode ? 'Nonaktifkan' : 'Aktifkan'} mode gelap"
 			>
-				<span class="absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform {darkMode ? 'translate-x-5' : 'translate-x-0'}"></span>
+				<span class="absolute left-1 top-1 h-5 w-5 rounded-full bg-white shadow transition-transform motion-reduce:transition-none {darkMode ? 'translate-x-5' : 'translate-x-0'}"></span>
 			</button>
 		</div>
 
-		<div class="p-5">
+		<div class="p-4 sm:p-5">
 			<p class="font-medium text-gray-900 dark:text-gray-100 mb-1">Manajemen Data</p>
 			<p class="text-sm text-gray-500 dark:text-gray-400 mb-4">Ekspor, impor, atau hapus data aplikasi.</p>
-			<div class="flex flex-wrap gap-3">
-				<button onclick={exportData} class="px-4 py-2 rounded-lg bg-primary-600 text-white text-sm font-medium hover:bg-primary-700 transition-colors">📥 Ekspor Data</button>
-				<button onclick={importData} class="px-4 py-2 rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 text-sm font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">📤 Impor Data</button>
+			<div class="grid gap-2 sm:grid-cols-2">
+				<button onclick={exportData} class="min-h-11 rounded-xl bg-primary-600 px-4 text-sm font-semibold text-white transition-colors hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2">Ekspor cadangan JSON</button>
+				<button onclick={importData} class="min-h-11 rounded-xl bg-gray-100 px-4 text-sm font-semibold text-gray-800 transition-colors hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-primary-500/30 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700">Impor cadangan JSON</button>
 			</div>
-			<div class="flex flex-wrap gap-3 mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
-				<button onclick={handleExportCSV} disabled={csvBusy} class="px-4 py-2 rounded-lg bg-primary-600 text-white text-sm font-medium hover:bg-primary-700 transition-colors disabled:opacity-50">{csvBusy ? '⏳' : '📥'} Ekspor CSV</button>
-				<button onclick={handleImportCSV} disabled={csvBusy} class="px-4 py-2 rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 text-sm font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors disabled:opacity-50">{csvBusy ? '⏳' : '📤'} Impor CSV</button>
-				<button onclick={handleExportSQLite} disabled={sqliteBusy} class="px-4 py-2 rounded-lg bg-primary-600 text-white text-sm font-medium hover:bg-primary-700 transition-colors disabled:opacity-50">{sqliteBusy ? '⏳' : '📦'} Ekspor SQLite</button>
-				<button onclick={handleImportSQLite} disabled={sqliteBusy} class="px-4 py-2 rounded-lg bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 text-sm font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors disabled:opacity-50">{sqliteBusy ? '⏳' : '📦'} Impor SQLite</button>
-				<button onclick={resetData} class="px-4 py-2 rounded-lg bg-red-500 text-white text-sm font-medium hover:bg-red-600 transition-colors">🗑 Hapus Semua</button>
+			<div class="mt-5 border-t border-gray-200 pt-4 dark:border-gray-700"><p class="mb-2 text-xs font-bold uppercase tracking-wide text-gray-500">Format data</p><div class="grid gap-2 sm:grid-cols-2">
+				<button onclick={handleExportCSV} disabled={csvBusy} class="min-h-11 rounded-xl border border-gray-300 px-4 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500/30 disabled:opacity-50 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800">{csvBusy ? 'Memproses...' : 'Ekspor CSV'}</button>
+				<button onclick={handleImportCSV} disabled={csvBusy} class="min-h-11 rounded-xl border border-gray-300 px-4 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500/30 disabled:opacity-50 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800">{csvBusy ? 'Memproses...' : 'Impor CSV'}</button>
+				<button onclick={handleExportSQLite} disabled={sqliteBusy} class="min-h-11 rounded-xl border border-gray-300 px-4 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500/30 disabled:opacity-50 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800">{sqliteBusy ? 'Memproses...' : 'Ekspor SQLite'}</button>
+				<button onclick={handleImportSQLite} disabled={sqliteBusy} class="min-h-11 rounded-xl border border-gray-300 px-4 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500/30 disabled:opacity-50 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800">{sqliteBusy ? 'Memproses...' : 'Impor SQLite'}</button>
+			</div></div>
+			<div class="mt-5 rounded-xl border border-red-200 bg-red-50 p-4 dark:border-red-950 dark:bg-red-950/20"><p class="font-semibold text-red-900 dark:text-red-200">Hapus semua data</p><p class="mt-1 text-sm text-red-800/80 dark:text-red-300/80">Tindakan ini tidak dapat dibatalkan.</p><button onclick={resetData} class="mt-3 min-h-10 rounded-xl bg-red-600 px-4 text-sm font-semibold text-white transition-colors hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">Hapus data perangkat</button></div>
 			</div>
-		</div>
 
-		<div class="p-5">
+		<div class="p-4 sm:p-5">
 			<p class="font-medium text-gray-900 dark:text-gray-100 mb-1">Tentang</p>
 			<div class="text-sm text-gray-500 dark:text-gray-400 space-y-1">
 				<p>MemFinance v1.0.0</p>
@@ -280,7 +281,7 @@
 				<p>Chatbot: Gemini 2.0 Flash → Groq Llama 3.3 → Regex</p>
 			</div>
 		</div>
-	</div>
+	</section>
 </div>
 
 <ImportPreviewModal

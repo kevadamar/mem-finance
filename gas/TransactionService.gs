@@ -66,8 +66,9 @@ class TransactionService {
 
   static create(sheet, data) {
     const now = new Date().toISOString();
+    const createdAt = data.createdAt || now;
     const id = Utilities.getUuid();
-    const row = [id, data.type, Number(data.amount), data.categoryId, data.date, data.note || '', now, now, true, data.userId || 'default-admin'];
+    const row = [id, data.type, Number(data.amount), data.categoryId, data.date, data.note || '', createdAt, now, true, data.userId || 'default-admin'];
     sheet.appendRow(row);
     const obj = {};
     this.HEADERS.forEach((h, i) => obj[h] = h === 'date' ? this._formatDate(row[i]) : row[i]);
@@ -85,6 +86,7 @@ class TransactionService {
         if (data.categoryId !== undefined) rows[i][3] = data.categoryId;
         if (data.date !== undefined) rows[i][4] = data.date;
         if (data.note !== undefined) rows[i][5] = data.note;
+        if (data.createdAt !== undefined) rows[i][6] = data.createdAt;
         if (data.flagActive !== undefined) rows[i][8] = data.flagActive;
         rows[i][7] = now;
         sheet.getRange(i + 1, 1, 1, this.HEADERS.length).setValues([rows[i]]);

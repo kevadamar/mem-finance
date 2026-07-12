@@ -38,15 +38,54 @@ function createSheetForUser(userId) {
   var copy = templateFile.makeCopy('MemFinance_' + userId);
   var sheetId = copy.getId();
 
-  // Seed default categories into the new sheet
   var ss = SpreadsheetApp.openById(sheetId);
-  var catSheet = ss.getSheetByName('categories');
-  if (catSheet && catSheet.getDataRange().getValues().length <= 1) {
-    var existing = CategoryService.list(catSheet);
-    if (existing.length === 0) {
-      CategoryService.seed(catSheet);
-    }
-  }
+  prepareUserSpreadsheet(ss);
 
   return Utils.successResponse({ gaSheetId: sheetId });
+}
+
+function prepareUserSpreadsheet(ss) {
+  keepOnlyDefaultCategories(ss.getSheetByName('categories'));
+  clearDataRows(ss.getSheetByName('transactions'));
+  clearDataRows(ss.getSheetByName('budgets'));
+}
+
+function clearDataRows(sheet) {
+  if (!sheet) return;
+  var lastRow = sheet.getLastRow();
+  if (lastRow > 1) {
+    sheet.deleteRows(2, lastRow - 1);
+  }
+}
+
+function keepOnlyDefaultCategories(sheet) {
+  if (!sheet) return;
+
+  var values = sheet.getDataRange().getValues();
+  if (values.length <= 1) {
+    CategoryService.seed(sheet);
+    return;
+  }
+
+  var headers = values[0];
+  var isDefaultIndex = headers.indexOf('isDefault');
+  var flagActiveIndex = headers.indexOf('flagActive');
+  if (isDefaultIndex === -1 || flagActiveIndex === -1) {
+    throw new Error('categories sheet must include isDefault and flagActive columns');
+  }
+
+  var defaultRows = values.slice(1).filter(function(row) {
+    return isTruthyCell(row[isDefaultIndex]) && isTruthyCell(row[flagActiveIndex]);
+  });
+
+  clearDataRows(sheet);
+  if (defaultRows.length > 0) {
+    sheet.getRange(2, 1, defaultRows.length, headers.length).setValues(defaultRows);
+  } else {
+    CategoryService.seed(sheet);
+  }
+}
+
+function isTruthyCell(value) {
+  return value === true || String(value).toUpperCase() === 'TRUE';
 }
