@@ -1,4 +1,22 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
-  <rect width="512" height="512" rx="64" fill="#3b82f6"/>
-  <text x="256" y="340" font-size="260" text-anchor="middle" fill="white" font-family="sans-serif">💰</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-labelledby="title description">
+	<title id="title">MemFinance</title>
+	<desc id="description">Ikon MemFinance dengan grafik pertumbuhan</desc>
+	<defs>
+		<linearGradient id="surface" x1="64" y1="48" x2="448" y2="472" gradientUnits="userSpaceOnUse">
+			<stop stop-color="#14B8A6" />
+			<stop offset="1" stop-color="#047857" />
+		</linearGradient>
+		<linearGradient id="highlight" x1="176" y1="128" x2="344" y2="368" gradientUnits="userSpaceOnUse">
+			<stop stop-color="#CCFBF1" />
+			<stop offset="1" stop-color="#F0FDFA" />
+		</linearGradient>
+	</defs>
+	<rect width="512" height="512" rx="128" fill="url(#surface)" />
+	<path d="M104 380c43.2-9.6 76.8-33.6 104.8-70.4 25.6-33.6 46.4-74.4 84-98.4 33.6-21.6 68.8-28 115.2-20" fill="none" stroke="#99F6E4" stroke-linecap="round" stroke-width="36" />
+	<path d="m373.6 149.6 47.2 38.4-40.8 45.6" fill="none" stroke="#99F6E4" stroke-linecap="round" stroke-linejoin="round" stroke-width="36" />
+	<g fill="url(#highlight)">
+		<rect x="120" y="304" width="52" height="80" rx="26" />
+		<rect x="230" y="248" width="52" height="136" rx="26" />
+		<rect x="340" y="192" width="52" height="192" rx="26" />
+	</g>
 </svg>

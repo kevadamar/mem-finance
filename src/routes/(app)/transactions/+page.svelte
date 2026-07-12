@@ -25,6 +25,7 @@
 
 	let showFilters = $state(false);
 	let filterCount = $derived([filterType, filterCategory, filterStart, filterEnd].filter(Boolean).length);
+	let filterDateError = $derived(Boolean(filterStart && filterEnd && filterStart > filterEnd));
 
 	let modalOpen = $state(false);
 	let editMode = $state(false);
@@ -68,6 +69,13 @@
 		filterStart = '';
 		filterEnd = '';
 		filterSearch = '';
+	}
+
+	function setFilterType(value: '' | TransactionType) {
+		filterType = value;
+		if (filterCategory && !app.categories.some((category) => category.id === filterCategory && (!value || category.type === value))) {
+			filterCategory = '';
+		}
 	}
 
 	async function load() {
@@ -208,7 +216,7 @@
 					<button onclick={load} disabled={app.transactionsRefreshing} class="min-h-11 min-w-11 rounded-xl border border-gray-300 text-gray-600 transition-colors hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500/30 disabled:opacity-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800" aria-label="Segarkan transaksi">
 						<svg class="w-4 h-4 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
 					</button>
-					<button onclick={() => showFilters = !showFilters} class="relative min-h-11 min-w-11 rounded-xl border border-gray-300 text-gray-600 transition-colors hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500/30 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800" aria-label="{showFilters ? 'Sembunyikan' : 'Tampilkan'} filter" aria-expanded={showFilters}>
+					<button onclick={() => showFilters = !showFilters} class="relative min-h-11 min-w-11 rounded-xl border border-gray-300 text-gray-600 transition-colors hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500/30 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800 sm:hidden" aria-label="{showFilters ? 'Sembunyikan' : 'Tampilkan'} filter" aria-expanded={showFilters} title="{showFilters ? 'Sembunyikan' : 'Tampilkan'} filter">
 						<svg class="w-4 h-4 text-gray-600 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" /></svg>
 						{#if filterCount > 0}
 							<span class="absolute -top-1.5 -right-1.5 w-4 h-4 bg-primary-600 text-white text-[10px] font-bold rounded-full flex items-center justify-center">{filterCount}</span>
@@ -218,19 +226,21 @@
 			</div>
 
 			<div class="hidden gap-3 border-t border-gray-100 pt-3 sm:grid sm:grid-cols-4 dark:border-gray-800">
-				<Select label="Tipe" options={[{ value: '', label: 'Semua' }, { value: 'expense', label: 'Pengeluaran' }, { value: 'income', label: 'Pemasukan' }]} value={filterType} onchange={(e) => filterType = (e.target as HTMLSelectElement).value as '' | TransactionType} />
+				<Select label="Tipe" options={[{ value: '', label: 'Semua' }, { value: 'expense', label: 'Pengeluaran' }, { value: 'income', label: 'Pemasukan' }]} value={filterType} onchange={(e) => setFilterType((e.target as HTMLSelectElement).value as '' | TransactionType)} />
 				<Select label="Kategori" options={[{ value: '', label: 'Semua' }, ...app.categories.filter((c) => !filterType || c.type === filterType).map((c) => ({ value: c.id, label: c.name }))]} value={filterCategory} onchange={(e) => filterCategory = (e.target as HTMLSelectElement).value} />
 				<Input label="Dari" type="date" value={filterStart} onchange={(e) => filterStart = (e.target as HTMLInputElement).value} />
 				<Input label="Sampai" type="date" value={filterEnd} onchange={(e) => filterEnd = (e.target as HTMLInputElement).value} />
+				{#if filterDateError}<p class="col-span-4 text-xs text-red-600 dark:text-red-400">Tanggal mulai harus lebih awal atau sama dengan tanggal akhir.</p>{/if}
 			</div>
 
 			{#if showFilters}
 				<div class="border-t border-gray-100 pt-3 sm:hidden dark:border-gray-800" transition:slide={{ duration: 180 }}>
 					<div class="grid grid-cols-2 gap-3 pb-3">
-						<Select label="Tipe" options={[{ value: '', label: 'Semua' }, { value: 'expense', label: 'Pengeluaran' }, { value: 'income', label: 'Pemasukan' }]} value={filterType} onchange={(e) => filterType = (e.target as HTMLSelectElement).value as '' | TransactionType} />
+						<Select label="Tipe" options={[{ value: '', label: 'Semua' }, { value: 'expense', label: 'Pengeluaran' }, { value: 'income', label: 'Pemasukan' }]} value={filterType} onchange={(e) => setFilterType((e.target as HTMLSelectElement).value as '' | TransactionType)} />
 						<Select label="Kategori" options={[{ value: '', label: 'Semua' }, ...app.categories.filter((c) => !filterType || c.type === filterType).map((c) => ({ value: c.id, label: c.name }))]} value={filterCategory} onchange={(e) => filterCategory = (e.target as HTMLSelectElement).value} />
 						<Input label="Dari" type="date" value={filterStart} onchange={(e) => filterStart = (e.target as HTMLInputElement).value} />
 						<Input label="Sampai" type="date" value={filterEnd} onchange={(e) => filterEnd = (e.target as HTMLInputElement).value} />
+						{#if filterDateError}<p class="col-span-2 text-xs text-red-600 dark:text-red-400">Tanggal mulai harus lebih awal atau sama dengan tanggal akhir.</p>{/if}
 					</div>
 					<div class="flex items-center gap-2">
 						<select value={sortBy} onchange={(e) => sortBy = (e.target as HTMLSelectElement).value as typeof sortBy}
@@ -241,7 +251,6 @@
 							<option value="amount-asc">Urut: Terkecil</option>
 						</select>
 						<div class="flex gap-2">
-							<button onclick={load} disabled={app.transactionsRefreshing} class="min-h-11 min-w-11 rounded-xl border border-gray-300 text-gray-600 dark:border-gray-700 dark:text-gray-300" aria-label="Segarkan transaksi">↻</button>
 							{#if filterCount > 0}
 								<Button variant="secondary" onclick={clearFilters}>Reset</Button>
 							{/if}
