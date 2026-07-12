@@ -6,6 +6,19 @@ export function parseDate(dateStr: string): Date {
 	return new Date(dateStr.includes('T') ? dateStr : dateStr + 'T00:00:00');
 }
 
+export function toDateTimeLocalValue(dateStr: string): string {
+	const date = new Date(dateStr);
+	if (isNaN(date.getTime())) return '';
+	const pad = (value: number) => String(value).padStart(2, '0');
+	return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
+
+export function fromDateTimeLocalValue(value: string): string | undefined {
+	if (!value) return undefined;
+	const date = new Date(value);
+	return isNaN(date.getTime()) ? undefined : date.toISOString();
+}
+
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
 
 let _gmtOffset = typeof localStorage !== 'undefined' ? Number(localStorage.getItem('memfinance_gmt') ?? '7') : 7;

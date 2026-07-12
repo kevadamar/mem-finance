@@ -14,6 +14,7 @@ interface CreateTransactionInput {
 	categoryId?: string;
 	date?: string;
 	note?: string | null;
+	createdAt?: string;
 }
 
 export function validateTransaction(input: CreateTransactionInput): ValidationResult {
@@ -61,6 +62,15 @@ export function validateTransaction(input: CreateTransactionInput): ValidationRe
 
 	if (input.note && input.note.length > 200) {
 		errors.push({ field: 'note', message: 'Catatan maksimal 200 karakter' });
+	}
+
+	if (input.createdAt !== undefined) {
+		const createdAt = new Date(input.createdAt);
+		if (isNaN(createdAt.getTime())) {
+			errors.push({ field: 'createdAt', message: 'Format waktu dibuat tidak valid' });
+		} else if (createdAt > new Date()) {
+			errors.push({ field: 'createdAt', message: 'Waktu dibuat tidak boleh di masa depan' });
+		}
 	}
 
 	return { valid: errors.length === 0, errors };

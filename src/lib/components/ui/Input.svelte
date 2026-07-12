@@ -12,7 +12,7 @@
 		onchange
 	}: {
 		label: string;
-		type?: 'text' | 'number' | 'date' | 'password';
+		type?: 'text' | 'number' | 'date' | 'datetime-local' | 'password';
 		placeholder?: string;
 		value?: string | number;
 		error?: string;

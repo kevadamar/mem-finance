@@ -18,6 +18,7 @@ export interface CreateTransactionInput {
 	categoryId: string;
 	date: string;
 	note?: string;
+	createdAt?: string;
 }
 
 export interface UpdateTransactionInput {
@@ -26,4 +27,5 @@ export interface UpdateTransactionInput {
 	categoryId?: string;
 	date?: string;
 	note?: string;
+	createdAt?: string;
 }

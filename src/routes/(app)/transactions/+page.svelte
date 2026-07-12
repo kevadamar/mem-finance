@@ -12,7 +12,7 @@
 	import { CreateTransactionUseCase, TransactionValidationError } from '$lib/domain/usecases/create-transaction.usecase';
 	import { validateTransaction } from '$lib/domain/validators/transaction.validator';
 	import { app, loadTransactionsFromCache, loadCategoriesFromCache, showToast, withMutation } from '$lib/state/app.svelte';
-	import { formatRupiah, formatDateTime } from '$lib/utils/format';
+	import { formatRupiah, formatDateTime, fromDateTimeLocalValue, toDateTimeLocalValue } from '$lib/utils/format';
 	import type { Transaction, TransactionType, CreateTransactionInput, UpdateTransactionInput } from '$lib/domain/entities/transaction';
 	import type { Category } from '$lib/domain/entities/category';
 
@@ -33,6 +33,7 @@
 	let formAmount = $state('');
 	let formCategory = $state('');
 	let formDate = $state('');
+	let formCreatedAt = $state('');
 	let formNote = $state('');
 	let formErrors = $state<Record<string, string>>({});
 	let formLoading = $state(false);
@@ -88,6 +89,7 @@
 		formAmount = '';
 		formCategory = '';
 		formDate = new Date().toISOString().split('T')[0];
+		formCreatedAt = toDateTimeLocalValue(new Date().toISOString());
 		formNote = '';
 		formErrors = {};
 		modalOpen = true;
@@ -100,6 +102,7 @@
 		formAmount = String(t.amount);
 		formCategory = t.categoryId;
 		formDate = (t.date ?? '').split('T')[0];
+		formCreatedAt = toDateTimeLocalValue(t.createdAt);
 		formNote = t.note || '';
 		formErrors = {};
 		modalOpen = true;
@@ -120,7 +123,8 @@
 			amount: isNaN(parsedAmount) ? 0 : parsedAmount,
 			categoryId: formCategory,
 			date: formDate,
-			note: formNote || undefined
+			note: formNote || undefined,
+			createdAt: fromDateTimeLocalValue(formCreatedAt)
 		};
 
 		const validation = validateTransaction(input);
@@ -300,6 +304,7 @@
 		</div>
 		<Select label="Kategori" options={filteredCatOptions.map((c) => ({ value: c.id, label: c.name }))} value={formCategory} error={formErrors.categoryId} required onchange={(e) => formCategory = (e.target as HTMLSelectElement).value} />
 		<Input label="Tanggal" type="date" value={formDate} error={formErrors.date} required onchange={(e) => formDate = (e.target as HTMLInputElement).value} />
+		<Input label="Waktu dibuat" type="datetime-local" value={formCreatedAt} error={formErrors.createdAt} required onchange={(e) => formCreatedAt = (e.target as HTMLInputElement).value} />
 		<Input label="Catatan" placeholder="Opsional" value={formNote} error={formErrors.note} oninput={(e) => formNote = (e.target as HTMLInputElement).value} />
 		<div class="flex gap-3 pt-2">
 			<Button variant="secondary" class="flex-1" onclick={() => modalOpen = false}>Batal</Button>

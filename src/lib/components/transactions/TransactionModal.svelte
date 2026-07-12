@@ -9,6 +9,7 @@
 	import { validateTransaction } from '$lib/domain/validators/transaction.validator';
 	import type { TransactionType, CreateTransactionInput } from '$lib/domain/entities/transaction';
 	import type { Category } from '$lib/domain/entities/category';
+	import { fromDateTimeLocalValue, toDateTimeLocalValue } from '$lib/utils/format';
 
 	let {
 		open = false,
@@ -25,6 +26,7 @@
 	let amount = $state('');
 	let categoryId = $state('');
 	let date = $state(new Date().toISOString().split('T')[0]);
+	let createdAt = $state(toDateTimeLocalValue(new Date().toISOString()));
 	let note = $state('');
 	let errors = $state<Record<string, string>>({});
 	let loading = $state(false);
@@ -55,6 +57,7 @@
 		amount = '';
 		categoryId = '';
 		date = new Date().toISOString().split('T')[0];
+		createdAt = toDateTimeLocalValue(new Date().toISOString());
 		note = '';
 		errors = {};
 		loading = false;
@@ -70,7 +73,8 @@
 			amount: isNaN(parsedAmount) ? 0 : parsedAmount,
 			categoryId,
 			date,
-			note: note || undefined
+			note: note || undefined,
+			createdAt: fromDateTimeLocalValue(createdAt)
 		};
 
 		const validation = validateTransaction(input);
@@ -140,6 +144,7 @@
 		/>
 
 		<Input label="Tanggal" type="date" value={date} error={errors.date} required onchange={(e) => date = (e.target as HTMLInputElement).value} />
+		<Input label="Waktu dibuat" type="datetime-local" value={createdAt} error={errors.createdAt} required onchange={(e) => createdAt = (e.target as HTMLInputElement).value} />
 
 		<Input label="Catatan" placeholder="Opsional: deskripsi transaksi" value={note} error={errors.note} oninput={(e) => note = (e.target as HTMLInputElement).value} />
 
