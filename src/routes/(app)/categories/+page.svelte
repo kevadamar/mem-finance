@@ -109,28 +109,30 @@
 
 <svelte:head><title>Kategori — MemFinance</title></svelte:head>
 
-<div class="space-y-6">
-	<div class="flex items-center justify-between">
-		<h1 class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">Kategori</h1>
-		<Button onclick={openCatAdd}>+ Tambah</Button>
-	</div>
+<div class="space-y-5 sm:space-y-6">
+	<header class="rounded-2xl border border-primary-100 bg-gradient-to-br from-white via-primary-50/60 to-sky-50 px-5 py-5 shadow-sm dark:border-primary-900/60 dark:from-gray-900 dark:via-primary-950/40 dark:to-gray-900 sm:px-6">
+		<div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+			<div><p class="text-sm font-medium text-primary-700 dark:text-primary-300">Pengelompokan transaksi</p><h1 class="mt-1 text-2xl font-bold tracking-tight text-gray-950 dark:text-white sm:text-3xl">Kategori</h1><p class="mt-1 text-sm text-gray-600 dark:text-gray-300">Buat kategori yang mudah dikenali agar laporan tetap rapi.</p></div>
+			<Button onclick={openCatAdd} class="min-h-11 shrink-0">+ Tambah kategori</Button>
+		</div>
+	</header>
 
 	<div class="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800">
-		<div class="p-5">
-			<p class="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-3">Pengeluaran</p>
+		<div class="p-4 sm:p-5">
+			<div class="mb-3 flex items-center justify-between gap-3"><div><p class="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Pengeluaran</p><p class="mt-0.5 text-xs text-gray-400 dark:text-gray-500">Untuk transaksi dana keluar</p></div><span class="rounded-full bg-red-50 px-2 py-1 text-xs font-semibold text-red-600 dark:bg-red-950/30 dark:text-red-300">{expenseCats.length}</span></div>
 			{#if expenseCats.length === 0}
 				<p class="text-sm text-gray-400 py-4 text-center">Belum ada kategori pengeluaran</p>
 			{:else}
 				<div class="space-y-1">
 					{#each expenseCats as c}
-						<div class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors group">
+						<div class="group flex items-center gap-3 rounded-xl px-3 py-2.5 transition hover:bg-gray-50 focus-within:bg-gray-50 dark:hover:bg-gray-800/50 dark:focus-within:bg-gray-800/50 motion-reduce:transition-none">
 							<div class="w-3.5 h-3.5 rounded-full shrink-0 ring-2 ring-offset-1 ring-gray-200 dark:ring-gray-700" style="background-color: {c.color}"></div>
 							<span class="flex-1 text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{c.name}</span>
 							{#if c.isDefault}<span class="text-[10px] text-gray-400 bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded">default</span>{/if}
-							<button onclick={() => openCatEdit(c)} class="opacity-0 group-hover:opacity-100 p-1.5 text-gray-400 hover:text-primary-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all" aria-label="Edit">
+							<button onclick={() => openCatEdit(c)} class="grid min-h-9 min-w-9 place-items-center rounded-lg text-gray-400 transition hover:bg-gray-100 hover:text-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:hover:bg-gray-700 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100 motion-reduce:transition-none" aria-label={`Edit kategori ${c.name}`}>
 								<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
 							</button>
-							<button onclick={() => catDeleteConfirm = c.id} class="opacity-0 group-hover:opacity-100 p-1.5 text-gray-400 hover:text-red-500 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-all" aria-label="Nonaktifkan">
+							<button onclick={() => catDeleteConfirm = c.id} disabled={c.isDefault} class="grid min-h-9 min-w-9 place-items-center rounded-lg text-gray-400 transition hover:bg-red-50 hover:text-red-500 focus:outline-none focus:ring-2 focus:ring-red-500 disabled:cursor-not-allowed disabled:opacity-30 dark:hover:bg-red-900/20 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100 motion-reduce:transition-none" aria-label={`Nonaktifkan kategori ${c.name}`}>
 								<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
 							</button>
 						</div>
@@ -139,21 +141,21 @@
 			{/if}
 		</div>
 
-		<div class="border-t border-gray-200 dark:border-gray-800 p-5">
-			<p class="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-3">Pemasukan</p>
+		<div class="border-t border-gray-200 p-4 dark:border-gray-800 sm:p-5">
+			<div class="mb-3 flex items-center justify-between gap-3"><div><p class="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Pemasukan</p><p class="mt-0.5 text-xs text-gray-400 dark:text-gray-500">Untuk transaksi dana masuk</p></div><span class="rounded-full bg-green-50 px-2 py-1 text-xs font-semibold text-green-600 dark:bg-green-950/30 dark:text-green-300">{incomeCats.length}</span></div>
 			{#if incomeCats.length === 0}
 				<p class="text-sm text-gray-400 py-4 text-center">Belum ada kategori pemasukan</p>
 			{:else}
 				<div class="space-y-1">
 					{#each incomeCats as c}
-						<div class="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors group">
+						<div class="group flex items-center gap-3 rounded-xl px-3 py-2.5 transition hover:bg-gray-50 focus-within:bg-gray-50 dark:hover:bg-gray-800/50 dark:focus-within:bg-gray-800/50 motion-reduce:transition-none">
 							<div class="w-3.5 h-3.5 rounded-full shrink-0 ring-2 ring-offset-1 ring-gray-200 dark:ring-gray-700" style="background-color: {c.color}"></div>
 							<span class="flex-1 text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{c.name}</span>
 							{#if c.isDefault}<span class="text-[10px] text-gray-400 bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded">default</span>{/if}
-							<button onclick={() => openCatEdit(c)} class="opacity-0 group-hover:opacity-100 p-1.5 text-gray-400 hover:text-primary-600 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-all" aria-label="Edit">
+							<button onclick={() => openCatEdit(c)} class="grid min-h-9 min-w-9 place-items-center rounded-lg text-gray-400 transition hover:bg-gray-100 hover:text-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:hover:bg-gray-700 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100 motion-reduce:transition-none" aria-label={`Edit kategori ${c.name}`}>
 								<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
 							</button>
-							<button onclick={() => catDeleteConfirm = c.id} class="opacity-0 group-hover:opacity-100 p-1.5 text-gray-400 hover:text-red-500 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-all" aria-label="Nonaktifkan">
+							<button onclick={() => catDeleteConfirm = c.id} disabled={c.isDefault} class="grid min-h-9 min-w-9 place-items-center rounded-lg text-gray-400 transition hover:bg-red-50 hover:text-red-500 focus:outline-none focus:ring-2 focus:ring-red-500 disabled:cursor-not-allowed disabled:opacity-30 dark:hover:bg-red-900/20 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100 motion-reduce:transition-none" aria-label={`Nonaktifkan kategori ${c.name}`}>
 								<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
 							</button>
 						</div>
@@ -183,8 +185,8 @@
 <Modal open={catModalOpen} title={isEditingCat ? 'Edit Kategori' : 'Tambah Kategori'} onclose={() => catModalOpen = false}>
 	<div class="space-y-4">
 		<div>
-			<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nama <span class="text-red-500">*</span></label>
-			<input type="text" placeholder="Nama kategori" bind:value={catFormName}
+			<label for="category-name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nama <span class="text-red-500">*</span></label>
+			<input id="category-name" type="text" placeholder="Nama kategori" bind:value={catFormName}
 				class="w-full px-3 py-2 rounded-lg border text-sm transition-colors bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500" />
 		</div>
 
@@ -196,7 +198,7 @@
 		{/if}
 
 		<div>
-			<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Warna</label>
+			<p class="mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Warna</p>
 			<div class="flex flex-wrap gap-2">
 				{#each COLOR_PRESETS as color}
 					<button type="button" onclick={() => catFormColor = color} class="w-7 h-7 rounded-full border-2 transition-all {catFormColor === color ? 'border-gray-900 dark:border-white scale-110' : 'border-transparent'}" style="background-color: {color}" aria-label={color}></button>
@@ -205,8 +207,8 @@
 		</div>
 
 		<div>
-			<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Ikon (Lucide icon name)</label>
-			<input type="text" placeholder="more-horizontal" bind:value={catFormIcon}
+			<label for="category-icon" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Ikon (Lucide icon name)</label>
+			<input id="category-icon" type="text" placeholder="more-horizontal" bind:value={catFormIcon}
 				class="w-full px-3 py-2 rounded-lg border text-sm transition-colors bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500" />
 		</div>
 

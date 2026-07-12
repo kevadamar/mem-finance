@@ -2,34 +2,104 @@
 
 @variant dark (&:where(.dark, .dark *));
 
+/* Tailwind's tokens keep existing utility usage working while the semantic
+ * variables below make new components independent from raw colour choices. */
 @theme {
-	--color-primary-50: #eff6ff;
-	--color-primary-100: #dbeafe;
-	--color-primary-200: #bfdbfe;
-	--color-primary-300: #93c5fd;
-	--color-primary-400: #60a5fa;
-	--color-primary-500: #3b82f6;
-	--color-primary-600: #2563eb;
-	--color-primary-700: #1d4ed8;
-	--color-primary-800: #1e40af;
-	--color-primary-900: #1e3a8a;
+	--font-sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+	--color-primary-50: #effcf8;
+	--color-primary-100: #d6f5e8;
+	--color-primary-200: #adebd4;
+	--color-primary-300: #79dbb9;
+	--color-primary-400: #43c699;
+	--color-primary-500: #1da77d;
+	--color-primary-600: #087f5b;
+	--color-primary-700: #08694d;
+	--color-primary-800: #07543f;
+	--color-primary-900: #064534;
+	--color-danger-50: #fff1f1;
+	--color-danger-500: #d9485f;
+	--color-warning-50: #fff8e7;
+	--color-warning-500: #b7791f;
+	--color-success-50: #effcf5;
+	--color-success-500: #16805c;
+	--ease-gentle: cubic-bezier(0.22, 1, 0.36, 1);
+	--ease-productive: cubic-bezier(0.2, 0, 0, 1);
+	--animate-enter: enter 220ms var(--ease-gentle) both;
+}
 
-	--color-danger-50: #fef2f2;
-	--color-danger-500: #ef4444;
+:root {
+	color-scheme: light;
+	--canvas: #f6f8f6;
+	--surface-1: #ffffff;
+	--surface-2: #edf1ee;
+	--surface-raised: #ffffff;
+	--text-primary: #16231f;
+	--text-secondary: #5e6b66;
+	--text-tertiary: #78847f;
+	--border-subtle: #dbe3de;
+	--border-strong: #b7c7bf;
+	--focus-ring: #087f5b;
+	--shadow-card: 0 1px 2px rgb(17 34 27 / 0.04), 0 8px 24px rgb(17 34 27 / 0.05);
+	--shadow-float: 0 16px 48px rgb(10 34 24 / 0.18), 0 3px 12px rgb(10 34 24 / 0.08);
+}
 
-	--color-warning-50: #fffbeb;
-	--color-warning-500: #f59e0b;
+:root.dark {
+	color-scheme: dark;
+	--canvas: #101715;
+	--surface-1: #17211d;
+	--surface-2: #202d27;
+	--surface-raised: #1b2721;
+	--text-primary: #f3f8f5;
+	--text-secondary: #b7c5bd;
+	--text-tertiary: #8fa198;
+	--border-subtle: #2b3a33;
+	--border-strong: #4a5e53;
+	--focus-ring: #43c699;
+	--shadow-card: 0 1px 1px rgb(0 0 0 / 0.18), 0 12px 28px rgb(0 0 0 / 0.16);
+	--shadow-float: 0 20px 56px rgb(0 0 0 / 0.4), 0 4px 12px rgb(0 0 0 / 0.25);
+}
 
-	--color-success-50: #f0fdf4;
-	--color-success-500: #22c55e;
+@keyframes enter {
+	from { opacity: 0; transform: translateY(6px); }
+	to { opacity: 1; transform: translateY(0); }
 }
 
 @layer base {
+	* { border-color: var(--border-subtle); }
+
+	html { background: var(--canvas); scroll-behavior: smooth; }
+
 	body {
-		@apply bg-gray-50 text-gray-900 dark:bg-gray-950 dark:text-gray-100 antialiased;
+		min-width: 320px;
+		background: var(--canvas);
+		color: var(--text-primary);
+		font-family: var(--font-sans);
+		-webkit-font-smoothing: antialiased;
+		-moz-osx-font-smoothing: grayscale;
 	}
 
-	* {
-		@apply border-gray-200 dark:border-gray-800;
+	button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
+	button, [role='button'], a, input, select, textarea { touch-action: manipulation; }
+	button:not(:disabled), [role='button']:not([aria-disabled='true']) { cursor: pointer; }
+	:focus-visible { outline: 3px solid color-mix(in srgb, var(--focus-ring) 72%, transparent); outline-offset: 3px; }
+	::selection { background: #adebd4; color: #064534; }
+	input, select, textarea { font-size: max(16px, 1em); }
+
+	@media (prefers-reduced-motion: reduce) {
+		html { scroll-behavior: auto; }
+		*, *::before, *::after {
+			animation-duration: 0.01ms !important;
+			animation-iteration-count: 1 !important;
+			transition-duration: 0.01ms !important;
+			scroll-behavior: auto !important;
+		}
 	}
+}
+
+@layer components {
+	.app-surface { background: var(--surface-1); border-color: var(--border-subtle); }
+	.app-muted-surface { background: var(--surface-2); border-color: var(--border-subtle); }
+	.app-text { color: var(--text-primary); }
+	.app-text-muted { color: var(--text-secondary); }
+	.tabular-nums { font-variant-numeric: tabular-nums; }
 }

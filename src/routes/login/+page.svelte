@@ -175,25 +175,28 @@
 
 <svelte:head><title>Login — MemFinance</title></svelte:head>
 
-<div class="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center p-4">
-	<div class="w-full max-w-md" transition:fade={{ duration: 200 }}>
-		<div class="text-center mb-8" transition:fly={{ y: -10, duration: 300 }}>
-			<h1 class="text-2xl font-bold text-primary-600 dark:text-primary-400">MemFinance</h1>
-			<p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Kelola keuangan pribadi Anda</p>
+
+<div class="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#f8faf8] p-4 dark:bg-gray-950">
+	<div class="absolute -left-24 top-0 h-72 w-72 rounded-full bg-primary-100/70 blur-3xl dark:bg-primary-950/40" aria-hidden="true"></div>
+	<div class="relative w-full max-w-md" transition:fade={{ duration: 180 }}>
+		<div class="mb-7 text-center" transition:fly={{ y: -8, duration: 220 }}>
+			<a href="/" class="inline-flex items-center gap-2 text-xl font-bold tracking-tight text-gray-950 dark:text-white"><span class="flex h-9 w-9 items-center justify-center rounded-xl bg-primary-600 text-white" aria-hidden="true"><svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 19V7l7-3 7 3v12l-7 3-7-3Z" /><path d="M8 9h8M8 13h5" /></svg></span>MemFinance</a>
+			<p class="mt-3 text-sm text-gray-600 dark:text-gray-400">Masuk untuk melanjutkan pencatatan Anda.</p>
 		</div>
 
 		{#if !supabaseConfigured}
-			<div class="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 p-6 text-center space-y-3">
+			<div class="space-y-3 rounded-2xl border border-gray-200 bg-white p-6 text-center shadow-sm dark:border-gray-800 dark:bg-gray-900">
 				<p class="text-sm text-gray-500 dark:text-gray-400">Autentikasi belum dikonfigurasi.</p>
 				<p class="text-xs text-gray-400">Hubungi administrator untuk mengatur Supabase.</p>
 			</div>
 		{:else}
 
-		<div class="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 p-6 space-y-5">
+		<div class="space-y-5 rounded-2xl border border-gray-200 bg-white p-5 shadow-xl shadow-gray-200/60 sm:p-7 dark:border-gray-800 dark:bg-gray-900 dark:shadow-black/20">
+			<div><h1 class="text-xl font-bold tracking-tight text-gray-950 dark:text-white">Selamat datang</h1><p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Pilih cara yang paling nyaman untuk masuk.</p></div>
 			<button
 				onclick={handleGoogleLogin}
 				disabled={loading}
-				class="w-full flex items-center justify-center gap-3 px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
+				class="flex min-h-11 w-full items-center justify-center gap-3 rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500/30 disabled:opacity-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
 			>
 				<svg class="w-5 h-5" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/><path fill="none" d="M1 1h22v22H1z"/></svg>
 				{loading ? 'Memproses...' : 'Login dengan Google'}
@@ -208,13 +211,14 @@
 			{#if step === 'email'}
 				<div class="space-y-3">
 					<div>
-						<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
+						<label for="login-email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
 						<input
+							id="login-email"
 							type="email"
 							placeholder="anda@email.com"
 							bind:value={email}
 							oninput={resetError}
-							class="w-full px-3 py-2 rounded-lg border text-sm transition-colors bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500"
+							class="min-h-11 w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 transition-colors placeholder:text-gray-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/30 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
 						/>
 					</div>
 					<div id="turnstile-widget" class="flex justify-center"></div>
@@ -231,8 +235,8 @@
 						<p class="text-sm text-green-600 dark:text-green-400 text-center" transition:fade>{successMessage}</p>
 					{/if}
 					<div>
-						<label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3 text-center">Masukkan 6 digit kode OTP</label>
-						<div class="flex justify-center gap-2">
+						<p id="otp-label" class="mb-3 text-center text-sm font-medium text-gray-700 dark:text-gray-300">Masukkan 6 digit kode OTP</p>
+						<div class="flex justify-center gap-1.5 sm:gap-2">
 							{#each otpDigits as _, i}
 								<input
 									id="otp-{i}"
@@ -242,7 +246,7 @@
 									value={otpDigits[i]}
 									oninput={(e) => handleOtpInput(i, e)}
 									onkeydown={(e) => handleOtpKeydown(i, e)}
-									class="w-12 h-14 text-center text-xl font-bold rounded-lg border text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+									aria-label="Digit OTP {i + 1}" aria-describedby="otp-label" class="h-12 w-10 rounded-xl border border-gray-300 bg-white text-center text-lg font-bold text-gray-900 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/30 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 sm:h-14 sm:w-12"
 								/>
 							{/each}
 						</div>

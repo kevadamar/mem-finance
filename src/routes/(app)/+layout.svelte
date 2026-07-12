@@ -1,7 +1,7 @@
 <script lang="ts">
 	import '../../app.css';
 	import { onMount } from 'svelte';
-	import { slide } from 'svelte/transition';
+	import { fade } from 'svelte/transition';
 	import Sidebar from '$lib/components/layout/Sidebar.svelte';
 	import BottomNav from '$lib/components/layout/BottomNav.svelte';
 	import ToastContainer from '$lib/components/ui/ToastContainer.svelte';
@@ -48,21 +48,21 @@
 	});
 </script>
 
-<div class="min-h-screen bg-gray-50 dark:bg-gray-950">
+<div class="min-h-screen bg-[var(--canvas)]">
 	{#if !app.online}
-		<div class="fixed top-0 left-0 right-0 z-50 bg-yellow-500 text-yellow-900 text-center text-xs py-1.5 font-medium" transition:slide>
-			Anda sedang offline — menampilkan data tersimpan
+		<div class="fixed left-1/2 top-[max(0.75rem,env(safe-area-inset-top))] z-50 -translate-x-1/2 rounded-full border border-warning-500/25 bg-warning-50 px-3 py-1.5 text-center text-xs font-semibold text-amber-900 shadow-sm dark:bg-amber-950 dark:text-amber-100" role="status" transition:fade={{ duration: 160 }}>
+			Anda sedang offline · data tersimpan tetap tersedia
 			{#if app.pendingSync > 0} — {app.pendingSync} item menunggu sync{/if}
 		</div>
 	{:else if app.pendingSync > 0}
-		<div class="fixed top-0 left-0 right-0 z-50 bg-blue-500 text-white text-center text-xs py-1.5 font-medium" transition:slide>
-			{app.pendingSync} item menunggu sinkronisasi...
+		<div class="fixed left-1/2 top-[max(0.75rem,env(safe-area-inset-top))] z-50 -translate-x-1/2 rounded-full border border-primary-500/20 bg-primary-50 px-3 py-1.5 text-center text-xs font-semibold text-primary-800 shadow-sm dark:bg-primary-950 dark:text-primary-100" role="status" transition:fade={{ duration: 160 }}>
+			{app.pendingSync} item menunggu sinkronisasi
 		</div>
 	{/if}
 
 	<Sidebar />
-	<div class="lg:pl-64 {!app.online ? 'pt-7' : app.pendingSync > 0 ? 'pt-7' : ''}">
-		<main class="pb-20 lg:pb-8 p-4 md:p-6 max-w-7xl mx-auto">
+	<div class="lg:pl-64">
+		<main class="mx-auto max-w-7xl p-4 pb-[calc(6rem+env(safe-area-inset-bottom))] pt-6 sm:p-6 sm:pb-[calc(6.5rem+env(safe-area-inset-bottom))] lg:p-8 lg:pb-10">
 			{@render children()}
 		</main>
 	</div>

@@ -10,4 +10,4 @@
 	} = $props();
 </script>
 
-<div class="animate-pulse bg-gray-200 dark:bg-gray-700 rounded {width} {height} {className}" role="status" aria-label="Memuat..."></div>
+<div class="animate-pulse motion-reduce:animate-none rounded-xl bg-[var(--surface-2)] {width} {height} {className}" role="status" aria-label="Memuat..."><span class="sr-only">Memuat…</span></div>

@@ -30,6 +30,7 @@
 			totalExpense,
 			monthIncome,
 			monthExpense,
+			transactionCount: txs.length,
 			recentTransactions: txs.slice(0, 5)
 		};
 	});
@@ -37,7 +38,7 @@
 
 <div class="space-y-3">
 	<StaleIndicator />
-	<div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+	<div class="grid grid-cols-1 gap-3 min-[420px]:grid-cols-2 lg:grid-cols-4 lg:gap-4" aria-label="Ringkasan keuangan">
 		{#if app.transactionsLoading && app.transactions.length === 0}
 			{#each [1, 2, 3, 4] as _}
 				<Card>
@@ -46,21 +47,20 @@
 				</Card>
 			{/each}
 		{:else if summary}
-			<Card>
-				<p class="text-sm text-gray-500 dark:text-gray-400">Saldo Saat Ini</p>
-				<p class="text-2xl font-bold {summary.balance >= 0 ? 'text-green-600' : 'text-red-600'}">{formatRupiah(summary.balance)}</p>
+			<Card class="group border-primary-100 bg-gradient-to-br from-white to-primary-50/70 transition hover:-translate-y-0.5 hover:shadow-md motion-reduce:transform-none motion-reduce:transition-none dark:border-primary-900/50 dark:from-gray-900 dark:to-primary-950/20">
+				<div class="flex items-start justify-between gap-3">
+					<div><p class="text-sm font-medium text-gray-600 dark:text-gray-300">Saldo saat ini</p><p class="mt-2 break-words text-xl font-bold tracking-tight sm:text-2xl {summary.balance >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}">{formatRupiah(summary.balance)}</p></div>
+					<span class="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-primary-100 text-primary-700 dark:bg-primary-900/50 dark:text-primary-300" aria-hidden="true">Rp</span>
+				</div>
 			</Card>
-			<Card>
-				<p class="text-sm text-gray-500 dark:text-gray-400">Pemasukan Bulan Ini</p>
-				<p class="text-2xl font-bold text-green-600">{formatRupiah(summary.monthIncome)}</p>
+			<Card class="transition hover:-translate-y-0.5 hover:shadow-md motion-reduce:transform-none motion-reduce:transition-none">
+				<div class="flex items-start justify-between gap-3"><div><p class="text-sm font-medium text-gray-600 dark:text-gray-300">Pemasukan bulan ini</p><p class="mt-2 break-words text-xl font-bold tracking-tight text-green-600 dark:text-green-400 sm:text-2xl">{formatRupiah(summary.monthIncome)}</p></div><span class="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-green-100 text-lg font-bold text-green-700 dark:bg-green-900/30 dark:text-green-300" aria-hidden="true">↑</span></div>
 			</Card>
-			<Card>
-				<p class="text-sm text-gray-500 dark:text-gray-400">Pengeluaran Bulan Ini</p>
-				<p class="text-2xl font-bold text-red-600">{formatRupiah(summary.monthExpense)}</p>
+			<Card class="transition hover:-translate-y-0.5 hover:shadow-md motion-reduce:transform-none motion-reduce:transition-none">
+				<div class="flex items-start justify-between gap-3"><div><p class="text-sm font-medium text-gray-600 dark:text-gray-300">Pengeluaran bulan ini</p><p class="mt-2 break-words text-xl font-bold tracking-tight text-red-600 dark:text-red-400 sm:text-2xl">{formatRupiah(summary.monthExpense)}</p></div><span class="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-red-100 text-lg font-bold text-red-700 dark:bg-red-900/30 dark:text-red-300" aria-hidden="true">↓</span></div>
 			</Card>
-			<Card>
-				<p class="text-sm text-gray-500 dark:text-gray-400">Total Transaksi</p>
-				<p class="text-2xl font-bold text-primary-600 dark:text-primary-400">{(summary.totalIncome + summary.totalExpense).toLocaleString('id-ID')}</p>
+			<Card class="transition hover:-translate-y-0.5 hover:shadow-md motion-reduce:transform-none motion-reduce:transition-none">
+				<div class="flex items-start justify-between gap-3"><div><p class="text-sm font-medium text-gray-600 dark:text-gray-300">Total transaksi</p><p class="mt-2 text-xl font-bold tracking-tight text-primary-600 dark:text-primary-400 sm:text-2xl">{summary.transactionCount.toLocaleString('id-ID')}</p></div><span class="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-primary-100 text-sm font-bold text-primary-700 dark:bg-primary-900/50 dark:text-primary-300" aria-hidden="true">#</span></div>
 			</Card>
 		{/if}
 	</div>
