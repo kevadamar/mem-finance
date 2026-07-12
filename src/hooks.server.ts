@@ -96,22 +96,31 @@ async function getOrCreateGaSheetId(userId: string, email: string): Promise<stri
 }
 
 export const handle: Handle = async ({ event, resolve }) => {
-	if (getPrivateEnv('FORCE_AUTH_DISABLED') === 'true' || !PUBLIC_SUPABASE_URL || !PUBLIC_SUPABASE_PUBLISHABLE_KEY) {
+	const authDisabled = getPrivateEnv('FORCE_AUTH_DISABLED') === 'true';
+
+	// With no Supabase configuration there is no session to read. When auth is
+	// disabled, however, we still read an existing session so public routes can
+	// make the right UX decision (for example, sending a signed-in visitor from
+	// /login to /dashboard); only protected-route enforcement is skipped.
+	if (!PUBLIC_SUPABASE_URL || !PUBLIC_SUPABASE_PUBLISHABLE_KEY) {
 		return resolve(event);
 	}
 
 	const supabase = createSupabaseServerClient(event);
 	event.locals.supabase = supabase;
 
-	const { data: claimsData } = await supabase.auth.getClaims();
+	// Refreshes an expiring cookie session before checking the user. `getUser`
+	// verifies the identity with Supabase Auth, unlike an unverified cookie read.
+	await supabase.auth.getSession();
+	const { data: userData } = await supabase.auth.getUser();
 
-	if (claimsData?.claims?.sub) {
-		const userId = claimsData.claims.sub as string;
+	if (userData.user) {
+		const userId = userData.user.id;
 		event.locals.userId = userId;
-		event.locals.gaSheetId = await getOrCreateGaSheetId(userId, (claimsData.claims.email as string) || '');
+		event.locals.gaSheetId = await getOrCreateGaSheetId(userId, userData.user.email || '');
 	} else {
 		const isProtected = event.url.pathname !== '/' && !PUBLIC_PATHS.some((p) => event.url.pathname.startsWith(p));
-		if (isProtected) {
+		if (!authDisabled && isProtected) {
 			throw redirect(303, '/login');
 		}
 	}

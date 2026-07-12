@@ -17,12 +17,13 @@ export function createSupabaseServerClient(event: RequestEvent) {
 				},
 				setAll(cookiesToSet) {
 					for (const { name, value, options } of cookiesToSet) {
+						// Supabase SSR supplies cookie options that its browser client
+						// must be able to read and refresh. Overriding these (notably
+						// with `httpOnly: true` or `secure: true` on localhost) prevents
+						// the server and browser from observing the same session.
 						event.cookies.set(name, value, {
-							path: '/',
-							httpOnly: true,
-							sameSite: 'lax',
-							secure: true,
-							...options
+							...options,
+							path: options.path ?? '/'
 						});
 					}
 				}
