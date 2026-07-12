@@ -1,8 +1,11 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import { navItems } from './nav-items';
+	import LogoutConfirm from './LogoutConfirm.svelte';
 
 	let isDark = $state(false);
+	let logoutOpen = $state(false);
+	let logoutTrigger = $state<HTMLButtonElement | null>(null);
 	const mainItems = navItems.filter((item) => ['/dashboard', '/transactions', '/budgets'].includes(item.href));
 	const secondaryItems = navItems.filter((item) => ['/chat', '/categories', '/settings'].includes(item.href));
 
@@ -59,11 +62,11 @@
 			<svg class="size-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d={isDark ? 'M12 3v2m0 14v2m9-9h-2M5 12H3m15.364-6.364-1.414 1.414M7.05 16.95l-1.414 1.414m12.728 0-1.414-1.414M7.05 7.05 5.636 5.636M15 12a3 3 0 11-6 0 3 3 0 016 0z' : 'M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 10120.354 15.354z'} /></svg>
 			{isDark ? 'Mode terang' : 'Mode gelap'}
 		</button>
-		<form method="POST" action="/logout">
-			<button type="submit" class="flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-sm font-semibold text-danger-500 transition-colors hover:bg-danger-50 dark:hover:bg-rose-950">
+		<button bind:this={logoutTrigger} type="button" onclick={() => logoutOpen = true} class="flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-sm font-semibold text-danger-500 transition-colors hover:bg-danger-50 dark:hover:bg-rose-950">
 				<svg class="size-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
 				Keluar
-			</button>
-		</form>
+		</button>
 	</div>
 </aside>
+
+<LogoutConfirm open={logoutOpen} oncancel={() => logoutOpen = false} returnFocusTo={logoutTrigger} />
