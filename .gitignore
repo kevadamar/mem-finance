@@ -47,3 +47,6 @@ logs/
 
 # Documentation
 docs/
+
+# Graphify generated artifacts
+graphify-out/
