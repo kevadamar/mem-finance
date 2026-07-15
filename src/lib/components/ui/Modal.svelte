@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { tick } from 'svelte';
 	import { fade, fly } from 'svelte/transition';
+	import { lockBodyScroll } from '$lib/utils/body-scroll-lock';
 
 	let {
 		open = false,
@@ -23,11 +24,10 @@
 	$effect(() => {
 		if (!open || typeof document === 'undefined') return;
 		previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
-		const originalOverflow = document.body.style.overflow;
-		document.body.style.overflow = 'hidden';
+		const unlockBodyScroll = lockBodyScroll();
 		tick().then(() => dialog?.querySelector<HTMLElement>('[data-dialog-autofocus]')?.focus() ?? dialog?.focus());
 		return () => {
-			document.body.style.overflow = originalOverflow;
+			unlockBodyScroll();
 			previousFocus?.focus();
 		};
 	});
