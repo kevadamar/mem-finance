@@ -13,6 +13,7 @@
 	import { STORES } from '$lib/data/idb';
 	import { app, loadCategoriesFromCache, loadTransactionsFromCache, loadBudgetsFromCache, showToast, withMutation } from '$lib/state/app.svelte';
 	import { formatRupiah, formatDateTime } from '$lib/utils/format';
+	import { getBudgetCopyCandidates, getPreviousBudgetPeriod } from '$lib/utils/budget-copy';
 	import type { Budget, BudgetSummary } from '$lib/domain/entities/budget';
 
 	let month = $state(new Date().getMonth() + 1);
@@ -22,11 +23,17 @@
 	let editBudgetId = $state<string | null>(null);
 	let formCat = $state('');
 	let formAmount = $state('');
+	let copyModalOpen = $state(false);
+	let copyingBudgets = $state(false);
+	let copySourceMonth = $state(1);
+	let copySourceYear = $state(0);
+	let inactiveBudgets = $state<Budget[]>([]);
 
 	let isEditing = $derived(editBudgetId !== null);
 	let formTitle = $derived(isEditing ? 'Edit Budget' : 'Tambah Budget');
 
 	const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+	const monthOptions = monthNames.map((label, index) => ({ value: String(index + 1), label }));
 
 	let expenseCats = $derived(app.categories.filter((c) => c.type === 'expense'));
 
@@ -55,6 +62,17 @@
 	let unbudgetedCats = $derived(expenseCats.filter((c) => !summaries.some((s) => s.categoryId === c.id)));
 
 	let availableCats = $derived(isEditing ? expenseCats : unbudgetedCats);
+	let copySourceYearOptions = $derived(
+		[...new Set([...app.budgets.map((budget) => Number(budget.year)), year, getPreviousBudgetPeriod({ month, year }).year])]
+			.sort((a, b) => b - a)
+			.map((value) => ({ value: String(value), label: String(value) }))
+	);
+	let copyCandidates = $derived(getBudgetCopyCandidates(
+		[...app.budgets, ...inactiveBudgets],
+		{ month: copySourceMonth, year: copySourceYear },
+		{ month, year }
+	));
+	let isCopySourceTarget = $derived(copySourceMonth === month && copySourceYear === year);
 
 	let detailBudgetSummary = $state<BudgetSummary | null>(null);
 
@@ -80,8 +98,6 @@
 			})
 			.reduce((s, t) => s + t.amount, 0)
 	);
-
-	let inactiveBudgets = $state<Budget[]>([]);
 
 	async function loadInactive() {
 		const all = await idb.getAll<Budget>(STORES.BUDGETS);
@@ -150,6 +166,48 @@
 		formCat = '';
 		formAmount = '';
 		modalOpen = true;
+	}
+
+	function openCopyBudget() {
+		const previousPeriod = getPreviousBudgetPeriod({ month, year });
+		copySourceMonth = previousPeriod.month;
+		copySourceYear = previousPeriod.year;
+		copyModalOpen = true;
+	}
+
+	async function copyBudgets() {
+		copyingBudgets = true;
+		try {
+			const storedBudgets = await idb.getAll<Budget>(STORES.BUDGETS);
+			const candidates = getBudgetCopyCandidates(
+				storedBudgets,
+				{ month: copySourceMonth, year: copySourceYear },
+				{ month, year }
+			);
+			if (candidates.length === 0) return;
+
+			const results = await withMutation(() => Promise.allSettled(
+				candidates.map((input) => getBudgetRepo().create(input))
+			));
+			const copied = results
+				.filter((result): result is PromiseFulfilledResult<Budget> => result.status === 'fulfilled')
+				.map((result) => result.value);
+			const failedCount = results.length - copied.length;
+
+			if (copied.length > 0) app.budgets = [...app.budgets, ...copied];
+			if (failedCount === 0) {
+				copyModalOpen = false;
+				showToast(`${copied.length} budget berhasil disalin`, 'success');
+			} else if (copied.length > 0) {
+				showToast(`${copied.length} budget disalin, ${failedCount} gagal`, 'warning');
+			} else {
+				showToast('Gagal menyalin budget', 'error');
+			}
+		} catch {
+			showToast('Gagal menyalin budget', 'error');
+		} finally {
+			copyingBudgets = false;
+		}
 	}
 
 	function openEdit(s: BudgetSummary) {
@@ -223,7 +281,10 @@
 	<header class="rounded-2xl border border-primary-100 bg-gradient-to-br from-white via-primary-50/60 to-sky-50 px-5 py-5 shadow-sm dark:border-primary-900/60 dark:from-gray-900 dark:via-primary-950/40 dark:to-gray-900 sm:px-6">
 		<div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
 			<div><p class="text-sm font-medium text-primary-700 dark:text-primary-300">Rencana pengeluaran</p><h1 class="mt-1 text-2xl font-bold tracking-tight text-gray-950 dark:text-white sm:text-3xl">Budget</h1><p class="mt-1 text-sm text-gray-600 dark:text-gray-300">Atur batas per kategori dan cek progresnya kapan saja.</p></div>
-			<Button onclick={openAdd} disabled={unbudgetedCats.length === 0} class="min-h-11 shrink-0"><span class="hidden sm:inline">+ Tambah budget</span><span class="sm:hidden">+ Budget</span></Button>
+			<div class="flex flex-wrap gap-2">
+				<Button variant="secondary" onclick={openCopyBudget} class="min-h-11 shrink-0">Salin budget</Button>
+				<Button onclick={openAdd} disabled={unbudgetedCats.length === 0} class="min-h-11 shrink-0"><span class="hidden sm:inline">+ Tambah budget</span><span class="sm:hidden">+ Budget</span></Button>
+			</div>
 		</div>
 	</header>
 
@@ -290,6 +351,27 @@
 		</div>
 	{/if}
 </div>
+
+<Modal open={copyModalOpen} title="Salin budget" onclose={() => copyModalOpen = false}>
+	<div class="space-y-4">
+		<p class="text-sm text-gray-600 dark:text-gray-300">Salin nominal budget dari periode pilihan ke <strong>{monthNames[month - 1]} {year}</strong>. Budget kategori yang sudah ada tidak akan diubah.</p>
+		<div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+			<Select label="Bulan sumber" options={monthOptions} value={String(copySourceMonth)} onchange={(event) => copySourceMonth = Number((event.target as HTMLSelectElement).value)} />
+			<Select label="Tahun sumber" options={copySourceYearOptions} value={String(copySourceYear)} onchange={(event) => copySourceYear = Number((event.target as HTMLSelectElement).value)} />
+		</div>
+		{#if isCopySourceTarget}
+			<p class="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800 dark:bg-amber-950/40 dark:text-amber-200">Pilih periode sumber yang berbeda dari periode target.</p>
+		{:else if copyCandidates.length === 0}
+			<p class="rounded-lg bg-gray-50 px-3 py-2 text-sm text-gray-600 dark:bg-gray-800 dark:text-gray-300">Tidak ada budget baru yang dapat disalin dari periode ini.</p>
+		{:else}
+			<p class="rounded-lg bg-primary-50 px-3 py-2 text-sm text-primary-800 dark:bg-primary-950/40 dark:text-primary-200"><strong>{copyCandidates.length}</strong> budget akan ditambahkan. Budget yang sudah ada pada periode target dilewati.</p>
+		{/if}
+		<div class="flex gap-3 pt-2">
+			<Button variant="secondary" class="flex-1" onclick={() => copyModalOpen = false} disabled={copyingBudgets}>Batal</Button>
+			<Button variant="primary" class="flex-1" onclick={copyBudgets} disabled={isCopySourceTarget || copyCandidates.length === 0} loading={copyingBudgets}>Salin {copyCandidates.length} budget</Button>
+		</div>
+	</div>
+</Modal>
 
 <Modal open={modalOpen} title={formTitle} onclose={() => modalOpen = false}>
 	<div class="space-y-4">
