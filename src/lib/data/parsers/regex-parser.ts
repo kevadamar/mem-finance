@@ -202,10 +202,42 @@ function detectCategory(text: string): { category: string; type: TransactionType
 }
 
 function extractNote(text: string, amount: string, category: string): string {
-	let note = text.replace(new RegExp(amount.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'), '')
-		.replace(new RegExp(category, 'i'), '')
-		.replace(/\s+/g, ' ')
-		.trim();
+	let note = text;
+
+	// Jika teks berasal dari prompt OCR yang digabung
+	if (note.includes('Teks OCR struk:')) {
+		const [userPart, ocrPart] = note.split('Teks OCR struk:');
+		// Jika user mengetikkan catatan sendiri sebelum lampiran struk
+		const cleanUserPart = userPart
+			.replace(/belanja\s+struk(?:\s+dari\s+gambar)?/gi, '')
+			.replace(new RegExp(amount.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi'), '')
+			.replace(new RegExp(category, 'gi'), '')
+			.replace(/\s+/g, ' ')
+			.trim();
+
+		if (cleanUserPart.length > 0) {
+			note = cleanUserPart;
+		} else if (ocrPart) {
+			// Ambil nama merchant/baris pertama yang bermakna dari teks OCR
+			const lines = ocrPart
+				.split(/[\n,;]+/)
+				.map((l) => l.trim())
+				.filter((l) => l.length >= 3 && !l.match(/^(?:recei[po]t|date|cashier|order|total|subtotal|no\.?|\d+)/i));
+			note = lines[0] ? `Struk ${lines[0]}` : 'Belanja struk';
+		} else {
+			note = 'Belanja struk';
+		}
+	} else {
+		note = note.replace(new RegExp(amount.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i'), '')
+			.replace(new RegExp(category, 'i'), '')
+			.replace(/\s+/g, ' ')
+			.trim();
+	}
+
+	if (note && note.length > 200) {
+		note = note.slice(0, 197) + '...';
+	}
+
 	return note || undefined as unknown as string;
 }
 

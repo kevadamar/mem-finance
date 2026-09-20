@@ -19,7 +19,8 @@ export class TransactionValidationError extends Error {
 	constructor(
 		public readonly errors: { field: string; message: string }[]
 	) {
-		super('Validasi transaksi gagal');
+		const details = errors.map((e) => e.message).join(', ');
+		super(details ? `Validasi transaksi gagal: ${details}` : 'Validasi transaksi gagal');
 		this.name = 'TransactionValidationError';
 	}
 }
