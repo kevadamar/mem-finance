@@ -18,16 +18,28 @@
 	let transactionType = $state<TransactionType>('expense');
 	let prefersReducedMotion = $state(false);
 	let isDesktop = $state(false);
+	let isDark = $state(false);
 	const periodLabels: Record<string, string> = { week: 'Minggu Ini', month: 'Bulan Ini', 'last-month': 'Bulan Lalu', '3months': '3 Bulan' };
 
 	onMount(() => {
+		const checkDark = () => {
+			isDark = document.documentElement.classList.contains('dark');
+		};
+		checkDark();
+		const observer = new MutationObserver(checkDark);
+		observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+
 		const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
 		const desktopQuery = window.matchMedia('(min-width: 640px)');
 		const sync = () => { prefersReducedMotion = motionQuery.matches; isDesktop = desktopQuery.matches; };
 		sync();
 		motionQuery.addEventListener('change', sync);
 		desktopQuery.addEventListener('change', sync);
-		return () => { motionQuery.removeEventListener('change', sync); desktopQuery.removeEventListener('change', sync); };
+		return () => {
+			observer.disconnect();
+			motionQuery.removeEventListener('change', sync);
+			desktopQuery.removeEventListener('change', sync);
+		};
 	});
 
 	let chartOption = $derived.by((): EChartsOption | null => {
@@ -76,12 +88,42 @@
 			})
 			.sort((a, b) => b.value - a.value);
 
+		const legendColor = isDark ? '#D1D5DB' : '#4B5563';
+		const tooltipBg = isDark ? '#1F2937' : '#FFFFFF';
+		const tooltipBorder = isDark ? '#374151' : '#E5E7EB';
+		const tooltipText = isDark ? '#F9FAFB' : '#111827';
+
 		return {
 			animation: !prefersReducedMotion,
 			animationDuration: 320,
-			tooltip: { trigger: 'item', appendToBody: true, formatter: (p: { name: string; value: number; percent: number }) => `<strong>${p.name}</strong><br/>${formatRupiah(p.value)} (${p.percent}%)` },
-			legend: isDesktop ? { orient: 'vertical', right: 8, top: 'center', textStyle: { fontSize: 12, color: '#6B7280' }, type: 'scroll' } : { orient: 'horizontal', bottom: 0, left: 'center', textStyle: { fontSize: 11, color: '#6B7280' }, type: 'scroll' },
-			series: [{ type: 'pie', radius: isDesktop ? ['45%', '75%'] : ['44%', '70%'], center: isDesktop ? ['40%', '50%'] : ['50%', '45%'], avoidLabelOverlap: false, padAngle: 1, itemStyle: { borderRadius: 5, borderColor: 'transparent', borderWidth: 2 }, label: { show: false }, emphasis: { label: { show: true, fontSize: 14, fontWeight: 'bold' }, scaleSize: 6 }, data }]
+			tooltip: {
+				trigger: 'item',
+				appendToBody: true,
+				backgroundColor: tooltipBg,
+				borderColor: tooltipBorder,
+				textStyle: { color: tooltipText, fontSize: 13 },
+				formatter: (p: { name: string; value: number; percent: number }) =>
+					`<strong>${p.name}</strong><br/>${formatRupiah(p.value)} (${p.percent}%)`
+			},
+			legend: isDesktop
+				? { orient: 'vertical', right: 8, top: 'center', textStyle: { fontSize: 12, color: legendColor }, type: 'scroll' }
+				: { orient: 'horizontal', bottom: 0, left: 'center', textStyle: { fontSize: 11, color: legendColor }, type: 'scroll' },
+			series: [
+				{
+					type: 'pie',
+					radius: isDesktop ? ['45%', '75%'] : ['44%', '70%'],
+					center: isDesktop ? ['40%', '50%'] : ['50%', '45%'],
+					avoidLabelOverlap: false,
+					padAngle: 1,
+					itemStyle: { borderRadius: 5, borderColor: isDark ? '#111827' : '#FFFFFF', borderWidth: 2 },
+					label: { show: false },
+					emphasis: {
+						label: { show: true, fontSize: 14, fontWeight: 'bold', color: isDark ? '#F9FAFB' : '#111827' },
+						scaleSize: 6
+					},
+					data
+				}
+			]
 		} as EChartsOption;
 	});
 
@@ -98,7 +140,7 @@
 			<button onclick={() => transactionType = 'income'} aria-pressed={transactionType === 'income'} class="min-h-10 flex-1 rounded-lg px-3 text-sm font-semibold transition focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-1 motion-reduce:transition-none {transactionType === 'income' ? 'bg-white text-green-600 shadow-sm dark:bg-gray-700 dark:text-green-400' : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white'}">Pemasukan</button>
 		</div>
 		<label class="sr-only" for="chart-period">Periode grafik</label>
-		<select id="chart-period" value={period} onchange={(e) => period = (e.target as HTMLSelectElement).value as typeof period} class="min-h-10 w-full rounded-xl border border-gray-300 bg-white px-3 text-sm font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 sm:w-auto">
+		<select id="chart-period" value={period} onchange={(e) => period = (e.target as HTMLSelectElement).value as typeof period} class="min-h-10 w-full rounded-xl border border-gray-300 bg-white pl-3.5 pr-10 text-sm font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 sm:w-auto">
 			{#each Object.entries(periodLabels) as [value, label]}<option {value}>{label}</option>{/each}
 		</select>
 	</div>

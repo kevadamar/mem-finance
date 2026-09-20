@@ -95,6 +95,8 @@ async function getOrCreateGaSheetId(userId: string, email: string): Promise<stri
 	return null;
 }
 
+import { getDevUser } from '$lib/server/dev-user';
+
 export const handle: Handle = async ({ event, resolve }) => {
 	const authDisabled = getPrivateEnv('FORCE_AUTH_DISABLED') === 'true';
 
@@ -103,6 +105,11 @@ export const handle: Handle = async ({ event, resolve }) => {
 	// make the right UX decision (for example, sending a signed-in visitor from
 	// /login to /dashboard); only protected-route enforcement is skipped.
 	if (!PUBLIC_SUPABASE_URL || !PUBLIC_SUPABASE_PUBLISHABLE_KEY) {
+		if (authDisabled) {
+			const devUser = getDevUser();
+			event.locals.userId = devUser.id;
+			event.locals.user = devUser as unknown as import('@supabase/supabase-js').User;
+		}
 		return resolve(event);
 	}
 
@@ -117,7 +124,17 @@ export const handle: Handle = async ({ event, resolve }) => {
 	if (userData.user) {
 		const userId = userData.user.id;
 		event.locals.userId = userId;
+		event.locals.user = userData.user;
 		event.locals.gaSheetId = await getOrCreateGaSheetId(userId, userData.user.email || '');
+	} else if (authDisabled) {
+		const devUser = getDevUser();
+		event.locals.userId = devUser.id;
+		event.locals.user = devUser as unknown as import('@supabase/supabase-js').User;
+		try {
+			event.locals.gaSheetId = await getOrCreateGaSheetId(devUser.id, devUser.email);
+		} catch {
+			// Fallback safely if external services are unreachable
+		}
 	} else {
 		const isProtected = event.url.pathname !== '/' && !PUBLIC_PATHS.some((p) => event.url.pathname.startsWith(p));
 		if (!authDisabled && isProtected) {

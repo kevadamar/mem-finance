@@ -3,7 +3,7 @@
 		label,
 		type = 'text',
 		placeholder = '',
-		value = '',
+		value = $bindable(''),
 		error = '',
 		disabled = false,
 		required = false,
@@ -33,9 +33,9 @@
 		{label}{#if required}<span class="ml-0.5 text-danger-500" aria-hidden="true">*</span><span class="sr-only"> wajib diisi</span>{/if}
 	</label>
 	{#if hint}<p id={id ? `${id}-hint` : undefined} class="mb-1.5 text-xs text-[var(--text-secondary)]">{hint}</p>{/if}
-	<input {id} {type} {placeholder} {disabled} {required} {value} {oninput} {onchange}
+	<input {id} {type} {placeholder} {disabled} {required} bind:value {oninput} {onchange}
 		aria-invalid={error ? 'true' : undefined}
 		aria-describedby={error && id ? `${id}-error` : hint && id ? `${id}-hint` : undefined}
-		class="w-full min-h-11 px-3 rounded-xl border bg-[var(--surface-1)] text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] disabled:cursor-not-allowed disabled:opacity-55 transition-[border-color,box-shadow,background-color] {error ? 'border-danger-500' : 'hover:border-[var(--border-strong)]'}" />
+		class="w-full min-h-11 px-3.5 rounded-xl border bg-[var(--surface-1)] text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] disabled:cursor-not-allowed disabled:opacity-55 transition-[border-color,box-shadow,background-color] {error ? 'border-danger-500' : 'hover:border-[var(--border-strong)]'}" />
 	{#if error}<p id={id ? `${id}-error` : undefined} class="mt-1.5 text-xs font-medium text-danger-500">{error}</p>{/if}
 </div>

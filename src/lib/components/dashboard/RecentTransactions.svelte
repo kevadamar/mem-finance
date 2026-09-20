@@ -25,25 +25,31 @@
 			{/each}
 		</div>
 	{:else if app.transactions.length === 0}
-		<EmptyState title="Belum ada transaksi" description="Yuk catat pengeluaran pertama kamu!" />
+		<EmptyState title="Belum ada transaksi" description="Yuk catat pengeluaran pertama kamu!" actionLabel="Catat Transaksi" onaction={() => { if (typeof window !== 'undefined') window.location.href = '/transactions?new=1'; }} />
 	{:else}
 		<div class="space-y-1">
 			{#each app.transactions.slice(0, 5) as t (t.id)}
-				<div class="flex items-center gap-3 rounded-xl p-2.5 transition hover:bg-gray-50 focus-within:bg-gray-50 dark:hover:bg-gray-800/50 dark:focus-within:bg-gray-800/50 motion-reduce:transition-none">
-					<div class="w-10 h-10 rounded-full flex items-center justify-center text-lg flex-shrink-0" style="background-color: {t.type === 'expense' ? '#FEE2E2' : '#DCFCE7'}">
+				{@const category = app.categories.find((c) => c.id === t.categoryId)}
+				<a href="/transactions" class="flex items-center gap-3 rounded-xl p-2.5 transition hover:bg-gray-50 focus-within:bg-gray-50 dark:hover:bg-gray-800/50 dark:focus-within:bg-gray-800/50 motion-reduce:transition-none">
+					<div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-base" style="background-color: {t.type === 'expense' ? '#FEE2E2' : '#DCFCE7'}">
 						<span style="color: {t.type === 'expense' ? '#DC2626' : '#16A34A'}">{t.type === 'expense' ? '↓' : '↑'}</span>
 					</div>
 					<div class="flex-1 min-w-0">
-						<p class="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
-							{app.categories.find((c) => c.id === t.categoryId)?.name ?? 'Lainnya'}
-							{#if t.id.startsWith('local_')}<span class="ml-1 text-[10px] text-amber-600">(belum sync)</span>{/if}
-						</p>
-						<p class="text-xs text-gray-500 dark:text-gray-400">{t.note || parseDate(t.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}</p>
+						<div class="flex items-center gap-1.5">
+							{#if category?.color}
+								<span class="inline-block size-2 rounded-full shrink-0 ring-1 ring-black/5 dark:ring-white/10" style="background-color: {category.color}"></span>
+							{/if}
+							<p class="truncate text-sm font-semibold text-gray-900 dark:text-gray-100">
+								{category?.name ?? 'Lainnya'}
+								{#if t.id.startsWith('local_')}<span class="ml-1 text-[10px] font-normal text-amber-600 dark:text-amber-400">(belum sync)</span>{/if}
+							</p>
+						</div>
+						<p class="mt-0.5 truncate text-xs text-gray-500 dark:text-gray-400">{t.note || parseDate(t.date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })}</p>
 					</div>
-					<p class="shrink-0 text-right text-sm font-semibold tabular-nums {t.type === 'expense' ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'}">
+					<p class="shrink-0 text-right text-sm font-bold tabular-nums {t.type === 'expense' ? 'text-red-600 dark:text-red-400' : 'text-green-700 dark:text-green-400'}">
 						{t.type === 'expense' ? '-' : '+'}{formatRupiah(t.amount)}
 					</p>
-				</div>
+				</a>
 			{/each}
 		</div>
 	{/if}

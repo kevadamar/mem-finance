@@ -24,11 +24,30 @@ class AppStore {
 	online = $state(true);
 	toast = $state<{ message: string; type: 'success' | 'error' | 'warning' | 'info' } | null>(null);
 
+	sidebarCollapsed = $state(typeof localStorage !== 'undefined' ? localStorage.getItem('memfinance_sidebar_collapsed') === 'true' : false);
+	mobileSidebarOpen = $state(false);
+	user = $state<import('$lib/types/user').AppUser | import('@supabase/supabase-js').User | null>(null);
+
 	mutationCount = $state(0);
 	isMutating = $derived(this.mutationCount > 0);
 }
 
 export const app = new AppStore();
+
+export function toggleSidebarCollapsed() {
+	app.sidebarCollapsed = !app.sidebarCollapsed;
+	if (typeof localStorage !== 'undefined') {
+		localStorage.setItem('memfinance_sidebar_collapsed', String(app.sidebarCollapsed));
+	}
+}
+
+export function toggleMobileSidebar() {
+	app.mobileSidebarOpen = !app.mobileSidebarOpen;
+}
+
+export function closeMobileSidebar() {
+	app.mobileSidebarOpen = false;
+}
 
 export function showToast(message: string, type: 'success' | 'error' | 'warning' | 'info' = 'info') {
 	app.toast = { message, type };

@@ -54,14 +54,19 @@
 <svelte:head><title>Dashboard — MemFinance</title></svelte:head>
 
 <div class="space-y-5 sm:space-y-6">
-	<header class="rounded-2xl border border-primary-100 bg-gradient-to-br from-white via-primary-50/70 to-sky-50 px-5 py-5 shadow-sm dark:border-primary-900/60 dark:from-gray-900 dark:via-primary-950/40 dark:to-gray-900 sm:px-6">
+	<header class="rounded-2xl border border-primary-100 bg-gradient-to-br from-white via-primary-50/70 to-sky-50 p-4 sm:p-6 shadow-sm dark:border-primary-900/60 dark:from-gray-900 dark:via-primary-950/40 dark:to-gray-900">
 		<p class="text-sm font-medium text-primary-700 dark:text-primary-300">Ringkasan keuangan</p>
 		<div class="mt-1 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
 			<div>
-				<h1 class="text-2xl font-bold tracking-tight text-gray-950 dark:text-white sm:text-3xl">Dashboard</h1>
+				<h1 class="text-2xl font-bold tracking-tight text-gray-950 dark:text-white sm:text-3xl">
+					{app.user?.user_metadata?.name ? `Hai, ${app.user.user_metadata.name.split(' ')[0]}` : 'Dashboard'}
+				</h1>
 				<p class="mt-1 text-sm text-gray-600 dark:text-gray-300">Pantau arus kas dan budget Anda dalam satu tempat.</p>
 			</div>
-			<a href="/transactions" class="mt-3 inline-flex min-h-11 items-center justify-center rounded-xl bg-primary-600 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 motion-reduce:transition-none dark:focus:ring-offset-gray-900 sm:mt-0">Catat transaksi</a>
+			<a href="/transactions?new=1" class="mt-3 inline-flex min-h-11 items-center justify-center gap-1.5 rounded-xl bg-primary-600 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 motion-reduce:transition-none dark:focus:ring-offset-gray-900 sm:mt-0">
+				<svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 5v14M5 12h14" /></svg>
+				Catat transaksi
+			</a>
 		</div>
 	</header>
 	<SummaryCards />

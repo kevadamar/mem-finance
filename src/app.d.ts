@@ -5,6 +5,7 @@ declare global {
 		interface Locals {
 			supabase: SupabaseClient;
 			userId: string | null;
+			user: import('@supabase/supabase-js').User | import('$lib/types/user').AppUser | null;
 			gaSheetId: string | null;
 		}
 	}
