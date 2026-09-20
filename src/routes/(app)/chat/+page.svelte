@@ -5,6 +5,7 @@
 	import { CreateTransactionUseCase } from '$lib/domain/usecases/create-transaction.usecase';
 	import { withMutation } from '$lib/state/app.svelte';
 	import { formatRupiah } from '$lib/utils/format';
+	import { buildReceiptParserMessage } from '$lib/utils/receiptChatMessage';
 	import type { ChatMessage, ParserResult } from '$lib/domain/entities/chat';
 	import type { Category } from '$lib/domain/entities/category';
 	import type Cropper from 'cropperjs';
@@ -404,17 +405,32 @@
 	}
 
 	async function parseTransactionMessage(text: string): Promise<ParserResult> {
+		const message = text.trim();
+		if (!message) {
+			return {
+				success: true,
+				data: null,
+				fallbackLevel: 'regex',
+				message: 'Saya belum menemukan teks atau nominal dari struk. Coba unggah gambar yang lebih jelas atau tambahkan nominal manual.'
+			};
+		}
+
 		const res = await fetch('/api/chat', {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ message: text })
+			body: JSON.stringify({ message })
 		});
-		return await res.json();
-	}
+		const payload: unknown = await res.json();
 
-	function buildReceiptParserText(text: string, receipt: ReceiptOCRSuccessResponse): string {
-		const amountText = receipt.extracted.totalAmount === null ? '' : `belanja struk ${Math.round(receipt.extracted.totalAmount)}`;
-		return [text, amountText, receipt.extracted.rawText].filter(Boolean).join('\n');
+		if (!res.ok) {
+			const errorMessage = typeof payload === 'object' && payload !== null && 'error' in payload
+				&& typeof (payload as { error?: { message?: unknown } }).error?.message === 'string'
+				? (payload as { error: { message: string } }).error.message
+				: 'Gagal memproses pesan transaksi.';
+			throw new Error(errorMessage);
+		}
+
+		return payload as ParserResult;
 	}
 
 	function buildReceiptAssistantMessage(result: ParserResult, receipt: ReceiptOCRSuccessResponse): string {
@@ -451,7 +467,7 @@
 
 			if (image) {
 				receipt = await runReceiptOcr(image);
-				result = await parseTransactionMessage(buildReceiptParserText(text, receipt));
+				result = await parseTransactionMessage(buildReceiptParserMessage(text, receipt.extracted));
 
 				if (result.data && receipt.extracted.totalAmount !== null) {
 					result = {
