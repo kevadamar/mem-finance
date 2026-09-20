@@ -35,7 +35,7 @@
 {#if moreOpen}
 	<div class="lg:hidden fixed inset-0 z-40" role="presentation">
 		<button class="absolute inset-0 cursor-default bg-black/35 backdrop-blur-[1px]" aria-label="Tutup menu lainnya" onclick={closeMore} transition:fade={{ duration: 160 }}></button>
-		<section id="more-menu" class="app-surface absolute inset-x-0 bottom-0 rounded-t-3xl border-t px-5 pb-[calc(5.5rem+env(safe-area-inset-bottom))] pt-3 shadow-[var(--shadow-float)]" aria-label="Menu lainnya" transition:fly={{ y: 24, duration: 220 }}>
+		<section id="more-menu" class="app-surface absolute inset-x-0 bottom-0 max-h-[85dvh] overflow-y-auto rounded-t-3xl border-t px-5 pb-[calc(5.5rem+env(safe-area-inset-bottom))] pt-3 shadow-[var(--shadow-float)]" aria-label="Menu lainnya" transition:fly={{ y: 24, duration: 220 }}>
 			<div class="mx-auto mb-5 h-1.5 w-10 rounded-full bg-[var(--border-strong)]"></div>
 			<div class="mb-4 flex items-center justify-between">
 				<div>
@@ -76,7 +76,17 @@
 				<span>{item.short}</span>
 			</a>
 		{/each}
-		<a href="/transactions" class="-mt-7 mx-auto grid size-14 place-items-center rounded-2xl bg-primary-600 text-white shadow-lg shadow-primary-700/25 transition-transform hover:-translate-y-0.5 active:scale-95" aria-label="Catat transaksi">
+		<a
+			href="/transactions?new=1"
+			onclick={(e) => {
+				if ($page.url.pathname === '/transactions') {
+					e.preventDefault();
+					window.dispatchEvent(new CustomEvent('memfinance-open-create-transaction'));
+				}
+			}}
+			class="-mt-7 mx-auto grid size-14 place-items-center rounded-2xl bg-primary-600 text-white shadow-lg shadow-primary-700/25 transition-transform hover:-translate-y-0.5 active:scale-95"
+			aria-label="Catat transaksi"
+		>
 			<svg class="size-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.25" d="M12 4v16m8-8H4" /></svg>
 		</a>
 		{#each primaryItems.slice(2) as item}

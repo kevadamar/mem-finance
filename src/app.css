@@ -82,8 +82,22 @@
 	button, [role='button'], a, input, select, textarea { touch-action: manipulation; }
 	button:not(:disabled), [role='button']:not([aria-disabled='true']) { cursor: pointer; }
 	:focus-visible { outline: 3px solid color-mix(in srgb, var(--focus-ring) 72%, transparent); outline-offset: 3px; }
-	::selection { background: #adebd4; color: #064534; }
 	input, select, textarea { font-size: max(16px, 1em); }
+
+	select {
+		appearance: none;
+		-webkit-appearance: none;
+		-moz-appearance: none;
+		background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+		background-position: right 0.875rem center;
+		background-repeat: no-repeat;
+		background-size: 1.125rem 1.125rem;
+		padding-right: 2.5rem;
+	}
+
+	:root.dark select {
+		background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+	}
 
 	@media (prefers-reduced-motion: reduce) {
 		html { scroll-behavior: auto; }

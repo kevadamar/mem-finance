@@ -1,7 +1,7 @@
 import { browser } from '$app/environment';
 import * as idb from './idb';
 import { STORES } from './idb';
-import { addToSyncQueue, getIsOnline } from './sync-manager';
+import { addToSyncQueue } from './sync-manager';
 import type { Transaction, CreateTransactionInput, UpdateTransactionInput } from '$lib/domain/entities/transaction';
 import type { Category, CreateCategoryInput, UpdateCategoryInput } from '$lib/domain/entities/category';
 import type { Budget, CreateBudgetInput } from '$lib/domain/entities/budget';

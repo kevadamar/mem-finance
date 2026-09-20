@@ -1,7 +1,6 @@
 <script lang="ts">
 	import Card from '$lib/components/ui/Card.svelte';
 	import EmptyState from '$lib/components/ui/EmptyState.svelte';
-	import Skeleton from '$lib/components/ui/Skeleton.svelte';
 	import { app } from '$lib/state/app.svelte';
 	import { fade } from 'svelte/transition';
 	import { onMount } from 'svelte';
@@ -70,33 +69,41 @@
 	{#if app.budgetsLoading && app.budgets.length === 0}
 		<div class="flex h-48 items-center justify-center" aria-live="polite" aria-label="Memuat ringkasan budget"><div class="h-8 w-8 animate-spin rounded-full border-2 border-primary-100 border-b-primary-600 motion-reduce:animate-none dark:border-primary-950"></div></div>
 	{:else if !budgetData}
-		<p class="text-lg font-semibold tracking-tight text-gray-950 dark:text-white mb-1">Ringkasan budget</p>
-		<p class="mb-4 text-sm text-gray-500 dark:text-gray-400">Tetapkan batas per kategori agar pengeluaran tetap terkendali.</p>
-		<EmptyState title="Belum ada budget" description="Buat budget untuk bulan ini di halaman Budget" />
+		<div class="flex items-center justify-between gap-2 mb-1">
+			<p class="text-base font-bold tracking-tight text-gray-950 dark:text-white sm:text-lg">Ringkasan budget</p>
+		</div>
+		<p class="mb-2 text-xs text-gray-500 dark:text-gray-400 sm:text-sm">Tetapkan batas per kategori agar pengeluaran tetap terkendali.</p>
+		<EmptyState title="Belum ada budget" description="Buat budget bulan ini untuk mengontrol pengeluaran" actionLabel="Atur Budget Sekarang" onaction={() => window.location.href = '/budgets'} />
 	{:else}
 		<div transition:fade={{ duration: prefersReducedMotion ? 0 : 250 }}>
-			<div class="mb-5 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between"><div><p class="text-lg font-semibold tracking-tight text-gray-950 dark:text-white">Ringkasan budget</p><p class="text-sm text-gray-500 dark:text-gray-400">Posisi budget untuk bulan berjalan.</p></div><a href="/budgets" class="mt-2 text-sm font-semibold text-primary-600 hover:text-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:text-primary-400 sm:mt-0">Kelola budget</a></div>
-			<div class="flex flex-col items-center gap-5 sm:flex-row sm:gap-6">
-				<div class="w-48 h-48 shrink-0">{#if chartOption}<Chart {init} options={chartOption} />{/if}</div>
-				<div class="grid w-full flex-1 grid-cols-1 gap-3 min-[460px]:grid-cols-3">
-				<div class="rounded-xl border border-gray-100 bg-gray-50 p-3 text-center dark:border-gray-800 dark:bg-gray-800/70 sm:text-left">
-					<p class="text-xs text-gray-500 dark:text-gray-400">Total Budget</p>
-					<p class="text-lg font-bold text-gray-900 dark:text-gray-100">{formatRupiah(budgetData.totalBudget)}</p>
+			<div class="mb-4 flex items-center justify-between gap-2">
+				<div>
+					<p class="text-base font-bold tracking-tight text-gray-950 dark:text-white sm:text-lg">Ringkasan budget</p>
+					<p class="text-xs text-gray-500 dark:text-gray-400">Posisi budget bulan berjalan.</p>
 				</div>
-				<div class="rounded-xl border border-gray-100 bg-gray-50 p-3 text-center dark:border-gray-800 dark:bg-gray-800/70 sm:text-left">
-					<p class="text-xs text-gray-500 dark:text-gray-400">Terpakai</p>
-					<p class="text-lg font-bold text-red-600">{formatRupiah(budgetData.totalSpent)}</p>
-					{#if budgetData.unbudgetedSpent > 0}
-						<p class="text-xs text-gray-400">+{formatRupiah(budgetData.unbudgetedSpent)} tanpa budget</p>
-					{/if}
-				</div>
-				<div class="rounded-xl border border-gray-100 bg-gray-50 p-3 text-center dark:border-gray-800 dark:bg-gray-800/70 sm:text-left">
-					<p class="text-xs text-gray-500 dark:text-gray-400">Sisa</p>
-					<p class="text-lg font-bold {budgetData.remaining >= 0 ? 'text-green-600' : 'text-orange-600'}">{formatRupiah(Math.abs(budgetData.remaining))}</p>
-					<p class="text-xs text-gray-400">{budgetData.remaining >= 0 ? 'masih aman' : 'over budget'}</p>
+				<a href="/budgets" class="rounded-lg px-2.5 py-1 text-xs font-semibold text-primary-600 hover:bg-primary-50 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:text-primary-400 dark:hover:bg-primary-950/40 sm:text-sm">Kelola budget →</a>
+			</div>
+			<div class="flex flex-col items-center gap-4 sm:flex-row sm:gap-6">
+				<div class="h-44 w-44 shrink-0 sm:h-48 sm:w-48">{#if chartOption}<Chart {init} options={chartOption} />{/if}</div>
+				<div class="grid w-full flex-1 grid-cols-3 gap-2 sm:gap-3">
+					<div class="rounded-xl border border-gray-100 bg-gray-50 p-2.5 text-center dark:border-gray-800 dark:bg-gray-800/70 sm:p-3 sm:text-left">
+						<p class="text-[11px] font-medium text-[var(--text-secondary)] sm:text-xs">Total Budget</p>
+						<p class="mt-1 truncate text-xs font-bold text-gray-900 tabular-nums dark:text-gray-100 sm:text-base">{formatRupiah(budgetData.totalBudget)}</p>
+					</div>
+					<div class="rounded-xl border border-gray-100 bg-gray-50 p-2.5 text-center dark:border-gray-800 dark:bg-gray-800/70 sm:p-3 sm:text-left">
+						<p class="text-[11px] font-medium text-[var(--text-secondary)] sm:text-xs">Terpakai</p>
+						<p class="mt-1 truncate text-xs font-bold text-red-600 tabular-nums sm:text-base">{formatRupiah(budgetData.totalSpent)}</p>
+						{#if budgetData.unbudgetedSpent > 0}
+							<p class="mt-0.5 hidden truncate text-[10px] text-gray-400 sm:block">+{formatRupiah(budgetData.unbudgetedSpent)} luar budget</p>
+						{/if}
+					</div>
+					<div class="rounded-xl border border-gray-100 bg-gray-50 p-2.5 text-center dark:border-gray-800 dark:bg-gray-800/70 sm:p-3 sm:text-left">
+						<p class="text-[11px] font-medium text-[var(--text-secondary)] sm:text-xs">Sisa</p>
+						<p class="mt-1 truncate text-xs font-bold tabular-nums sm:text-base {budgetData.remaining >= 0 ? 'text-green-600 dark:text-green-400' : 'text-orange-600 dark:text-orange-400'}">{formatRupiah(Math.abs(budgetData.remaining))}</p>
+						<p class="mt-0.5 text-[10px] font-medium {budgetData.remaining >= 0 ? 'text-green-600 dark:text-green-400' : 'text-orange-600 dark:text-orange-400'}">{budgetData.remaining >= 0 ? 'Aman' : 'Over'}</p>
+					</div>
 				</div>
 			</div>
 		</div>
-	</div>
 	{/if}
 </Card>

@@ -11,5 +11,5 @@ export const POST: RequestHandler = async ({ locals, cookies }) => {
 			cookies.delete(c.name, { path: '/' });
 		}
 	}
-	throw redirect(303, '/login');
+	throw redirect(303, '/login?force=1');
 };
