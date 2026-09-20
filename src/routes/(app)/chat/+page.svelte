@@ -470,13 +470,25 @@
 				result = await parseTransactionMessage(buildReceiptParserMessage(text, receipt.extracted));
 
 				if (result.data && receipt.extracted.totalAmount !== null) {
+					let cleanNote = text || result.data.note || `Struk ${image.name}`;
+					if (cleanNote.toLowerCase().includes('teks ocr') || cleanNote.length > 200) {
+						const firstLine = receipt.extracted.rawText
+							.split(/[\n,;]+/)
+							.map((l) => l.trim())
+							.find((l) => l.length >= 3 && !l.match(/^(?:recei[po]t|date|cashier|order|total|subtotal|no\.?|\d+)/i));
+						cleanNote = text || (firstLine ? `Struk ${firstLine}` : `Struk ${image.name}`);
+					}
+					if (cleanNote.length > 200) {
+						cleanNote = cleanNote.slice(0, 197) + '...';
+					}
+
 					result = {
 						...result,
 						data: {
 							...result.data,
 							type: 'expense',
 							amount: Math.round(receipt.extracted.totalAmount),
-							note: result.data.note || text || `Struk ${image.name}`
+							note: cleanNote
 						}
 					};
 				}
@@ -533,6 +545,11 @@
 			return;
 		}
 
+		let note = confirmation.note?.trim();
+		if (note && note.length > 200) {
+			note = note.slice(0, 197) + '...';
+		}
+
 		try {
 			const useCase = new CreateTransactionUseCase(getTransactionRepo());
 			await withMutation(() => useCase.execute({
@@ -540,7 +557,7 @@
 				amount: confirmation.amount,
 				categoryId,
 				date: confirmation.date,
-				note: confirmation.note
+				note: note || undefined
 			}));
 			msg.confirmed = true;
 
