@@ -6,6 +6,8 @@
 	import { createBrowserClient } from '@supabase/ssr';
 	import Button from '$lib/components/ui/Button.svelte';
 
+	let { data } = $props();
+
 	let supabaseConfigured = $state(!!PUBLIC_SUPABASE_URL && !!PUBLIC_SUPABASE_PUBLISHABLE_KEY);
 
 	let step = $state<'email' | 'otp'>('email');
@@ -208,13 +210,15 @@
 				{loading ? 'Memproses...' : 'Login dengan Google'}
 			</button>
 
-			<a
-				href="/dashboard"
-				class="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-dashed border-gray-300 bg-gray-50/80 px-4 text-sm font-semibold text-gray-700 transition hover:bg-gray-100 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500/30 dark:border-gray-700 dark:bg-gray-800/60 dark:text-gray-300 dark:hover:bg-gray-800"
-			>
-				<svg class="size-4 shrink-0 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
-				Bypass Login (Lanjut ke Dashboard)
-			</a>
+			{#if data?.canBypass}
+				<a
+					href="/dashboard"
+					class="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-dashed border-gray-300 bg-gray-50/80 px-4 text-sm font-semibold text-gray-700 transition hover:bg-gray-100 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500/30 dark:border-gray-700 dark:bg-gray-800/60 dark:text-gray-300 dark:hover:bg-gray-800"
+				>
+					<svg class="size-4 shrink-0 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+					Bypass Login (Lanjut ke Dashboard)
+				</a>
+			{/if}
 
 			<div class="flex items-center gap-3">
 				<hr class="flex-1 border-gray-200 dark:border-gray-700" />
