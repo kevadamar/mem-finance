@@ -14,4 +14,9 @@ export const load: PageServerLoad = ({ locals, url }) => {
 	if (privateEnv.FORCE_AUTH_DISABLED === 'true' && !url.searchParams.has('force')) {
 		throw redirect(303, '/dashboard');
 	}
+
+	return {
+		canBypass: privateEnv.FORCE_AUTH_DISABLED === 'true'
+	};
 };
+
