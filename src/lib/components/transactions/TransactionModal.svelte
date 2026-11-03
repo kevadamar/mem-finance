@@ -30,8 +30,6 @@
 	let note = $state('');
 	let errors = $state<Record<string, string>>({});
 	let loading = $state(false);
-	let toastMessage = $state('');
-	let toastType = $state<'success' | 'error'>('success');
 
 	onMount(async () => {
 		categories = await getCategoryRepo().getAll();
@@ -88,18 +86,13 @@
 		try {
 			const useCase = new CreateTransactionUseCase(getTransactionRepo());
 			await useCase.execute(input);
-			toastMessage = 'Transaksi berhasil dicatat!';
-			toastType = 'success';
 			resetForm();
 			onsuccess?.();
 			onclose();
 		} catch (err) {
 			if (err instanceof TransactionValidationError) {
 				for (const e of err.errors) errors[e.field] = e.message;
-			} else {
-				toastMessage = 'Gagal mencatat transaksi. Silakan coba lagi.';
-				toastType = 'error';
-			}
+				}
 		} finally {
 			loading = false;
 		}

@@ -1,5 +1,7 @@
 import { json } from '@sveltejs/kit';
 import { runtimeEnv } from '$lib/server/env';
+import { requestLimit } from '$lib/server/request-limit';
+import { isSameOrigin } from '$lib/server/same-origin';
 import { parseReceiptOcr, type OCRItem, type OCRResponse, type ParsedReceiptData } from '$lib/utils/receiptParser';
 import type { RequestHandler } from './$types';
 
@@ -14,14 +16,23 @@ interface ReceiptOCRErrorResponse {
 	error: {
 		code: 'NO_FILE' | 'UNSUPPORTED_FORMAT' | 'FILE_TOO_LARGE' | 'OCR_TIMEOUT' | 'OCR_SERVICE_ERROR' | 'INVALID_OCR_RESPONSE';
 		message: string;
-		details?: unknown;
 	};
 }
 
 const SUPPORTED_IMAGE_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp']);
 
-export const POST: RequestHandler = async ({ request }) => {
-	const formData = await request.formData();
+export const POST: RequestHandler = async ({ request, locals, url }) => {
+	if (!isSameOrigin(request, url)) return errorResponse('OCR_SERVICE_ERROR', 'Permintaan tidak diizinkan.', 403);
+	if (!locals.userId) return errorResponse('OCR_SERVICE_ERROR', 'Silakan masuk kembali.', 401);
+	const retryAfter = requestLimit(`ocr:${locals.userId}`, 10, 60_000);
+	if (retryAfter) return json({ success: false, error: { code: 'RATE_LIMITED', message: 'Terlalu banyak permintaan OCR.' } }, { status: 429, headers: { 'Retry-After': String(retryAfter) } });
+	if (Number(request.headers.get('content-length') ?? 0) > runtimeEnv.receiptOcrMaxUploadBytes + 64 * 1024) {
+		return errorResponse('FILE_TOO_LARGE', 'File terlalu besar.', 413);
+	}
+	if (!request.headers.get('content-type')?.startsWith('multipart/form-data')) return errorResponse('NO_FILE', 'Pilih file struk terlebih dahulu.', 400);
+	let formData: FormData;
+	try { formData = await request.formData(); }
+	catch { return errorResponse('NO_FILE', 'Formulir unggahan tidak valid.', 400); }
 	const file = formData.get('file');
 
 	if (!(file instanceof File) || file.size === 0) {
@@ -51,12 +62,12 @@ export const POST: RequestHandler = async ({ request }) => {
 		});
 
 		if (!response.ok) {
-			return errorResponse('OCR_SERVICE_ERROR', 'Layanan OCR belum dapat memproses struk ini.', 502, await safeReadError(response));
+			return errorResponse('OCR_SERVICE_ERROR', 'Layanan OCR belum dapat memproses struk ini.', 502);
 		}
 
 		const payload: unknown = await response.json();
 		if (!isOCRResponse(payload)) {
-			return errorResponse('INVALID_OCR_RESPONSE', 'Response OCR tidak sesuai format yang diharapkan.', 502, payload);
+			return errorResponse('INVALID_OCR_RESPONSE', 'Response OCR tidak sesuai format yang diharapkan.', 502);
 		}
 
 		return json({
@@ -78,25 +89,15 @@ export const POST: RequestHandler = async ({ request }) => {
 function errorResponse(
 	code: ReceiptOCRErrorResponse['error']['code'],
 	message: string,
-	status: number,
-	details?: unknown
+	status: number
 ) {
 	return json(
 		{
 			success: false,
-			error: { code, message, ...(details === undefined ? {} : { details }) }
+			error: { code, message }
 		} satisfies ReceiptOCRErrorResponse,
 		{ status }
 	);
-}
-
-async function safeReadError(response: Response): Promise<unknown> {
-	const contentType = response.headers.get('content-type') ?? '';
-	if (contentType.includes('application/json')) {
-		return response.json().catch(() => ({ status: response.status }));
-	}
-
-	return response.text().catch(() => `HTTP ${response.status}`);
 }
 
 function isOCRResponse(value: unknown): value is OCRResponse {

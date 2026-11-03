@@ -737,7 +737,7 @@
 	</header>
 
 	<div class="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4" bind:this={messagesContainer} onscroll={onScroll} aria-live="polite" aria-label="Percakapan pencatatan transaksi">
-		{#each messages as msg, i}
+		{#each messages as msg (msg.id)}
 			{#if msg.role === 'user'}
 				<div class="flex justify-end motion-reduce:transition-none" transition:slide={{ duration: 180 }}>
 					<div class="max-w-[85%] rounded-2xl rounded-br-md bg-primary-600 px-4 py-3 text-sm leading-6 text-white shadow-sm whitespace-pre-wrap break-words">{msg.content}</div>
@@ -793,7 +793,7 @@
 
 	<div class="border-t border-gray-200 bg-white p-3 sm:p-4 dark:border-gray-800 dark:bg-gray-900">
 		<div class="mb-2 flex gap-2 overflow-x-auto pb-1 sm:flex-wrap" aria-label="Contoh pesan">
-			{#each ['Beli kopi 35rb', 'Makan siang 25rb', 'Gaji bulan ini 5jt'] as suggestion}
+			{#each ['Beli kopi 35rb', 'Makan siang 25rb', 'Gaji bulan ini 5jt'] as suggestion (suggestion)}
 				<button type="button" class="shrink-0 rounded-full border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-600 transition-colors hover:border-primary-300 hover:bg-primary-50 hover:text-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500/30 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800" onclick={() => input = suggestion}>{suggestion}</button>
 			{/each}
 		</div>

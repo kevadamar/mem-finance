@@ -1,9 +1,10 @@
 import { createSupabaseServerClient } from '$lib/server/auth';
-import { redirect, type Handle } from '@sveltejs/kit';
+import { json, redirect, type Handle } from '@sveltejs/kit';
+import { dev } from '$app/environment';
 import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_PUBLISHABLE_KEY } from '$env/static/public';
 import { env as privateEnv } from '$env/dynamic/private';
 import { createClient } from '@supabase/supabase-js';
-import { createHmac } from 'node:crypto';
+import type { StorageStatus } from '$lib/server/storage-ownership';
 
 const PUBLIC_PATHS = ['/login', '/auth/callback', '/healthz'];
 const APP_SCHEMA = 'memfinance';
@@ -12,19 +13,14 @@ function getPrivateEnv(name: string): string {
 	return privateEnv[name] ?? '';
 }
 
-function signForCreateSheet(userId: string): { signature: string; timestamp: number } {
-	const action = 'create_sheet';
-	const timestamp = Math.floor(Date.now() / 1000);
-	const toSign = JSON.stringify({ action, table: '', data: { userId }, timestamp });
-	const signature = createHmac('sha256', getPrivateEnv('GAS_SHARED_SECRET')).update(toSign).digest('hex');
-	return { signature, timestamp };
-}
+type SheetProfile = { id: string | null; status: StorageStatus; targetEmail: string | null };
+const setupError: SheetProfile = { id: null, status: 'SETUP_ERROR', targetEmail: null };
 
-async function getOrCreateGaSheetId(userId: string, email: string): Promise<string | null> {
+async function getSheetProfile(userId: string, email: string): Promise<SheetProfile> {
 	const serviceRoleKey = getPrivateEnv('SUPABASE_SERVICE_ROLE_KEY');
 	if (!PUBLIC_SUPABASE_URL || !serviceRoleKey) {
 		console.error('[hooks] Missing Supabase URL or service role key; cannot create user profile');
-		return null;
+		return setupError;
 	}
 
 	try {
@@ -39,7 +35,7 @@ async function getOrCreateGaSheetId(userId: string, email: string): Promise<stri
 		const { data: profile, error: selectError } = await adminClient
 			.schema(APP_SCHEMA)
 			.from('user_profiles')
-			.select('ga_sheet_id')
+			.select('ga_sheet_id,storage_status,google_owner_email')
 			.eq('id', userId)
 			.maybeSingle();
 
@@ -47,58 +43,33 @@ async function getOrCreateGaSheetId(userId: string, email: string): Promise<stri
 			throw new Error(`Failed to read user profile: ${selectError.message}`);
 		}
 
-		if (profile?.ga_sheet_id) return profile.ga_sheet_id;
+		if (profile) return { id: profile.ga_sheet_id, status: profile.storage_status as StorageStatus, targetEmail: profile.google_owner_email };
 
 		const { error: upsertError } = await adminClient
 			.schema(APP_SCHEMA)
 			.from('user_profiles')
-			.upsert({ id: userId, email }, { onConflict: 'id' });
+			.upsert({ id: userId, email, storage_status: 'CHOICE_REQUIRED' }, { onConflict: 'id', ignoreDuplicates: true });
 
 		if (upsertError) {
 			throw new Error(`Failed to upsert user profile: ${upsertError.message}`);
 		}
 
-		const { runtimeEnv } = await import('$lib/server/env');
-		if (!runtimeEnv.gasWebappUrl) return null;
-
-		const res = await fetch(runtimeEnv.gasWebappUrl, {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({
-				action: 'create_sheet',
-				table: '',
-				data: { userId },
-				...signForCreateSheet(userId)
-			})
-		});
-		const json = await res.json();
-		if (json.success && json.data?.gaSheetId) {
-			const { error: updateError } = await adminClient
-				.schema(APP_SCHEMA)
-				.from('user_profiles')
-				.update({ ga_sheet_id: json.data.gaSheetId, updated_at: new Date().toISOString() })
-				.eq('id', userId);
-
-			if (updateError) {
-				throw new Error(`Failed to save Google Sheet ID: ${updateError.message}`);
-			}
-
-			return json.data.gaSheetId;
-		}
-
-		console.error('[hooks] create_sheet failed:', json.error ?? json);
+		return { id: null, status: 'CHOICE_REQUIRED', targetEmail: null };
 	} catch (err) {
-		console.error('[hooks] getOrCreateGaSheetId failed:', err instanceof Error ? err.message : err);
-		return null;
+		console.error('[hooks] getSheetProfile failed:', err instanceof Error ? err.message : err);
+		return setupError;
 	}
 
-	return null;
+	return setupError;
 }
 
 import { getDevUser } from '$lib/server/dev-user';
 
 export const handle: Handle = async ({ event, resolve }) => {
-	const authDisabled = getPrivateEnv('FORCE_AUTH_DISABLED') === 'true';
+	const authDisabled = dev && getPrivateEnv('FORCE_AUTH_DISABLED') === 'true';
+	const path = event.url.pathname;
+	const privateApi = path.startsWith('/api/');
+	const dataApi = /^\/api\/(transactions|categories|budgets)(\/|$)/.test(path);
 
 	// With no Supabase configuration there is no session to read. When auth is
 	// disabled, however, we still read an existing session so public routes can
@@ -109,7 +80,10 @@ export const handle: Handle = async ({ event, resolve }) => {
 			const devUser = getDevUser();
 			event.locals.userId = devUser.id;
 			event.locals.user = devUser as unknown as import('@supabase/supabase-js').User;
+			return resolve(event);
 		}
+		if (privateApi) return json({ success: false, data: null, error: { code: 'AUTH_UNAVAILABLE', message: 'Authentication is unavailable' } }, { status: 503 });
+		if (path !== '/' && !PUBLIC_PATHS.some((p) => path.startsWith(p))) throw redirect(303, '/login');
 		return resolve(event);
 	}
 
@@ -125,20 +99,35 @@ export const handle: Handle = async ({ event, resolve }) => {
 		const userId = userData.user.id;
 		event.locals.userId = userId;
 		event.locals.user = userData.user;
-		event.locals.gaSheetId = await getOrCreateGaSheetId(userId, userData.user.email || '');
+		const sheet = await getSheetProfile(userId, userData.user.email || '');
+		event.locals.gaSheetId = sheet.id;
+		event.locals.storageStatus = sheet.status;
+		event.locals.googleOwnerEmail = sheet.targetEmail;
 	} else if (authDisabled) {
 		const devUser = getDevUser();
 		event.locals.userId = devUser.id;
 		event.locals.user = devUser as unknown as import('@supabase/supabase-js').User;
 		try {
-			event.locals.gaSheetId = await getOrCreateGaSheetId(devUser.id, devUser.email);
+			const sheet = await getSheetProfile(devUser.id, devUser.email);
+			event.locals.gaSheetId = sheet.id;
+			event.locals.storageStatus = sheet.status;
+			event.locals.googleOwnerEmail = sheet.targetEmail;
 		} catch {
 			// Fallback safely if external services are unreachable
 		}
 	} else {
-		const isProtected = event.url.pathname !== '/' && !PUBLIC_PATHS.some((p) => event.url.pathname.startsWith(p));
+		const isProtected = path !== '/' && !PUBLIC_PATHS.some((p) => path.startsWith(p));
 		if (!authDisabled && isProtected) {
+			if (privateApi) return json({ success: false, data: null, error: { code: 'UNAUTHORIZED', message: 'Please sign in' } }, { status: 401 });
 			throw redirect(303, '/login');
+		}
+	}
+	if (privateApi && !event.locals.userId) return json({ success: false, data: null, error: { code: 'UNAUTHORIZED', message: 'Please sign in' } }, { status: 401 });
+	if (dataApi) {
+		const ownerId = event.request.headers.get('x-memfinance-user-id');
+		if (!ownerId || ownerId !== event.locals.userId) return json({ success: false, data: null, error: { code: 'ACCOUNT_CHANGED', message: 'Account changed; reload the app' } }, { status: 409 });
+		if (!event.locals.gaSheetId || !['ADMIN_OWNED', 'TRANSFER_PENDING', 'USER_OWNED_ADMIN_EDITOR'].includes(event.locals.storageStatus ?? '')) {
+			return json({ success: false, data: null, error: { code: 'SHEET_UNAVAILABLE', message: 'Spreadsheet is not ready' } }, { status: 503 });
 		}
 	}
 

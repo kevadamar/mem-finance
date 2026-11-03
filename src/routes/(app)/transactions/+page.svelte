@@ -302,7 +302,7 @@
 		</div>
 		{#if app.transactionsLoading && app.transactions.length === 0}
 			<div class="space-y-4 p-5">
-				{#each [1,2,3,4,5] as _}
+				{#each [1,2,3,4,5] as _ (_)}
 					<div class="flex items-center gap-4" transition:fly={{ y: 8, duration: 200 }}>
 						<Skeleton width="w-10" height="h-10" class="rounded-full" />
 						<div class="flex-1"><Skeleton height="h-4" class="w-1/3 mb-1" /><Skeleton height="h-3" class="w-1/4" /></div>

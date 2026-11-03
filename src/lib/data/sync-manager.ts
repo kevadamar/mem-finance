@@ -1,161 +1,165 @@
-import { browser } from '$app/environment';
-import { getAll, remove, put as idbPut, type SyncQueueItem } from './idb';
-import { STORES } from './idb';
+import { getActiveUser, getAll, put, remove, STORES, type SyncQueueItem } from './idb';
 
 type Listener = () => void;
 const listeners = new Set<Listener>();
+let pendingCount = 0;
+let attentionCount = 0;
+let isOnline = true;
+let isSyncing = false;
+let generation = 0;
+let activeRequest: AbortController | null = null;
+let deferredSyncDepth = 0;
+const isBrowser = () => typeof window !== 'undefined';
 
-let _pendingCount = 0;
-let _isOnline = true;
-let _isSyncing = false;
+function notify() { for (const fn of listeners) fn(); }
+function sameOwner(owner: string): boolean {
+	try { return getActiveUser() === owner; } catch { return false; }
+}
+export function subscribe(fn: Listener) { listeners.add(fn); return () => listeners.delete(fn); }
+export function getPendingSyncCount() { return pendingCount; }
+export function getNeedsAttentionCount() { return attentionCount; }
+export function getIsOnline() { return isOnline; }
+export function getIsSyncing() { return isSyncing; }
 
-function notify() {
-	for (const fn of listeners) listeners.forEach((fn) => fn());
+async function updateCounts(): Promise<void> {
+	if (!isBrowser()) return;
+	const owner = getActiveUser();
+	const items = (await getAll<SyncQueueItem>(STORES.SYNC_QUEUE)).filter((item) => item.ownerUserId === owner);
+	pendingCount = items.filter((item) => item.status === 'pending').length;
+	attentionCount = items.filter((item) => item.status === 'needs_attention').length;
+	notify();
 }
 
-export function subscribe(fn: Listener) {
-	listeners.add(fn);
-	return () => listeners.delete(fn);
+function onOnline() { isOnline = true; notify(); void syncPending(); }
+function onOffline() { isOnline = false; notify(); }
+
+export async function initSyncManager(): Promise<void> {
+	if (!isBrowser()) return;
+	generation++;
+	isOnline = navigator.onLine;
+	window.addEventListener('online', onOnline);
+	window.addEventListener('offline', onOffline);
+	await updateCounts();
+	if (isOnline) void syncPending();
 }
 
-export function getPendingSyncCount() { return _pendingCount; }
-export function getIsOnline() { return _isOnline; }
-export function getIsSyncing() { return _isSyncing; }
-
-async function updatePendingCount() {
-	if (!browser) return;
-	try {
-		const items = await getAll<SyncQueueItem>(STORES.SYNC_QUEUE);
-		_pendingCount = items.filter((i) => i.attempts < 5).length;
-		notify();
-	} catch { _pendingCount = 0; notify(); }
+export function stopSyncManager(): void {
+	generation++;
+	activeRequest?.abort();
+	window.removeEventListener('online', onOnline);
+	window.removeEventListener('offline', onOffline);
+	pendingCount = 0;
+	attentionCount = 0;
+	notify();
 }
 
-export async function initSyncManager() {
-	if (!browser) return;
-	_isOnline = navigator.onLine;
-
-	window.addEventListener('online', () => {
-		_isOnline = true;
-		notify();
-		syncPending();
-	});
-
-	window.addEventListener('offline', () => {
-		_isOnline = false;
-		notify();
-	});
-
-	await updatePendingCount();
-	const stale = (await getAll<SyncQueueItem>(STORES.SYNC_QUEUE)).filter((i) => i.attempts >= 5);
-	for (const s of stale) { if (s.id !== undefined) await remove(STORES.SYNC_QUEUE, s.id); }
-	await updatePendingCount();
-	if (_isOnline) syncPending();
+export async function notifyQueueChanged(): Promise<void> {
+	if (deferredSyncDepth > 0) return;
+	await updateCounts();
+	if (isOnline) void syncPending();
 }
 
-export async function addToSyncQueue(item: Omit<SyncQueueItem, 'id' | 'attempts' | 'createdAt'>): Promise<void> {
-	if (!browser) return;
-	const queueItem: SyncQueueItem = {
-		...item,
-		attempts: 0,
-		createdAt: Date.now()
-	};
-	try {
-		await idbPut(STORES.SYNC_QUEUE, queueItem);
-		await updatePendingCount();
-	} catch { /* ignore */ }
-}
+export function isSyncDeferred(): boolean { return deferredSyncDepth > 0; }
 
-async function getEndpoint(entity: string, action: string, payload: unknown): Promise<{ method: string; url: string; body?: unknown } | null> {
-	if (entity === 'transactions') {
-		if (action === 'create') return { method: 'POST', url: '/api/transactions', body: payload };
-		if (action === 'update') return { method: 'PUT', url: `/api/transactions/${(payload as { id: string }).id}`, body: payload };
-		if (action === 'delete') return { method: 'DELETE', url: `/api/transactions/${(payload as { id: string }).id}` };
-	}
-	if (entity === 'categories') {
-		if (action === 'create') return { method: 'POST', url: '/api/categories', body: payload };
-		if (action === 'update') return { method: 'PUT', url: `/api/categories/${(payload as { id: string }).id}`, body: payload };
-		if (action === 'delete') return { method: 'DELETE', url: `/api/categories/${(payload as { id: string }).id}` };
-	}
-	if (entity === 'budgets') {
-		if (action === 'create') return { method: 'POST', url: '/api/budgets', body: payload };
-		if (action === 'update') return { method: 'PUT', url: `/api/budgets/${(payload as { id: string }).id}`, body: payload };
-		if (action === 'delete') return { method: 'DELETE', url: `/api/budgets/${(payload as { id: string }).id}` };
-	}
-	return null;
-}
-
-async function syncItem(item: SyncQueueItem): Promise<boolean> {
-	const endpoint = await getEndpoint(item.entity, item.action, item.payload);
-	if (!endpoint) return true;
-
-	try {
-		const res = await fetch(endpoint.url, {
-			method: endpoint.method,
-			headers: endpoint.body ? { 'Content-Type': 'application/json' } : undefined,
-			body: endpoint.body ? JSON.stringify(endpoint.body) : undefined
-		});
-		if (!res.ok) return false;
-		const json = await res.json();
-		if (!json.success) return false;
-
-		if (item.entity === 'transactions' && item.action === 'create' && json.data) {
-			const payload = item.payload as { localId?: string; id?: string };
-			if (payload?.localId) {
-				await remove(STORES.TRANSACTIONS, payload.localId);
-			}
-			await idbPut(STORES.TRANSACTIONS, json.data);
-			if (browser) {
-				window.dispatchEvent(
-					new CustomEvent('memfinance-transaction-synced', {
-						detail: {
-							localId: payload?.localId,
-							serverId: json.data.id,
-							transaction: json.data
-						}
-					})
-				);
-			}
+export async function withDeferredSync<T>(work: () => Promise<T>): Promise<T> {
+	deferredSyncDepth++;
+	try { return await work(); }
+	finally {
+		deferredSyncDepth--;
+		if (deferredSyncDepth === 0) {
+			if (isBrowser()) window.dispatchEvent(new CustomEvent('memfinance-data-changed'));
+			await notifyQueueChanged();
 		}
+	}
+}
 
-		return true;
+export async function retryNeedsAttention(): Promise<void> {
+	const owner = getActiveUser();
+	for (const item of await getAll<SyncQueueItem>(STORES.SYNC_QUEUE)) {
+		if (item.ownerUserId !== owner || item.status !== 'needs_attention') continue;
+		await put(STORES.SYNC_QUEUE, { ...item, attempts: 0, status: 'pending' as const, errorMessage: undefined });
+	}
+	await notifyQueueChanged();
+}
+
+function endpointFor(item: SyncQueueItem): { method: string; url: string; body?: unknown } {
+	const root = `/api/${item.entity}`;
+	if (item.action === 'create') return { method: 'POST', url: root, body: item.payload };
+	if (item.action === 'update') return { method: 'PUT', url: `${root}/${encodeURIComponent(item.recordId)}`, body: item.payload };
+	return { method: 'DELETE', url: `${root}/${encodeURIComponent(item.recordId)}` };
+}
+
+async function sendItem(item: SyncQueueItem, owner: string): Promise<{ ok: boolean; data?: unknown; error?: string; stop?: boolean }> {
+	const endpoint = endpointFor(item);
+	const controller = new AbortController();
+	activeRequest = controller;
+	try {
+		const response = await fetch(endpoint.url, {
+			method: endpoint.method,
+			headers: { 'x-memfinance-user-id': owner, ...(endpoint.body ? { 'Content-Type': 'application/json' } : {}) },
+			body: endpoint.body ? JSON.stringify(endpoint.body) : undefined,
+			signal: controller.signal
+		});
+		const result = await response.json();
+		if (response.status === 401 || response.status === 409) return { ok: false, error: 'Akun berubah atau sesi berakhir', stop: true };
+		return { ok: response.ok && result.success === true, data: result.data, error: response.ok ? 'Server menolak perubahan' : `Server ${response.status}` };
 	} catch {
-		return false;
+		return { ok: false, error: 'Koneksi ke server terputus' };
+	} finally {
+		if (activeRequest === controller) activeRequest = null;
 	}
 }
 
 export async function syncPending(): Promise<{ succeeded: number; failed: number }> {
-	if (!browser || !navigator.onLine || _isSyncing) return { succeeded: 0, failed: 0 };
-	_isSyncing = true;
-	notify();
+	if (!isBrowser() || !navigator.onLine || isSyncing) return { succeeded: 0, failed: 0 };
+	const owner = getActiveUser();
+	if (navigator.locks) {
+		return navigator.locks.request(`memfinance-sync:${owner}`, { ifAvailable: true }, (lock) =>
+			lock ? runSync(owner) : { succeeded: 0, failed: 0 });
+	}
+	return runSync(owner);
+}
 
+async function runSync(owner: string): Promise<{ succeeded: number; failed: number }> {
+	if (isSyncing || !sameOwner(owner)) return { succeeded: 0, failed: 0 };
+	const run = generation;
+	isSyncing = true;
+	notify();
 	let succeeded = 0;
 	let failed = 0;
-
 	try {
-		const items = await getAll<SyncQueueItem>(STORES.SYNC_QUEUE);
-		items.sort((a, b) => a.createdAt - b.createdAt);
-
+		const items = (await getAll<SyncQueueItem>(STORES.SYNC_QUEUE))
+			.filter((item) => item.ownerUserId === owner && item.status === 'pending')
+			.sort((a, b) => a.createdAt - b.createdAt || (a.id ?? 0) - (b.id ?? 0));
 		for (const item of items) {
-			if (item.attempts >= 5) continue;
-			const ok = await syncItem(item);
-			if (ok) {
+			if (run !== generation || !sameOwner(owner)) break;
+			const result = await sendItem(item, owner);
+			if (run !== generation || !sameOwner(owner)) break;
+			if (result.stop) {
+				window.location.reload();
+				break;
+			}
+			if (result.ok) {
+				const current = await getAll<SyncQueueItem>(STORES.SYNC_QUEUE);
+				const hasLater = current.some((next) => next.ownerUserId === owner && next.recordId === item.recordId && next.id !== item.id && (next.id ?? 0) > (item.id ?? 0));
+				if (!hasLater && result.data && typeof result.data === 'object' && 'id' in result.data) {
+					const remote = result.data as { id: unknown };
+					if (typeof remote.id === 'string' && remote.id !== item.recordId) await remove(item.entity, item.recordId);
+					await put(item.entity, result.data);
+				}
 				if (item.id !== undefined) await remove(STORES.SYNC_QUEUE, item.id);
 				succeeded++;
+				window.dispatchEvent(new CustomEvent('memfinance-data-changed'));
 			} else {
-				item.attempts++;
-				item.lastAttemptAt = Date.now();
-				await idbPut(STORES.SYNC_QUEUE, item);
+				const attempts = item.attempts + 1;
+				await put(STORES.SYNC_QUEUE, { ...item, attempts, lastAttemptAt: Date.now(), errorMessage: result.error, status: attempts >= 5 ? 'needs_attention' : 'pending' });
 				failed++;
-				if (item.attempts >= 2) break;
+				break;
 			}
 		}
 	} finally {
-		_isSyncing = false;
-		await updatePendingCount();
+		isSyncing = false;
+		if (run === generation && sameOwner(owner)) await updateCounts();
 	}
-
 	return { succeeded, failed };
 }
-
-

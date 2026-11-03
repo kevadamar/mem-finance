@@ -192,7 +192,7 @@
 						<p class="text-sm font-semibold text-[var(--text-primary)]">Raw read items</p>
 					</div>
 					<div class="max-h-72 divide-y divide-gray-200 overflow-auto dark:divide-gray-800">
-						{#each result.ocr.data as item, index}
+						{#each result.ocr.data as item, index (`${item.text}-${index}`)}
 							<div class="grid grid-cols-[2rem_minmax(0,1fr)_4.5rem] gap-3 px-4 py-2.5 text-sm">
 								<span class="text-xs font-semibold text-[var(--text-secondary)]">{index + 1}</span>
 								<span class="break-words text-[var(--text-primary)]">{item.text}</span>

@@ -52,22 +52,21 @@
 		switch (period) {
 			case 'week': {
 				const day = now.getDay();
-				start = new Date(now); start.setDate(now.getDate() - day); start.setHours(0, 0, 0, 0);
-				end = new Date(now); end.setHours(23, 59, 59, 999);
+					start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - day);
+					end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
 				break;
 			}
 			case 'last-month':
 				start = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-				end = new Date(now.getFullYear(), now.getMonth(), 0);
-				end.setHours(23, 59, 59, 999);
+					end = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59, 999);
 				break;
 			case '3months':
-				start = new Date(now.getFullYear(), now.getMonth() - 2, 1); start.setHours(0, 0, 0, 0);
-				end = new Date(now); end.setHours(23, 59, 59, 999);
+					start = new Date(now.getFullYear(), now.getMonth() - 2, 1);
+					end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
 				break;
 			default:
-				start = new Date(now.getFullYear(), now.getMonth(), 1); start.setHours(0, 0, 0, 0);
-				end = new Date(now); end.setHours(23, 59, 59, 999);
+					start = new Date(now.getFullYear(), now.getMonth(), 1);
+					end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
 		}
 
 		const filtered = txs.filter((t) => {
@@ -141,7 +140,7 @@
 		</div>
 		<label class="sr-only" for="chart-period">Periode grafik</label>
 		<select id="chart-period" value={period} onchange={(e) => period = (e.target as HTMLSelectElement).value as typeof period} class="min-h-10 w-full rounded-xl border border-gray-300 bg-white pl-3.5 pr-10 text-sm font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 sm:w-auto">
-			{#each Object.entries(periodLabels) as [value, label]}<option {value}>{label}</option>{/each}
+				{#each Object.entries(periodLabels) as [value, label] (value)}<option {value}>{label}</option>{/each}
 		</select>
 	</div>
 

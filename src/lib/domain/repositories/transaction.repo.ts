@@ -3,7 +3,7 @@ import type { Transaction, CreateTransactionInput, UpdateTransactionInput } from
 export interface ITransactionRepository {
 	getAll(): Promise<Transaction[]>;
 	getById(id: string): Promise<Transaction | null>;
-	create(input: CreateTransactionInput): Promise<Transaction>;
+	create(input: CreateTransactionInput, id?: string): Promise<Transaction>;
 	update(id: string, input: UpdateTransactionInput): Promise<Transaction>;
 	delete(id: string): Promise<void>;
 }

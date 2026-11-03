@@ -5,7 +5,7 @@
 	}: {
 		open: boolean;
 		format: 'csv' | 'sqlite';
-		summary: { entityCounts: Record<string, number>; dateRange?: { start: string; end: string }; totalAmount?: number; sampleRows?: Record<string, unknown>[] };
+		summary: { entityCounts: Record<string, number>; dateRange?: { start: string; end: string }; totalAmount?: number };
 		importing: boolean;
 		onconfirm: () => void;
 		oncancel: () => void;
@@ -34,22 +34,22 @@
 						{Object.values(summary.entityCounts).reduce((a, b) => (a as number) + (b as number), 0)} record
 					</span>
 				</div>
-				{#each Object.entries(summary.entityCounts) as [entity, count]}
+					{#each Object.entries(summary.entityCounts) as [entity, count] (entity)}
 					<div class="flex justify-between pl-4">
 						<span class="text-gray-400 capitalize">{entity}</span>
 						<span class="text-gray-700 dark:text-gray-300">{count}</span>
 					</div>
 				{/each}
-				{#if summary.dateRange}
+					{#if summary.dateRange}
 					<div class="flex justify-between">
 						<span class="text-gray-500">Rentang tanggal</span>
-						<span class="text-gray-700 dark:text-gray-300">{summary.dateRange.start} – {summary.dateRange.end}</span>
+							<span class="text-gray-700 dark:text-gray-300">{summary.dateRange.start} – {summary.dateRange.end}</span>
 					</div>
 				{/if}
-				{#if summary.totalAmount !== undefined}
+					{#if summary.totalAmount !== undefined}
 					<div class="flex justify-between">
 						<span class="text-gray-500">Total jumlah</span>
-						<span class="font-medium text-gray-900 dark:text-gray-100">{formatRupiah(summary.totalAmount)}</span>
+							<span class="font-medium text-gray-900 dark:text-gray-100">{formatRupiah(summary.totalAmount)}</span>
 					</div>
 				{/if}
 			</div>
