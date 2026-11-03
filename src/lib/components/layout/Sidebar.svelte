@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/stores';
+	import { resolve } from '$app/paths';
+	import { onMount } from 'svelte';
 	import { fade, fly } from 'svelte/transition';
 	import { navItems } from './nav-items';
 	import LogoutConfirm from './LogoutConfirm.svelte';
@@ -11,7 +13,7 @@
 	const mainItems = navItems.filter((item) => ['/dashboard', '/transactions', '/budgets'].includes(item.href));
 	const secondaryItems = navItems.filter((item) => ['/chat', '/categories', '/settings'].includes(item.href));
 
-	$effect(() => {
+	onMount(() => {
 		isDark = document.documentElement.classList.contains('dark');
 	});
 
@@ -87,9 +89,9 @@
 			<div class="my-2 border-t border-[var(--border-subtle)]"></div>
 		{/if}
 		<div class="space-y-1">
-			{#each mainItems as item}
+			{#each mainItems as item (item.href)}
 				<a
-					href={item.href}
+					href={resolve(item.href)}
 					aria-current={isActive(item.href) ? 'page' : undefined}
 					title={item.label}
 					class="flex min-h-11 items-center {app.sidebarCollapsed ? 'justify-center px-0' : 'gap-3 px-3'} rounded-xl text-sm font-semibold transition-colors {isActive(item.href) ? 'bg-primary-50 text-primary-800 dark:bg-primary-900/40 dark:text-primary-200' : 'text-[var(--text-secondary)] hover:bg-[var(--surface-2)] hover:text-[var(--text-primary)]'}"
@@ -108,9 +110,9 @@
 			<div class="my-3 border-t border-[var(--border-subtle)]"></div>
 		{/if}
 		<div class="space-y-1">
-			{#each secondaryItems as item}
+			{#each secondaryItems as item (item.href)}
 				<a
-					href={item.href}
+					href={resolve(item.href)}
 					aria-current={isActive(item.href) ? 'page' : undefined}
 					title={item.label}
 					class="flex min-h-11 items-center {app.sidebarCollapsed ? 'justify-center px-0' : 'gap-3 px-3'} rounded-xl text-sm font-semibold transition-colors {isActive(item.href) ? 'bg-primary-50 text-primary-800 dark:bg-primary-900/40 dark:text-primary-200' : 'text-[var(--text-secondary)] hover:bg-[var(--surface-2)] hover:text-[var(--text-primary)]'}"
@@ -213,9 +215,9 @@
 			<nav class="flex-1 overflow-y-auto px-3 pb-4" aria-label="Menu aplikasi mobile">
 				<p class="px-3 pb-2 pt-3 text-[11px] font-bold uppercase tracking-[0.12em] text-[var(--text-tertiary)]">Ringkasan</p>
 				<div class="space-y-1">
-					{#each mainItems as item}
+					{#each mainItems as item (item.href)}
 						<a
-							href={item.href}
+							href={resolve(item.href)}
 							onclick={closeMobileSidebar}
 							aria-current={isActive(item.href) ? 'page' : undefined}
 							class="flex min-h-11 items-center gap-3 rounded-xl px-3 text-sm font-semibold transition-colors {isActive(item.href) ? 'bg-primary-50 text-primary-800 dark:bg-primary-900/40 dark:text-primary-200' : 'text-[var(--text-secondary)] hover:bg-[var(--surface-2)] hover:text-[var(--text-primary)]'}"
@@ -228,9 +230,9 @@
 
 				<p class="px-3 pb-2 pt-6 text-[11px] font-bold uppercase tracking-[0.12em] text-[var(--text-tertiary)]">Kelola</p>
 				<div class="space-y-1">
-					{#each secondaryItems as item}
+					{#each secondaryItems as item (item.href)}
 						<a
-							href={item.href}
+							href={resolve(item.href)}
 							onclick={closeMobileSidebar}
 							aria-current={isActive(item.href) ? 'page' : undefined}
 							class="flex min-h-11 items-center gap-3 rounded-xl px-3 text-sm font-semibold transition-colors {isActive(item.href) ? 'bg-primary-50 text-primary-800 dark:bg-primary-900/40 dark:text-primary-200' : 'text-[var(--text-secondary)] hover:bg-[var(--surface-2)] hover:text-[var(--text-primary)]'}"

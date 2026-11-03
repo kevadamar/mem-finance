@@ -32,16 +32,29 @@ function handleCreateSheet(e) {
 }
 
 function createSheetForUser(userId) {
-  if (!userId) throw new Error('Missing userId');
+  if (!/^[a-zA-Z0-9_-]{1,128}$/.test(userId || '')) throw new Error('Invalid userId');
+  var lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+  try {
+    var name = 'MemFinance_' + userId;
+    var existing = DriveApp.getFilesByName(name);
+    while (existing.hasNext()) {
+      var candidate = existing.next();
+      if (candidate.getOwner().getEmail() !== Session.getEffectiveUser().getEmail()) {
+        throw new Error('SHEET_OWNERSHIP_NEEDS_RECOVERY');
+      }
+      return Utils.successResponse({ gaSheetId: candidate.getId() });
+    }
 
-  var templateFile = DriveApp.getFileById(TEMPLATE_SHEET_ID);
-  var copy = templateFile.makeCopy('MemFinance_' + userId);
-  var sheetId = copy.getId();
-
-  var ss = SpreadsheetApp.openById(sheetId);
-  prepareUserSpreadsheet(ss);
-
-  return Utils.successResponse({ gaSheetId: sheetId });
+    var templateFile = DriveApp.getFileById(TEMPLATE_SHEET_ID);
+    var copy = templateFile.makeCopy(name);
+    var sheetId = copy.getId();
+    var ss = SpreadsheetApp.openById(sheetId);
+    prepareUserSpreadsheet(ss);
+    return Utils.successResponse({ gaSheetId: sheetId });
+  } finally {
+    lock.releaseLock();
+  }
 }
 
 function prepareUserSpreadsheet(ss) {

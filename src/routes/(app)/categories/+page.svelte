@@ -156,7 +156,7 @@
 				<p class="text-sm text-gray-400 py-4 text-center">Belum ada kategori pengeluaran</p>
 			{:else}
 				<div class="space-y-1">
-					{#each expenseCats as c}
+					{#each expenseCats as c (c.id)}
 						<div class="group flex cursor-pointer items-center gap-2.5 rounded-xl px-2.5 py-2 transition hover:bg-gray-50 focus-within:bg-gray-50 dark:hover:bg-gray-800/50 dark:focus-within:bg-gray-800/50 sm:gap-3 sm:px-3 motion-reduce:transition-none" onclick={(e) => { if (e.target === e.currentTarget || !(e.target as HTMLElement).closest('button')) openCatEdit(c); }} role="button" tabindex="0" onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openCatEdit(c); } }}>
 							<div class="flex size-9 shrink-0 items-center justify-center rounded-xl text-base shadow-xs" style="background-color: {c.color}20; border: 1.5px solid {c.color}60">
 								<span>{getCategoryGlyph(c)}</span>
@@ -181,7 +181,7 @@
 				<p class="text-sm text-gray-400 py-4 text-center">Belum ada kategori pemasukan</p>
 			{:else}
 				<div class="space-y-1">
-					{#each incomeCats as c}
+					{#each incomeCats as c (c.id)}
 						<div class="group flex cursor-pointer items-center gap-2.5 rounded-xl px-2.5 py-2 transition hover:bg-gray-50 focus-within:bg-gray-50 dark:hover:bg-gray-800/50 dark:focus-within:bg-gray-800/50 sm:gap-3 sm:px-3 motion-reduce:transition-none" onclick={(e) => { if (e.target === e.currentTarget || !(e.target as HTMLElement).closest('button')) openCatEdit(c); }} role="button" tabindex="0" onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openCatEdit(c); } }}>
 							<div class="flex size-9 shrink-0 items-center justify-center rounded-xl text-base shadow-xs" style="background-color: {c.color}20; border: 1.5px solid {c.color}60">
 								<span>{getCategoryGlyph(c)}</span>
@@ -204,7 +204,7 @@
 			<div class="border-t border-gray-200 dark:border-gray-800 p-5">
 				<p class="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-3">Nonaktif</p>
 				<div class="space-y-1">
-					{#each inactiveCats as c}
+					{#each inactiveCats as c (c.id)}
 						<div class="flex items-center gap-3 px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-800/30">
 							<div class="flex size-8 shrink-0 items-center justify-center rounded-lg text-sm opacity-50" style="background-color: {c.color}20">
 								<span>{getCategoryGlyph(c)}</span>
@@ -234,7 +234,7 @@
 		<div>
 			<p class="mb-2 text-sm font-semibold text-[var(--text-primary)]">Pilihan Warna</p>
 			<div class="flex flex-wrap gap-2">
-				{#each COLOR_PRESETS as color}
+				{#each COLOR_PRESETS as color (color)}
 					<button type="button" onclick={() => catFormColor = color} class="size-7 sm:size-8 rounded-full border-2 transition-all {catFormColor === color ? 'border-gray-900 dark:border-white scale-110 shadow-sm' : 'border-transparent'}" style="background-color: {color}" aria-label={color}></button>
 				{/each}
 			</div>
@@ -243,7 +243,7 @@
 		<div>
 			<label for="cat-custom-icon" class="mb-1.5 block text-sm font-semibold text-[var(--text-primary)]">Ikon / Simbol</label>
 			<div class="mb-2.5 flex flex-wrap gap-1.5 max-h-24 overflow-y-auto p-1.5 rounded-xl border border-gray-200 bg-gray-50/70 dark:border-gray-700 dark:bg-gray-800/50">
-				{#each EMOJI_PRESETS as emoji}
+				{#each EMOJI_PRESETS as emoji (emoji)}
 					<button type="button" onclick={() => catFormIcon = emoji} class="size-8 rounded-lg text-base flex items-center justify-center transition hover:scale-110 hover:bg-white dark:hover:bg-gray-700 {catFormIcon === emoji ? 'bg-white shadow-xs ring-2 ring-primary-500 dark:bg-gray-700' : ''}" aria-label={`Pilih ikon ${emoji}`}>
 						{emoji}
 					</button>

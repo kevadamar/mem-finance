@@ -65,14 +65,23 @@ class TransactionService {
   }
 
   static create(sheet, data) {
+    if (!data || !/^[0-9a-f]{8}-[0-9a-f-]{27,36}$/i.test(data.id || '')) throw new Error('INVALID_ID');
+    const lock = LockService.getScriptLock();
+    lock.waitLock(10000);
+    try {
+      const rows = sheet.getDataRange().getValues();
+      for (let i = 1; i < rows.length; i++) {
+        if (rows[i][0] === data.id) return this._toObj(rows[0], rows[i]);
+      }
     const now = new Date().toISOString();
     const createdAt = data.createdAt || now;
-    const id = Utilities.getUuid();
+    const id = data.id;
     const row = [id, data.type, Number(data.amount), data.categoryId, data.date, data.note || '', createdAt, now, true, data.userId || 'default-admin'];
     sheet.appendRow(row);
     const obj = {};
     this.HEADERS.forEach((h, i) => obj[h] = h === 'date' ? this._formatDate(row[i]) : row[i]);
     return obj;
+    } finally { lock.releaseLock(); }
   }
 
   static update(sheet, id, data) {

@@ -1,7 +1,9 @@
-import * as idb from './idb';
-import { STORES } from './idb';
-import type { Transaction, TransactionType } from '$lib/domain/entities/transaction';
-import type { Category } from '$lib/domain/entities/category';
+import { getCategoryRepo, getTransactionRepo } from './repository-factory';
+import { withDeferredSync } from './sync-manager';
+import { getActiveUser } from './idb';
+import type { TransactionType } from '$lib/domain/entities/transaction';
+import type { ICategoryRepository } from '$lib/domain/repositories/category.repo';
+import type { ITransactionRepository } from '$lib/domain/repositories/transaction.repo';
 
 const EXPECTED_HEADERS = ['ID', 'Tipe', 'Jumlah', 'Kategori', 'Tanggal', 'Catatan', 'Dibuat', 'Diperbarui'];
 
@@ -166,9 +168,15 @@ export async function parseCSVFile(file: File): Promise<ParseResult> {
 	};
 }
 
-export async function executeCSVImport(rows: ParsedRow[]): Promise<ImportReport> {
+type CSVRepositories = { categoryRepo: Pick<ICategoryRepository, 'getAll' | 'create'>; transactionRepo: Pick<ITransactionRepository, 'create'> };
+
+export async function executeCSVImport(rows: ParsedRow[], repositories: CSVRepositories = { categoryRepo: getCategoryRepo(), transactionRepo: getTransactionRepo() }): Promise<ImportReport> {
+	return withDeferredSync(async () => {
+	const owner = getActiveUser();
+	const assertOwner = () => { if (getActiveUser() !== owner) throw new Error('Account changed during import'); };
 	const report: ImportReport = { successCount: 0, skipCount: 0, errorCount: 0, details: [] };
-	const existingCats = await idb.getAll<Category>(STORES.CATEGORIES);
+	const { categoryRepo, transactionRepo } = repositories;
+	const existingCats = await categoryRepo.getAll();
 	const catMap = new Map(existingCats.map((c) => [c.name.toLowerCase() + '|' + c.type, c]));
 
 	async function resolveCategory(name: string, type: TransactionType): Promise<string> {
@@ -176,46 +184,35 @@ export async function executeCSVImport(rows: ParsedRow[]): Promise<ImportReport>
 		const existing = catMap.get(key);
 		if (existing) return existing.id;
 
-		const newCat: Category = {
-			id: crypto.randomUUID(),
+		const newCat = await categoryRepo.create({
 			name: name.trim(),
 			type,
 			color: '#6B7280',
-			icon: 'more-horizontal',
-			isDefault: false
-		};
-		await idb.put(STORES.CATEGORIES, newCat);
+			icon: 'more-horizontal'
+		});
 		catMap.set(key, newCat);
 		return newCat.id;
 	}
 
-	const toInsert: Transaction[] = [];
-	const now = new Date().toISOString();
-
 	for (const row of rows) {
+		assertOwner();
 		try {
 			const categoryId = await resolveCategory(row.categoryName, row.type);
-			toInsert.push({
-				id: crypto.randomUUID(),
+			await transactionRepo.create({
 				type: row.type,
 				amount: row.amount,
 				categoryId,
 				date: row.date,
-				note: row.note || undefined,
-				createdAt: now,
-				updatedAt: now
+				note: row.note || undefined
 			});
+			report.successCount++;
 		} catch (err) {
+			assertOwner();
 			report.errorCount++;
 			report.details.push({ entity: 'transactions', reason: err instanceof Error ? err.message : 'Unknown error' });
 		}
 	}
 
-	for (let i = 0; i < toInsert.length; i += 500) {
-		await idb.bulkPut(STORES.TRANSACTIONS, toInsert.slice(i, i + 500));
-	}
-
-	report.successCount = toInsert.length;
-	window.dispatchEvent(new CustomEvent('memfinance-data-changed'));
 	return report;
+	});
 }

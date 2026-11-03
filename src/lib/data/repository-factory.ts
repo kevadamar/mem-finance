@@ -1,7 +1,6 @@
-import { browser } from '$app/environment';
 import * as idb from './idb';
-import { STORES } from './idb';
-import { addToSyncQueue } from './sync-manager';
+import { STORES, type SyncQueueItem } from './idb';
+import { isSyncDeferred, notifyQueueChanged } from './sync-manager';
 import type { Transaction, CreateTransactionInput, UpdateTransactionInput } from '$lib/domain/entities/transaction';
 import type { Category, CreateCategoryInput, UpdateCategoryInput } from '$lib/domain/entities/category';
 import type { Budget, CreateBudgetInput } from '$lib/domain/entities/budget';
@@ -9,460 +8,155 @@ import type { ITransactionRepository } from '$lib/domain/repositories/transactio
 import type { ICategoryRepository } from '$lib/domain/repositories/category.repo';
 import type { IBudgetRepository } from '$lib/domain/repositories/budget.repo';
 
+type Entity = Transaction | Category | Budget;
+type Table = typeof STORES.TRANSACTIONS | typeof STORES.CATEGORIES | typeof STORES.BUDGETS;
 const CACHE_MAX_AGE_MS = 5 * 60 * 1000;
+const lastSync = new Map<string, Record<Table, number>>();
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const isBrowser = () => typeof window !== 'undefined';
 
-interface CacheMeta {
-	lastSync: number;
-	loading: boolean;
+function recordId(id?: string): string {
+	if (id === undefined) return crypto.randomUUID();
+	if (!UUID.test(id)) throw new Error('Invalid imported record ID');
+	return id;
 }
 
-const meta = {
-	transactions: { lastSync: 0, loading: false } as CacheMeta,
-	categories: { lastSync: 0, loading: false } as CacheMeta,
-	budgets: { lastSync: 0, loading: false } as CacheMeta
-};
-
-function isFresh(m: CacheMeta): boolean {
-	return Date.now() - m.lastSync < CACHE_MAX_AGE_MS;
+function emitChange(): void {
+	if (isBrowser()) window.dispatchEvent(new CustomEvent('memfinance-data-changed'));
 }
 
-function emitChange() {
-	window.dispatchEvent(new CustomEvent('memfinance-data-changed'));
+function assertOwner(owner: string): void {
+	if (idb.getActiveUser() !== owner) throw new Error('Account changed during data load');
 }
 
-async function apiGet<T>(path: string): Promise<T> {
-	const res = await fetch(path);
-	const json = await res.json();
-	if (!json.success) throw new Error(json.error?.message ?? 'API error');
-	return json.data;
-}
-
-async function apiCall<T = unknown>(path: string, method: string, body?: unknown): Promise<T> {
-	const res = await fetch(path, {
-		method,
-		headers: body ? { 'Content-Type': 'application/json' } : undefined,
-		body: body ? JSON.stringify(body) : undefined
-	});
-	const json = await res.json();
-	if (!json.success) throw new Error(json.error?.message ?? 'API error');
-	return json.data as T;
-}
-
-async function loadFromGas<T>(table: typeof STORES.TRANSACTIONS | typeof STORES.CATEGORIES | typeof STORES.BUDGETS): Promise<T[]> {
-	if (!browser) return [];
-	if (!navigator.onLine) throw new Error('offline');
-	const path = table === STORES.TRANSACTIONS ? '/api/transactions' :
-	             table === STORES.CATEGORIES ? '/api/categories' : '/api/budgets';
-	return apiGet<T[]>(path);
-}
-
-async function syncToGas<T>(table: typeof STORES.TRANSACTIONS | typeof STORES.CATEGORIES | typeof STORES.BUDGETS): Promise<T[]> {
-	const fresh = await loadFromGas<T>(table);
-	if (Array.isArray(fresh) && fresh.length > 0) {
-		const allLocal = await idb.getAll<T>(table);
-		const freshIds = new Set(
-			(fresh as Array<Record<string, unknown>>)
-				.filter((item) => typeof item.id === 'string')
-				.map((item) => item.id as string)
-		);
-		const extras = (allLocal as Array<Record<string, unknown>>).filter(
-			(item) => typeof item.id === 'string' && !freshIds.has(item.id as string)
-		);
-		const merged = extras.length > 0 ? ([...fresh, ...extras] as unknown as T[]) : fresh;
-		await idb.bulkPut<T>(table, merged);
-		return merged;
+function syncTimes(owner: string): Record<Table, number> {
+	let times = lastSync.get(owner);
+	if (!times) {
+		times = { transactions: 0, categories: 0, budgets: 0 };
+		lastSync.set(owner, times);
 	}
-	return fresh;
+	return times;
 }
 
-class IndexedDBTransactionRepository implements ITransactionRepository {
-	async getAll(): Promise<Transaction[]> {
-		const cached = (await idb.getAll<Transaction>(STORES.TRANSACTIONS)).filter((t) => t.flagActive !== false);
-		if (isFresh(meta.transactions) || !browser) return cached;
+async function remoteList<T extends Entity>(table: Table, owner: string): Promise<T[]> {
+	assertOwner(owner);
+	const response = await fetch(`/api/${table}`, { headers: { 'x-memfinance-user-id': owner } });
+	if (response.status === 409) throw new Error('Account changed; reload the app');
+	const json = await response.json();
+	if (!response.ok || !json.success || !Array.isArray(json.data)) throw new Error('Could not load remote data');
+	return json.data as T[];
+}
 
-		meta.transactions.loading = true;
-		emitChange();
-		try {
-			const fresh = await syncToGas<Transaction>(STORES.TRANSACTIONS);
-			meta.transactions.lastSync = Date.now();
-			if (fresh.length > 0) return fresh.filter((t) => t.flagActive !== false);
-			if (cached.length > 0) return cached;
-			return [];
-		} catch {
-			meta.transactions.lastSync = Date.now();
-			return cached;
-		} finally {
-			meta.transactions.loading = false;
-			emitChange();
-		}
+async function list<T extends Entity>(table: Table): Promise<T[]> {
+	const owner = idb.getActiveUser();
+	const cached = await idb.getAll<T>(table);
+	assertOwner(owner);
+	if (!isBrowser() || !navigator.onLine || Date.now() - syncTimes(owner)[table] < CACHE_MAX_AGE_MS) {
+		return cached.filter((item) => item.flagActive !== false);
 	}
-
-	async getById(id: string): Promise<Transaction | null> {
-		const tx = await idb.getOne<Transaction>(STORES.TRANSACTIONS, id);
-		return tx ?? null;
+	try {
+		const fresh = await remoteList<T>(table, owner);
+		assertOwner(owner);
+		const merged = await idb.mergeRemote(table, fresh, owner);
+		assertOwner(owner);
+		syncTimes(owner)[table] = Date.now();
+		return merged.filter((item) => item.flagActive !== false);
+	} catch (error) {
+		assertOwner(owner);
+		if (error instanceof Error && error.message.startsWith('Account changed')) throw error;
+		return cached.filter((item) => item.flagActive !== false);
 	}
+}
 
-	async create(input: CreateTransactionInput): Promise<Transaction> {
+async function byId<T extends Entity>(table: Table, id: string): Promise<T | null> {
+	return (await idb.getOne<T>(table, id)) ?? null;
+}
+
+async function persist<T extends Entity>(table: Table, value: T, action: SyncQueueItem['action'], payload: unknown): Promise<T> {
+	const item: SyncQueueItem = {
+		ownerUserId: idb.getActiveUser(), operationId: crypto.randomUUID(), recordId: value.id,
+		entity: table, action, payload, attempts: 0, createdAt: Date.now(), status: 'pending'
+	};
+	await idb.putWithQueue(table, value, item);
+	if (!isSyncDeferred()) emitChange();
+	await notifyQueueChanged();
+	return value;
+}
+
+class TransactionRepository implements ITransactionRepository {
+	getAll() { return list<Transaction>(STORES.TRANSACTIONS); }
+	getById(id: string) { return byId<Transaction>(STORES.TRANSACTIONS, id); }
+	async create(input: CreateTransactionInput, id?: string): Promise<Transaction> {
 		const now = new Date().toISOString();
-		const optimistic: Transaction = {
-			id: `local_${crypto.randomUUID()}`,
-			...input,
-			note: input.note,
-			createdAt: input.createdAt ?? now,
-			updatedAt: now
-		};
-
-		await idb.put(STORES.TRANSACTIONS, optimistic);
-		emitChange();
-
-		if (browser && navigator.onLine) {
-			try {
-				const created = await apiCall<Transaction>('/api/transactions', 'POST', input);
-				await idb.remove(STORES.TRANSACTIONS, optimistic.id);
-				await idb.put(STORES.TRANSACTIONS, created);
-				meta.transactions.lastSync = Date.now();
-				emitChange();
-				return created;
-			} catch {
-				await addToSyncQueue({
-					entity: 'transactions',
-					action: 'create',
-					payload: input
-				});
-			}
-		} else {
-			await addToSyncQueue({
-				entity: 'transactions',
-				action: 'create',
-				payload: input
-			});
-		}
-
-		return optimistic;
+		const value: Transaction = { ...input, id: recordId(id), createdAt: input.createdAt ?? now, updatedAt: now, flagActive: true };
+		return persist(STORES.TRANSACTIONS, value, 'create', value);
 	}
-
 	async update(id: string, input: UpdateTransactionInput): Promise<Transaction> {
-		const existing = await idb.getOne<Transaction>(STORES.TRANSACTIONS, id);
+		const existing = await this.getById(id);
 		if (!existing) throw new Error('Transaction not found');
-
-		const optimistic: Transaction = {
-			...existing,
-			...input,
-			note: input.note !== undefined ? input.note : existing.note,
-			updatedAt: new Date().toISOString()
-		};
-		await idb.put(STORES.TRANSACTIONS, optimistic);
-		emitChange();
-
-		if (browser && navigator.onLine && !id.startsWith('local_')) {
-			try {
-				const updated = await apiCall<Transaction>(`/api/transactions/${id}`, 'PUT', input);
-				await idb.put(STORES.TRANSACTIONS, updated);
-				emitChange();
-				return updated;
-			} catch {
-				await addToSyncQueue({
-					entity: 'transactions',
-					action: 'update',
-					payload: { id, ...input }
-				});
-			}
-		} else {
-			await addToSyncQueue({
-				entity: 'transactions',
-				action: 'update',
-				payload: { id, ...input }
-			});
-		}
-
-		return optimistic;
+		const value = { ...existing, ...input, updatedAt: new Date().toISOString() };
+		return persist(STORES.TRANSACTIONS, value, 'update', { ...input, id });
 	}
-
 	async delete(id: string): Promise<void> {
-		const existing = await idb.getOne<Transaction>(STORES.TRANSACTIONS, id);
-		if (!existing) return;
-
-		const softDeleted: Transaction = { ...existing, flagActive: false, updatedAt: new Date().toISOString() };
-		await idb.put(STORES.TRANSACTIONS, softDeleted);
-		emitChange();
-
-		if (browser && navigator.onLine && !id.startsWith('local_')) {
-			try {
-				await apiCall(`/api/transactions/${id}`, 'PUT', { flagActive: false });
-			} catch {
-				await addToSyncQueue({
-					entity: 'transactions',
-					action: 'update',
-					payload: { id, flagActive: false }
-				});
-			}
-		} else {
-			await addToSyncQueue({
-				entity: 'transactions',
-				action: 'update',
-				payload: { id, flagActive: false }
-			});
-		}
+		const existing = await this.getById(id);
+		if (existing) await persist(STORES.TRANSACTIONS, { ...existing, flagActive: false, updatedAt: new Date().toISOString() }, 'update', { id, flagActive: false });
 	}
 }
 
-class IndexedDBCategoryRepository implements ICategoryRepository {
-	async getAll(): Promise<Category[]> {
-		const cached = (await idb.getAll<Category>(STORES.CATEGORIES)).filter((c) => c.flagActive !== false);
-		if (cached.length === 0 && browser && navigator.onLine) {
-			try {
-				const fresh = await syncToGas<Category>(STORES.CATEGORIES);
-				meta.categories.lastSync = Date.now();
-				if (fresh.length > 0) return fresh;
-				return cached;
-			} catch { return cached; }
-		}
-		if (isFresh(meta.categories) || !browser) return cached;
-
-		try {
-			const fresh = await syncToGas<Category>(STORES.CATEGORIES);
-			meta.categories.lastSync = Date.now();
-			if (fresh.length > 0) return fresh;
-			return cached;
-		} catch { return cached; }
+class CategoryRepository implements ICategoryRepository {
+	getAll() { return list<Category>(STORES.CATEGORIES); }
+	getById(id: string) { return byId<Category>(STORES.CATEGORIES, id); }
+	create(input: CreateCategoryInput, id?: string): Promise<Category> {
+		const value: Category = { ...input, id: recordId(id), isDefault: false, flagActive: true };
+		return persist(STORES.CATEGORIES, value, 'create', value);
 	}
-
-	async getById(id: string): Promise<Category | null> {
-		const c = await idb.getOne<Category>(STORES.CATEGORIES, id);
-		return c ?? null;
-	}
-
-	async create(input: CreateCategoryInput): Promise<Category> {
-		const optimistic: Category = {
-			id: `local_${crypto.randomUUID()}`,
-			...input,
-			isDefault: false
-		};
-		await idb.put(STORES.CATEGORIES, optimistic);
-		emitChange();
-
-		if (browser && navigator.onLine) {
-			try {
-				const created = await apiCall<Category>('/api/categories', 'POST', input);
-				await idb.remove(STORES.CATEGORIES, optimistic.id);
-				await idb.put(STORES.CATEGORIES, created);
-				emitChange();
-				return created;
-			} catch {
-				await addToSyncQueue({ entity: 'categories', action: 'create', payload: input });
-			}
-		} else {
-			await addToSyncQueue({ entity: 'categories', action: 'create', payload: input });
-		}
-
-		return optimistic;
-	}
-
 	async update(id: string, input: UpdateCategoryInput): Promise<Category> {
-		const existing = await idb.getOne<Category>(STORES.CATEGORIES, id);
+		const existing = await this.getById(id);
 		if (!existing) throw new Error('Category not found');
-
-		const optimistic: Category = { ...existing, ...input };
-		await idb.put(STORES.CATEGORIES, optimistic);
-		emitChange();
-
-		if (browser && navigator.onLine && !id.startsWith('local_')) {
-			try {
-				const updated = await apiCall<Category>(`/api/categories/${id}`, 'PUT', input);
-				await idb.put(STORES.CATEGORIES, updated);
-				emitChange();
-				return updated;
-			} catch {
-				await addToSyncQueue({ entity: 'categories', action: 'update', payload: { id, ...input } });
-			}
-		} else {
-			await addToSyncQueue({ entity: 'categories', action: 'update', payload: { id, ...input } });
-		}
-		return optimistic;
+		return persist(STORES.CATEGORIES, { ...existing, ...input }, 'update', { ...input, id });
 	}
-
 	async delete(id: string): Promise<void> {
-		const existing = await idb.getOne<Category>(STORES.CATEGORIES, id);
-		if (!existing) return;
-
-		const softDeleted: Category = { ...existing, flagActive: false };
-		await idb.put(STORES.CATEGORIES, softDeleted);
-		emitChange();
-
-		if (browser && navigator.onLine && !id.startsWith('local_')) {
-			try {
-				await apiCall(`/api/categories/${id}`, 'PUT', { flagActive: false });
-			} catch {
-				await addToSyncQueue({ entity: 'categories', action: 'update', payload: { id, flagActive: false } });
-			}
-		} else {
-			await addToSyncQueue({ entity: 'categories', action: 'update', payload: { id, flagActive: false } });
-		}
+		const existing = await this.getById(id);
+		if (existing) await persist(STORES.CATEGORIES, { ...existing, flagActive: false }, 'update', { id, flagActive: false });
 	}
-
 	async restore(id: string): Promise<Category> {
-		const existing = await idb.getOne<Category>(STORES.CATEGORIES, id);
+		const existing = await this.getById(id);
 		if (!existing) throw new Error('Category not found');
-
-		const restored: Category = { ...existing, flagActive: true };
-		await idb.put(STORES.CATEGORIES, restored);
-		emitChange();
-
-		if (browser && navigator.onLine && !id.startsWith('local_')) {
-			try {
-				const updated = await apiCall<Category>(`/api/categories/${id}`, 'PUT', { flagActive: true });
-				await idb.put(STORES.CATEGORIES, updated);
-				emitChange();
-				return updated;
-			} catch {
-				await addToSyncQueue({ entity: 'categories', action: 'update', payload: { id, flagActive: true } });
-			}
-		} else {
-			await addToSyncQueue({ entity: 'categories', action: 'update', payload: { id, flagActive: true } });
-		}
-		return restored;
+		return persist(STORES.CATEGORIES, { ...existing, flagActive: true }, 'update', { id, flagActive: true });
 	}
 }
 
-class IndexedDBBudgetRepository implements IBudgetRepository {
-	async getAll(): Promise<Budget[]> {
-		const cached = (await idb.getAll<Budget>(STORES.BUDGETS)).filter((b) => b.flagActive !== false);
-		if (isFresh(meta.budgets) || !browser) return cached;
-
-		try {
-			const fresh = await syncToGas<Budget>(STORES.BUDGETS);
-			meta.budgets.lastSync = Date.now();
-			if (fresh.length > 0) return fresh;
-			return cached;
-		} catch { return cached; }
-	}
-
+class BudgetRepository implements IBudgetRepository {
+	getAll() { return list<Budget>(STORES.BUDGETS); }
+	getById(id: string) { return byId<Budget>(STORES.BUDGETS, id); }
 	async getByMonth(month: number, year: number): Promise<Budget[]> {
-		const all = await this.getAll();
-		return all.filter((b) => Number(b.month) === month && Number(b.year) === year);
+		return (await this.getAll()).filter((item) => Number(item.month) === month && Number(item.year) === year);
 	}
-
-	async getById(id: string): Promise<Budget | null> {
-		const b = await idb.getOne<Budget>(STORES.BUDGETS, id);
-		return b ?? null;
+	create(input: CreateBudgetInput, id?: string): Promise<Budget> {
+		const value: Budget = { ...input, id: recordId(id), createdAt: new Date().toISOString(), flagActive: true };
+		return persist(STORES.BUDGETS, value, 'create', value);
 	}
-
-	async create(input: CreateBudgetInput): Promise<Budget> {
-		const optimistic: Budget = {
-			id: `local_${crypto.randomUUID()}`,
-			...input,
-			createdAt: new Date().toISOString()
-		};
-		await idb.put(STORES.BUDGETS, optimistic);
-		emitChange();
-
-		if (browser && navigator.onLine) {
-			try {
-				const created = await apiCall<Budget>('/api/budgets', 'POST', input);
-				await idb.remove(STORES.BUDGETS, optimistic.id);
-				await idb.put(STORES.BUDGETS, created);
-				emitChange();
-				return created;
-			} catch {
-				await addToSyncQueue({ entity: 'budgets', action: 'create', payload: input });
-			}
-		} else {
-			await addToSyncQueue({ entity: 'budgets', action: 'create', payload: input });
-		}
-		return optimistic;
-	}
-
 	async update(id: string, input: Partial<CreateBudgetInput>): Promise<Budget> {
-		const existing = await idb.getOne<Budget>(STORES.BUDGETS, id);
+		const existing = await this.getById(id);
 		if (!existing) throw new Error('Budget not found');
-
-		const optimistic: Budget = { ...existing, ...input };
-		await idb.put(STORES.BUDGETS, optimistic);
-		emitChange();
-
-		if (browser && navigator.onLine && !id.startsWith('local_')) {
-			try {
-				const updated = await apiCall<Budget>(`/api/budgets/${id}`, 'PUT', input);
-				await idb.put(STORES.BUDGETS, updated);
-				emitChange();
-				return updated;
-			} catch {
-				await addToSyncQueue({ entity: 'budgets', action: 'update', payload: { id, ...input } });
-			}
-		} else {
-			await addToSyncQueue({ entity: 'budgets', action: 'update', payload: { id, ...input } });
-		}
-		return optimistic;
+		return persist(STORES.BUDGETS, { ...existing, ...input }, 'update', { ...input, id });
 	}
-
 	async delete(id: string): Promise<void> {
-		const existing = await idb.getOne<Budget>(STORES.BUDGETS, id);
-		if (!existing) return;
-
-		const softDeleted: Budget = { ...existing, flagActive: false };
-		await idb.put(STORES.BUDGETS, softDeleted);
-		emitChange();
-
-		if (browser && navigator.onLine && !id.startsWith('local_')) {
-			try {
-				await apiCall(`/api/budgets/${id}`, 'PUT', { flagActive: false });
-			} catch {
-				await addToSyncQueue({ entity: 'budgets', action: 'update', payload: { id, flagActive: false } });
-			}
-		} else {
-			await addToSyncQueue({ entity: 'budgets', action: 'update', payload: { id, flagActive: false } });
-		}
+		const existing = await this.getById(id);
+		if (existing) await persist(STORES.BUDGETS, { ...existing, flagActive: false }, 'update', { id, flagActive: false });
 	}
-
 	async restore(id: string): Promise<Budget> {
-		const existing = await idb.getOne<Budget>(STORES.BUDGETS, id);
+		const existing = await this.getById(id);
 		if (!existing) throw new Error('Budget not found');
-
-		const restored: Budget = { ...existing, flagActive: true };
-		await idb.put(STORES.BUDGETS, restored);
-		emitChange();
-
-		if (browser && navigator.onLine && !id.startsWith('local_')) {
-			try {
-				const updated = await apiCall<Budget>(`/api/budgets/${id}`, 'PUT', { flagActive: true });
-				await idb.put(STORES.BUDGETS, updated);
-				emitChange();
-				return updated;
-			} catch {
-				await addToSyncQueue({ entity: 'budgets', action: 'update', payload: { id, flagActive: true } });
-			}
-		} else {
-			await addToSyncQueue({ entity: 'budgets', action: 'update', payload: { id, flagActive: true } });
-		}
-		return restored;
+		return persist(STORES.BUDGETS, { ...existing, flagActive: true }, 'update', { id, flagActive: true });
 	}
 }
 
-let _transactionRepo: ITransactionRepository | null = null;
-let _categoryRepo: ICategoryRepository | null = null;
-let _budgetRepo: IBudgetRepository | null = null;
-
-export function getTransactionRepo(): ITransactionRepository {
-	if (!_transactionRepo) _transactionRepo = new IndexedDBTransactionRepository();
-	return _transactionRepo;
-}
-
-export function getCategoryRepo(): ICategoryRepository {
-	if (!_categoryRepo) _categoryRepo = new IndexedDBCategoryRepository();
-	return _categoryRepo;
-}
-
-export function getBudgetRepo(): IBudgetRepository {
-	if (!_budgetRepo) _budgetRepo = new IndexedDBBudgetRepository();
-	return _budgetRepo;
-}
-
-export function invalidateBudgetCache() {
-	meta.budgets.lastSync = 0;
-}
-
-export function resetRepos() {
-	_transactionRepo = null;
-	_categoryRepo = null;
-	_budgetRepo = null;
-}
+const transactionRepo = new TransactionRepository();
+const categoryRepo = new CategoryRepository();
+const budgetRepo = new BudgetRepository();
+export function getTransactionRepo(): ITransactionRepository { return transactionRepo; }
+export function getCategoryRepo(): ICategoryRepository { return categoryRepo; }
+export function getBudgetRepo(): IBudgetRepository { return budgetRepo; }
+export function invalidateBudgetCache(): void { syncTimes(idb.getActiveUser()).budgets = 0; }
+export function resetRepos(): void { lastSync.clear(); }

@@ -69,8 +69,10 @@ describe('SQL type mapping', () => {
 	});
 
 	it('isDefault boolean maps to INTEGER 0/1', () => {
-		expect(true ? 1 : 0).toBe(1);
-		expect(false ? 1 : 0).toBe(0);
+		const isDefaultTrue = true;
+		const isDefaultFalse = false;
+		expect(isDefaultTrue ? 1 : 0).toBe(1);
+		expect(isDefaultFalse ? 1 : 0).toBe(0);
 	});
 });
 

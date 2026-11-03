@@ -1,18 +1,67 @@
 <script lang="ts">
 	import { fade } from 'svelte/transition';
+	import { invalidateAll } from '$app/navigation';
 	import Modal from '$lib/components/ui/Modal.svelte';
 	import Button from '$lib/components/ui/Button.svelte';
 	import { exportCSV } from '$lib/data/export-csv';
 	import { parseCSVFile, executeCSVImport } from '$lib/data/import-csv';
-	import { loadTransactionsFromCache } from '$lib/state/app.svelte';
+	import { loadTransactionsFromCache, loadCategoriesFromCache, loadBudgetsFromCache } from '$lib/state/app.svelte';
 	import { app } from '$lib/state/app.svelte';
 	import { setGmtOffset } from '$lib/utils/format';
 	import ImportPreviewModal from '$lib/components/settings/ImportPreviewModal.svelte';
 	import ImportReportModal from '$lib/components/settings/ImportReportModal.svelte';
+	import { getActiveUser } from '$lib/data/idb';
+	import { downloadLegacyBackup, legacyClaimedBy, legacyCounts, readLegacySnapshot, recoverLegacySnapshot, type LegacySnapshot } from '$lib/data/legacy-recovery';
+	let { data } = $props();
+	let legacySnapshot: LegacySnapshot | null = null;
+	let legacySummary = $state<ReturnType<typeof legacyCounts> | null>(null);
+	let legacyBackupDownloaded = $state(false);
+	let legacyConfirmed = $state(false);
+	let legacyBusy = $state(false);
+	let inspectedForUser: string | null = null;
+	$effect(() => {
+		if (inspectedForUser === data.userId) return;
+		legacySnapshot = null;
+		legacySummary = null;
+		legacyBackupDownloaded = false;
+		legacyConfirmed = false;
+		inspectedForUser = data.userId;
+	});
+	async function inspectLegacy() {
+		if (legacyClaimedBy()) {
+			message = 'Arsip lokal lama sudah pernah dipulihkan pada perangkat ini.';
+			return;
+		}
+		try {
+			const snapshot = await readLegacySnapshot();
+			if (!snapshot) { message = 'Tidak ada database lokal versi lama.'; return; }
+			const counts = legacyCounts(snapshot);
+			if (Object.values(counts).every((count) => count === 0)) { message = 'Database lokal lama tidak berisi data.'; return; }
+			legacySnapshot = snapshot;
+			legacySummary = counts;
+		} catch { message = 'Arsip lokal lama belum dapat diperiksa.'; }
+	}
+
+	async function recoverLegacy() {
+		if (!legacySnapshot || !legacyBackupDownloaded || !legacyConfirmed || legacyBusy) return;
+		legacyBusy = true;
+		try {
+			await recoverLegacySnapshot(legacySnapshot, data.userId);
+			await Promise.all([loadTransactionsFromCache(), loadCategoriesFromCache(), loadBudgetsFromCache()]);
+			legacySummary = null;
+			message = 'Data lokal lama telah disalin. Antrean perlu diperiksa sebelum dicoba lagi; cadangan dan database lama tetap disimpan.';
+		} catch (error) {
+			message = error instanceof Error ? error.message : 'Pemulihan data lokal lama gagal. Cadangan lama tetap aman.';
+		} finally { legacyBusy = false; }
+	}
+	function assertImportAccount(owner: string) {
+		if (data.userId !== owner || getActiveUser() !== owner) throw new Error('Akun berubah. Pilih file lagi untuk akun saat ini.');
+	}
 
 	let darkMode = $state(false);
 	let message = $state('');
 	let resetConfirmOpen = $state(false);
+	const preferenceKeys = ['memfinance_dark_mode', 'memfinance_gmt', 'memfinance_sidebar_collapsed'] as const;
 
 	const gmtOptions = Array.from({ length: 19 }, (_, i) => {
 		const val = i - 9;
@@ -23,8 +72,17 @@
 
 	let csvBusy = $state(false);
 	let sqliteBusy = $state(false);
-	let importPreview = $state<{ format: 'csv' | 'sqlite'; summary: any; confirm: () => Promise<void> } | null>(null);
-	let importReport = $state<{ format: 'csv' | 'sqlite'; report: any } | null>(null);
+	type ImportPreview = {
+		format: 'csv' | 'sqlite';
+		summary: { entityCounts: Record<string, number>; dateRange?: { start: string; end: string }; totalAmount?: number };
+		confirm: () => Promise<void>;
+	};
+	type ImportReport = {
+		format: 'csv' | 'sqlite';
+		report: { successCount: number; skipCount: number; errorCount: number; details: { entity?: string; id?: string; reason: string }[] };
+	};
+	let importPreview = $state<ImportPreview | null>(null);
+	let importReport = $state<ImportReport | null>(null);
 
 	$effect(() => {
 		if (typeof document !== 'undefined') {
@@ -39,24 +97,32 @@
 		document.documentElement.classList.toggle('light', !darkMode);
 	}
 
-	function exportData() {
+	async function refreshStorageStatus() {
+		const response = await fetch('/api/storage/status');
+		if (response.ok) {
+			message = 'Status kepemilikan sudah diperbarui.';
+			await invalidateAll();
+		} else {
+			message = 'Status Google Drive belum dapat diperiksa. Coba lagi nanti.';
+		}
+	}
+
+	function exportPreferences() {
 		const data: Record<string, unknown> = {};
-		for (let i = 0; i < localStorage.length; i++) {
-			const key = localStorage.key(i);
-			if (key?.startsWith('memfinance_')) {
-				try { data[key] = JSON.parse(localStorage.getItem(key)!); } catch { data[key] = localStorage.getItem(key); }
-			}
+		for (const key of preferenceKeys) {
+			const value = localStorage.getItem(key);
+			if (value !== null) data[key] = value;
 		}
 		const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
 		const url = URL.createObjectURL(blob);
 		const a = document.createElement('a');
-		a.href = url; a.download = 'memfinance-backup.json'; a.click();
+		a.href = url; a.download = 'memfinance-preferensi.json'; a.click();
 		URL.revokeObjectURL(url);
-		message = 'Data berhasil diekspor!';
+		message = 'Preferensi berhasil diekspor.';
 		setTimeout(() => message = '', 3000);
 	}
 
-	function importData() {
+	function importPreferences() {
 		const input = document.createElement('input');
 		input.type = 'file';
 		input.accept = '.json';
@@ -67,11 +133,13 @@
 			reader.onload = () => {
 				try {
 					const data = JSON.parse(reader.result as string);
-					for (const [key, value] of Object.entries(data)) {
-						localStorage.setItem(key, typeof value === 'string' ? value : JSON.stringify(value));
+					if (!data || typeof data !== 'object' || Array.isArray(data)) throw new Error('Invalid preferences');
+					for (const key of preferenceKeys) {
+						const value = (data as Record<string, unknown>)[key];
+						if (typeof value === 'string') localStorage.setItem(key, value);
 					}
-					message = 'Data berhasil diimpor! Refresh halaman untuk melihat perubahan.';
-				} catch { message = 'Gagal mengimpor data. Format tidak valid.'; }
+					message = 'Preferensi berhasil diimpor. Refresh halaman untuk menerapkan semua perubahan.';
+				} catch { message = 'Gagal mengimpor preferensi. Format tidak valid.'; }
 				setTimeout(() => message = '', 5000);
 			};
 			reader.readAsText(file);
@@ -79,14 +147,9 @@
 		input.click();
 	}
 
-	function executeResetData() {
-		const keys: string[] = [];
-		for (let i = 0; i < localStorage.length; i++) {
-			const key = localStorage.key(i);
-			if (key?.startsWith('memfinance_')) keys.push(key);
-		}
-		for (const key of keys) localStorage.removeItem(key);
-		message = 'Semua data telah dihapus. Silakan refresh halaman.';
+	function executeResetPreferences() {
+		for (const key of preferenceKeys) localStorage.removeItem(key);
+		message = 'Preferensi perangkat telah dihapus. Refresh halaman untuk menerapkan pengaturan awal.';
 		setTimeout(() => message = '', 5000);
 	}
 
@@ -120,6 +183,7 @@
 				return;
 			}
 			csvBusy = true;
+			const importOwner = getActiveUser();
 			try {
 				const result = await parseCSVFile(file);
 				if (result.errors.length > 0 && result.rows.length === 0) {
@@ -129,16 +193,21 @@
 				}
 				importPreview = {
 					format: 'csv',
-					summary: result.summary,
+					summary: {
+						entityCounts: { transactions: result.summary.valid },
+						dateRange: result.summary.dateRange,
+						totalAmount: result.summary.totalAmount
+					},
 					confirm: async () => {
 						csvBusy = true;
 						importPreview = null;
 						try {
+							assertImportAccount(importOwner);
 							const report = await executeCSVImport(result.rows);
 							importReport = { format: 'csv', report };
 							await loadTransactionsFromCache();
-						} catch {
-							message = 'Gagal mengimpor data.';
+						} catch (error) {
+							message = error instanceof Error && error.message.startsWith('Akun berubah') ? error.message : 'Gagal mengimpor data.';
 							setTimeout(() => message = '', 5000);
 						} finally {
 							csvBusy = false;
@@ -182,6 +251,7 @@
 				return;
 			}
 			sqliteBusy = true;
+			const importOwner = getActiveUser();
 			try {
 				const { parseSQLiteFile, executeSQLiteImport } = await import('$lib/data/import-sqlite');
 				const result = await parseSQLiteFile(file);
@@ -197,11 +267,12 @@
 						sqliteBusy = true;
 						importPreview = null;
 						try {
+							assertImportAccount(importOwner);
 							const report = await executeSQLiteImport(result);
 							importReport = { format: 'sqlite', report };
 							await loadTransactionsFromCache();
-						} catch {
-							message = 'Gagal mengimpor data.';
+						} catch (error) {
+							message = error instanceof Error && error.message.startsWith('Akun berubah') ? error.message : 'Gagal mengimpor data.';
 							setTimeout(() => message = '', 5000);
 						} finally {
 							sqliteBusy = false;
@@ -241,12 +312,47 @@
 				<div class="min-w-0 flex-1">
 					<div class="flex flex-wrap items-center gap-2">
 						<p class="font-bold text-gray-950 dark:text-white">{app.user.user_metadata?.name || 'Pengguna'}</p>
-						<span class="rounded-md bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">Google OAuth (Local Dummy)</span>
+						<span class="rounded-md bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">{app.user.app_metadata?.provider === 'google' ? 'Google' : 'Email'}</span>
 					</div>
 					<p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400 truncate">{app.user.email}</p>
 					<p class="mt-1 font-mono text-[10px] text-gray-400 dark:text-gray-500 truncate">User ID: {app.user.id}</p>
 				</div>
 			</div>
+		</section>
+	{/if}
+
+	<section class="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm sm:p-5 dark:border-gray-800 dark:bg-gray-900" aria-label="Kepemilikan spreadsheet">
+		<h2 class="font-bold text-gray-950 dark:text-white">Kepemilikan spreadsheet</h2>
+		<p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+			{data.storageStatus === 'USER_OWNED_ADMIN_EDITOR' ? 'Spreadsheet ini milik akun Google Anda.' : 'Spreadsheet ini belum terverifikasi sebagai milik akun Google Anda.'}
+		</p>
+		{#if data.storageStatus === 'USER_OWNED_ADMIN_EDITOR'}
+			<p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Admin aplikasi tetap memiliki akses editor agar sinkronisasi melalui Apps Script berjalan.</p>
+		{/if}
+		{#if data.storageStatus === 'USER_OWNED_ADMIN_EDITOR' || data.storageStatus === 'TRANSFER_PENDING'}
+			<button type="button" class="mt-3 text-sm font-semibold text-primary-700 underline dark:text-primary-300" onclick={() => void refreshStorageStatus()}>Periksa status Google Drive</button>
+		{/if}
+	</section>
+
+	{#if !legacySummary}
+		<section class="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm sm:p-5 dark:border-gray-800 dark:bg-gray-900" aria-label="Periksa data lokal lama">
+			<h2 class="font-bold text-gray-950 dark:text-white">Data lokal versi lama</h2>
+			<p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Jika Anda memakai MemFinance sebelum data perangkat dipisahkan per akun, periksa apakah ada arsip lokal yang perlu dipulihkan.</p>
+			<button type="button" class="mt-3 min-h-10 rounded-xl border border-gray-300 px-3 text-sm font-semibold text-gray-900 dark:border-gray-700 dark:text-gray-100" onclick={() => void inspectLegacy()}>Periksa arsip lokal</button>
+		</section>
+	{:else}
+		<section class="rounded-2xl border border-amber-300 bg-amber-50 p-4 sm:p-5 dark:border-amber-800 dark:bg-amber-950/40" aria-label="Pemulihan data lokal lama">
+			<h2 class="font-bold text-amber-950 dark:text-amber-100">Data lokal dari versi lama ditemukan</h2>
+			<p class="mt-1 text-sm text-amber-900 dark:text-amber-200">{legacySummary.transactions} transaksi, {legacySummary.categories} kategori, {legacySummary.budgets} anggaran, dan {legacySummary.pending} operasi antrean. Data lama tidak otomatis dikaitkan ke akun mana pun.</p>
+			<p class="mt-2 text-sm text-amber-900 dark:text-amber-200">Unduh cadangan sebelum memulihkan. Jika perangkat pernah dipakai beberapa akun, jangan lanjut tanpa memeriksa pemilik data. Antrean dipulihkan sebagai “perlu tindakan” dan tidak langsung dikirim; bandingkan dengan data server sebelum mencoba sinkronisasi agar tidak terduplikasi.</p>
+			<div class="mt-3 flex flex-wrap gap-2">
+				<button type="button" class="min-h-10 rounded-xl border border-amber-500 px-3 text-sm font-semibold text-amber-950 dark:text-amber-100" onclick={() => { if (legacySnapshot) { downloadLegacyBackup(legacySnapshot); legacyBackupDownloaded = true; } }}>Unduh arsip lokal lama</button>
+			</div>
+			<label class="mt-3 flex items-start gap-2 text-sm text-amber-950 dark:text-amber-100">
+				<input type="checkbox" class="mt-1" bind:checked={legacyConfirmed} disabled={!legacyBackupDownloaded} />
+				<span>Saya sudah mengunduh cadangan dan memastikan data ini milik akun {data.user?.email ?? data.userId}.</span>
+			</label>
+			<button type="button" class="mt-3 min-h-10 rounded-xl bg-amber-800 px-4 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50" disabled={!legacyConfirmed || legacyBusy} onclick={() => void recoverLegacy()}>{legacyBusy ? 'Memulihkan…' : 'Salin data ke akun ini'}</button>
 		</section>
 	{/if}
 
@@ -258,7 +364,7 @@
 			</div>
 			<select aria-label="Pilih zona waktu" value={app.gmtOffset} onchange={(e) => { const v = Number((e.target as HTMLSelectElement).value); app.gmtOffset = v; setGmtOffset(v); }}
 				class="min-h-11 rounded-xl border border-gray-300 bg-white pl-3.5 pr-10 text-sm font-medium text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500/30 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100">
-				{#each gmtOptions as opt}
+					{#each gmtOptions as opt (opt.value)}
 					<option value={opt.value}>{opt.label}</option>
 				{/each}
 			</select>
@@ -282,15 +388,15 @@
 
 		<div class="p-4 sm:p-5">
 			<p class="font-medium text-gray-900 dark:text-gray-100 mb-1">Manajemen Data</p>
-			<p class="text-sm text-gray-500 dark:text-gray-400 mb-4">Ekspor, impor, atau cadangkan data aplikasi Anda.</p>
+			<p class="text-sm text-gray-500 dark:text-gray-400 mb-4">Ekspor atau impor preferensi perangkat. Untuk data keuangan, gunakan ekspor CSV atau SQLite di bawah.</p>
 			<div class="grid gap-2.5 sm:grid-cols-2">
-				<button onclick={exportData} class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary-600 px-4 text-sm font-semibold text-white transition-colors hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2">
+				<button onclick={exportPreferences} class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary-600 px-4 text-sm font-semibold text-white transition-colors hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2">
 					<svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-					Ekspor cadangan JSON
+					Ekspor preferensi JSON
 				</button>
-				<button onclick={importData} class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-gray-100 px-4 text-sm font-semibold text-gray-800 transition-colors hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-primary-500/30 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700">
+				<button onclick={importPreferences} class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-gray-100 px-4 text-sm font-semibold text-gray-800 transition-colors hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-primary-500/30 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700">
 					<svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
-					Impor cadangan JSON
+					Impor preferensi JSON
 				</button>
 			</div>
 			<div class="mt-5 border-t border-gray-200 pt-4 dark:border-gray-700">
@@ -315,9 +421,9 @@
 				</div>
 			</div>
 			<div class="mt-5 rounded-2xl border border-red-200 bg-red-50/70 p-4 dark:border-red-950 dark:bg-red-950/20">
-				<p class="font-semibold text-red-900 dark:text-red-200">Hapus semua data</p>
-				<p class="mt-1 text-sm text-red-800/80 dark:text-red-300/80">Semua data lokal di perangkat ini akan dibersihkan.</p>
-				<button onclick={() => resetConfirmOpen = true} class="mt-3 inline-flex min-h-10 items-center justify-center rounded-xl bg-red-600 px-4 text-sm font-semibold text-white transition-colors hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">Hapus data perangkat</button>
+				<p class="font-semibold text-red-900 dark:text-red-200">Atur ulang preferensi perangkat</p>
+				<p class="mt-1 text-sm text-red-800/80 dark:text-red-300/80">Tema, zona waktu, dan tampilan sidebar akan kembali ke pengaturan awal. Data keuangan tidak dihapus.</p>
+				<button onclick={() => resetConfirmOpen = true} class="mt-3 inline-flex min-h-10 items-center justify-center rounded-xl bg-red-600 px-4 text-sm font-semibold text-white transition-colors hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">Atur ulang preferensi</button>
 			</div>
 		</div>
 
@@ -332,11 +438,11 @@
 	</section>
 </div>
 
-<Modal open={resetConfirmOpen} title="Hapus Semua Data Perangkat?" onclose={() => resetConfirmOpen = false}>
-	<p class="text-sm text-gray-600 dark:text-gray-400 mb-4">Semua data transaksi, kategori, budget, dan pengaturan lokal di perangkat ini akan dihapus secara permanen. Tindakan ini tidak dapat dibatalkan.</p>
+<Modal open={resetConfirmOpen} title="Atur Ulang Preferensi Perangkat?" onclose={() => resetConfirmOpen = false}>
+	<p class="text-sm text-gray-600 dark:text-gray-400 mb-4">Tema, zona waktu, dan tampilan sidebar pada perangkat ini akan kembali ke pengaturan awal. Transaksi, kategori, budget, dan data yang menunggu sinkronisasi tidak dihapus.</p>
 	<div class="flex gap-3">
 		<Button variant="secondary" class="flex-1" onclick={() => resetConfirmOpen = false}>Batal</Button>
-		<Button variant="danger" class="flex-1" onclick={() => { resetConfirmOpen = false; executeResetData(); }}>Hapus Sekarang</Button>
+		<Button variant="danger" class="flex-1" onclick={() => { resetConfirmOpen = false; executeResetPreferences(); }}>Atur Ulang</Button>
 	</div>
 </Modal>
 

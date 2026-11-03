@@ -9,7 +9,7 @@
 			app.transactions = fresh;
 			app.transactionsStale = false;
 			showToast('Data diperbarui', 'success');
-		} catch (err) {
+		} catch {
 			showToast('Gagal memperbarui data', 'error');
 		} finally {
 			app.transactionsLoading = false;

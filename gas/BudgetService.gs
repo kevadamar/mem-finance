@@ -59,11 +59,19 @@ class BudgetService {
   }
 
   static create(sheet, data) {
+    if (!data || !/^[0-9a-f]{8}-[0-9a-f-]{27,36}$/i.test(data.id || '')) throw new Error('INVALID_ID');
+    const lock = LockService.getScriptLock();
+    lock.waitLock(10000);
+    try {
+    const rows = sheet.getDataRange().getValues();
+    for (let i = 1; i < rows.length; i++) {
+      if (rows[i][0] === data.id) return this._toObj(rows[0], rows[i]);
+    }
     const existing = this.list(sheet);
     const dup = existing.find(b => b.categoryId === data.categoryId && Number(b.month) === Number(data.month) && Number(b.year) === Number(data.year));
-    if (dup) return this.update(sheet, dup.id, data);
+    if (dup) throw new Error('DUPLICATE_BUDGET');
 
-    const id = Utilities.getUuid();
+    const id = data.id;
     const now = new Date().toISOString();
     const headers = sheet.getDataRange().getValues()[0];
     const row = [];
@@ -76,6 +84,7 @@ class BudgetService {
     });
     sheet.appendRow(row);
     return this._toObj(headers, row);
+    } finally { lock.releaseLock(); }
   }
 
   static update(sheet, id, data) {

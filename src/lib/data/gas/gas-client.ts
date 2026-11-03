@@ -27,9 +27,9 @@ async function sleep(ms: number): Promise<void> {
 	return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-function signPayload(action: string, table: string, data?: unknown, id?: string): { signature: string; timestamp: number } {
+function signPayload(action: string, table: string, data?: unknown, id?: string, sheetId?: string): { signature: string; timestamp: number } {
 	const timestamp = Math.floor(Date.now() / 1000);
-	const payload = JSON.stringify({ action, table, data, id, timestamp });
+	const payload = JSON.stringify({ action, table, data, id, sheetId, timestamp });
 	const signature = createHmac('sha256', privateEnv.GAS_SHARED_SECRET ?? '').update(payload).digest('hex');
 	return { signature, timestamp };
 }
@@ -40,7 +40,8 @@ function normalizeBody(action: string, table: string, data?: { sheetId?: string 
 		const d = data as Record<string, unknown>;
 		if (d.sheetId) {
 			body.sheetId = d.sheetId;
-			const { sheetId: _, ...rest } = d;
+			const rest = { ...d };
+			delete rest.sheetId;
 			if (Object.keys(rest).length > 0) body.data = rest;
 		} else {
 			body.data = d;
@@ -48,7 +49,7 @@ function normalizeBody(action: string, table: string, data?: { sheetId?: string 
 	} else if (data) {
 		body.data = data;
 	}
-	return { ...body, ...signPayload(action, table, body.data, id) };
+	return { ...body, ...signPayload(action, table, body.data, id, body.sheetId as string | undefined) };
 }
 
 export async function gasRequest<T = unknown>(

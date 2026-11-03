@@ -36,7 +36,7 @@
 			aria-describedby={error && id ? `${id}-error` : hint && id ? `${id}-hint` : undefined}
 			class="w-full min-h-11 pl-3.5 pr-10 rounded-xl border bg-[var(--surface-1)] text-[var(--text-primary)] disabled:cursor-not-allowed disabled:opacity-55 transition-[border-color,box-shadow,background-color] {error ? 'border-danger-500' : 'hover:border-[var(--border-strong)]'}">
 			<option value="">{placeholder}</option>
-			{#each options as opt}<option value={opt.value}>{opt.label}</option>{/each}
+			{#each options as opt (opt.value)}<option value={opt.value}>{opt.label}</option>{/each}
 	</select>
 	{#if error}<p id={id ? `${id}-error` : undefined} class="mt-1.5 text-xs font-medium text-danger-500">{error}</p>{/if}
 </div>

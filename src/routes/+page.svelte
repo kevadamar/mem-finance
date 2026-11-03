@@ -1,7 +1,9 @@
 <script lang="ts">
+	import { resolve } from '$app/paths';
+	import { onMount } from 'svelte';
 	let dark = $state(false);
 
-	$effect(() => {
+	onMount(() => {
 		dark = document.documentElement.classList.contains('dark');
 	});
 
@@ -49,7 +51,7 @@
 	<a class="skip-link" href="#konten-utama">Lewati ke konten utama</a>
 
 	<header class="relative z-20 mx-auto flex w-full max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8" aria-label="Navigasi utama">
-		<a href="/" class="inline-flex items-center gap-2.5 rounded-xl font-extrabold tracking-tight text-gray-950 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 dark:text-white" aria-label="MemFinance, beranda">
+			<a href={resolve('/')} class="inline-flex items-center gap-2.5 rounded-xl font-extrabold tracking-tight text-gray-950 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 dark:text-white" aria-label="MemFinance, beranda">
 			<span class="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary-600 text-white shadow-lg shadow-primary-600/25" aria-hidden="true">
 				<svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 19V7l7-3 7 3v12l-7 3-7-3Z" /><path d="M8 9h8M8 13h5" /></svg>
 			</span>
@@ -59,7 +61,7 @@
 			<button onclick={toggleDark} class="flex h-10 w-10 items-center justify-center rounded-xl border border-gray-200 bg-white/70 text-gray-600 outline-none transition hover:border-primary-200 hover:text-primary-700 focus-visible:ring-2 focus-visible:ring-primary-500 dark:border-gray-800 dark:bg-gray-900/70 dark:text-gray-300 dark:hover:border-primary-800 dark:hover:text-primary-300" aria-label={dark ? 'Gunakan mode terang' : 'Gunakan mode gelap'}>
 				<svg class="h-[18px] w-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d={dark ? 'M12 3v2m0 14v2M3 12h2m14 0h2M5.6 5.6 7 7m10 10 1.4 1.4M18.4 5.6 17 7M7 17l-1.4 1.4M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z' : 'M20.5 14.5A8.5 8.5 0 1 1 9.5 3.5a6.8 6.8 0 0 0 11 11Z'} /></svg>
 			</button>
-			<a href="/login" class="cta-button inline-flex min-h-10 items-center rounded-xl bg-primary-600 px-3.5 text-sm font-extrabold text-white shadow-md shadow-primary-600/20 outline-none hover:bg-primary-700 focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 sm:px-4">Masuk</a>
+				<a href={resolve('/login')} class="cta-button inline-flex min-h-10 items-center rounded-xl bg-primary-600 px-3.5 text-sm font-extrabold text-white shadow-md shadow-primary-600/20 outline-none hover:bg-primary-700 focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 sm:px-4">Masuk</a>
 		</div>
 	</header>
 
@@ -73,7 +75,7 @@
 					<h1 class="mt-6 max-w-3xl text-4xl font-extrabold leading-[1.08] tracking-[-0.045em] text-gray-950 dark:text-white sm:text-5xl lg:text-6xl">Berhenti menebak. <span class="text-primary-700 dark:text-primary-400">Mulai merasa tenang.</span></h1>
 					<p class="mx-auto mt-6 max-w-xl text-base leading-7 text-gray-600 dark:text-gray-300 sm:text-lg sm:leading-8 lg:mx-0">MemFinance membuat catatan harian, anggaran, dan pola pengeluaran terasa mudah dimengerti—agar uang Anda bisa mendukung hidup yang Anda inginkan.</p>
 					<div class="mt-8 flex flex-col justify-center gap-3 sm:flex-row lg:justify-start">
-						<a href="/login" class="cta-button inline-flex min-h-[3.25rem] items-center justify-center gap-2 rounded-2xl bg-primary-600 px-6 text-sm font-extrabold text-white shadow-xl shadow-primary-600/25 outline-none hover:bg-primary-700 focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2">Mulai gratis <span class="arrow text-lg leading-none" aria-hidden="true">→</span></a>
+							<a href={resolve('/login')} class="cta-button inline-flex min-h-[3.25rem] items-center justify-center gap-2 rounded-2xl bg-primary-600 px-6 text-sm font-extrabold text-white shadow-xl shadow-primary-600/25 outline-none hover:bg-primary-700 focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2">Mulai gratis <span class="arrow text-lg leading-none" aria-hidden="true">→</span></a>
 						<a href="#cara-kerja" class="inline-flex min-h-[3.25rem] items-center justify-center gap-2 rounded-2xl border border-gray-200 bg-white/80 px-6 text-sm font-extrabold text-gray-700 outline-none transition hover:border-primary-300 hover:text-primary-700 focus-visible:ring-2 focus-visible:ring-primary-500 dark:border-gray-800 dark:bg-gray-900/80 dark:text-gray-200 dark:hover:border-primary-700 dark:hover:text-primary-300">Lihat cara kerjanya <span aria-hidden="true">↓</span></a>
 					</div>
 					<div class="mt-7 flex flex-wrap justify-center gap-x-5 gap-y-2 text-xs font-semibold text-gray-500 dark:text-gray-400 lg:justify-start"><span class="inline-flex items-center gap-1.5"><span class="check">✓</span> Mulai gratis</span><span class="inline-flex items-center gap-1.5"><span class="check">✓</span> Tetap berguna offline</span><span class="inline-flex items-center gap-1.5"><span class="check">✓</span> Data dapat diekspor</span></div>
@@ -99,7 +101,7 @@
 		<section id="cara-kerja" class="mx-auto max-w-7xl px-4 py-20 sm:px-6 sm:py-24 lg:px-8">
 			<div class="max-w-2xl"><p class="eyebrow">CARA KERJA</p><h2 class="mt-3 text-3xl font-extrabold tracking-tight text-gray-950 dark:text-white sm:text-4xl">Ritual kecil yang membuat gambaran besar terasa jelas.</h2><p class="mt-4 max-w-xl leading-7 text-gray-600 dark:text-gray-400">Tidak ada istilah yang mengintimidasi. Hanya langkah yang membantu Anda membangun kebiasaan baik, pelan-pelan.</p></div>
 			<div class="mt-10 grid gap-4 md:grid-cols-3 md:gap-5">
-				{#each features as feature, i}
+					{#each features as feature, i (feature.icon)}
 					<article class="feature-card group rounded-3xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900" style={`--delay: ${i * 90}ms`}>
 						<span class="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary-50 text-primary-700 dark:bg-primary-950 dark:text-primary-300" aria-hidden="true">
 							{#if feature.icon === 'plus'}<svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14" /></svg>{:else if feature.icon === 'chart'}<svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19V5M4 19h16" /><path d="m7 15 4-4 3 2 5-6" /></svg>{:else}<svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3 5 6v5c0 4.4 3 8.5 7 10 4-1.5 7-5.6 7-10V6l-7-3Z" /><path d="m9 12 2 2 4-4" /></svg>{/if}
@@ -112,7 +114,7 @@
 
 		<section class="mx-auto max-w-7xl px-4 pb-20 sm:px-6 sm:pb-24 lg:px-8">
 			<div class="grid overflow-hidden rounded-[2rem] bg-primary-700 text-white lg:grid-cols-[.82fr_1.18fr]">
-				<div class="p-8 sm:p-10 lg:p-12"><p class="eyebrow text-primary-100">PRIVAT SECARA DESAIN</p><h2 class="mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl">Keuangan adalah hal pribadi. Kami memperlakukannya begitu.</h2><p class="mt-5 max-w-md leading-7 text-primary-100">MemFinance dirancang untuk tetap berguna tanpa koneksi dan memberi Anda kendali atas data melalui opsi ekspor.</p><a href="/login" class="cta-button mt-8 inline-flex min-h-12 items-center rounded-xl bg-white px-5 text-sm font-extrabold text-primary-800 outline-none hover:bg-primary-50 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-primary-700">Mulai dengan aman <span class="arrow ml-2" aria-hidden="true">→</span></a></div>
+					<div class="p-8 sm:p-10 lg:p-12"><p class="eyebrow text-primary-100">PRIVAT SECARA DESAIN</p><h2 class="mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl">Keuangan adalah hal pribadi. Kami memperlakukannya begitu.</h2><p class="mt-5 max-w-md leading-7 text-primary-100">MemFinance dirancang untuk tetap berguna tanpa koneksi dan memberi Anda kendali atas data melalui opsi ekspor.</p><a href={resolve('/login')} class="cta-button mt-8 inline-flex min-h-12 items-center rounded-xl bg-white px-5 text-sm font-extrabold text-primary-800 outline-none hover:bg-primary-50 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-primary-700">Mulai dengan aman <span class="arrow ml-2" aria-hidden="true">→</span></a></div>
 				<div class="relative min-h-62 bg-primary-800/50 p-8 sm:p-10 lg:p-12"><div class="absolute inset-0 opacity-30" style="background-image: radial-gradient(circle at 1px 1px, white 1px, transparent 0); background-size: 18px 18px;"></div><div class="relative mx-auto max-w-md rounded-3xl border border-white/15 bg-primary-950/40 p-5 backdrop-blur"><div class="flex items-center gap-3"><span class="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10" aria-hidden="true"><svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3 5 6v5c0 4.4 3 8.5 7 10 4-1.5 7-5.6 7-10V6l-7-3Z" /><path d="m9 12 2 2 4-4" /></svg></span><div><p class="font-extrabold">Kendali tetap di tangan Anda</p><p class="mt-0.5 text-xs text-primary-200">Ekspor saat Anda membutuhkannya</p></div></div><div class="mt-6 space-y-3"><div class="h-2 w-full rounded-full bg-white/10"></div><div class="h-2 w-4/5 rounded-full bg-white/10"></div><div class="h-2 w-3/5 rounded-full bg-white/10"></div></div><div class="mt-6 rounded-2xl bg-emerald-400/15 px-4 py-3 text-sm font-bold text-emerald-100">✓ Siap digunakan, bahkan offline</div></div></div>
 			</div>
 		</section>
@@ -120,7 +122,7 @@
 		<section class="mx-auto max-w-3xl px-4 pb-20 sm:px-6 lg:px-8"><div class="text-center"><p class="eyebrow">PERTANYAAN SINGKAT</p><h2 class="mt-3 text-3xl font-extrabold tracking-tight text-gray-950 dark:text-white">Yang perlu Anda tahu.</h2></div><div class="mt-8 divide-y divide-gray-200 rounded-2xl border border-gray-200 bg-white px-5 dark:divide-gray-800 dark:border-gray-800 dark:bg-gray-900"><details class="group py-4"><summary class="cursor-pointer list-none pr-8 text-sm font-extrabold text-gray-950 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 dark:text-white">Apakah MemFinance gratis?<span class="float-right text-primary-600 transition group-open:rotate-45" aria-hidden="true">+</span></summary><p class="pt-3 text-sm leading-6 text-gray-600 dark:text-gray-400">Anda dapat mulai menggunakan MemFinance tanpa kartu kredit.</p></details><details class="group py-4"><summary class="cursor-pointer list-none pr-8 text-sm font-extrabold text-gray-950 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 dark:text-white">Dapatkah saya menggunakannya tanpa internet?<span class="float-right text-primary-600 transition group-open:rotate-45" aria-hidden="true">+</span></summary><p class="pt-3 text-sm leading-6 text-gray-600 dark:text-gray-400">Ya. MemFinance dirancang agar catatan keuangan tetap dapat digunakan saat koneksi tidak tersedia.</p></details><details class="group py-4"><summary class="cursor-pointer list-none pr-8 text-sm font-extrabold text-gray-950 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 dark:text-white">Apakah data saya bisa dibawa pergi?<span class="float-right text-primary-600 transition group-open:rotate-45" aria-hidden="true">+</span></summary><p class="pt-3 text-sm leading-6 text-gray-600 dark:text-gray-400">Ya. Anda dapat mengekspor data dari pengaturan aplikasi kapan pun diperlukan.</p></details></div></section>
 	</main>
 
-	<footer class="border-t border-gray-200 bg-white/60 px-4 py-8 dark:border-gray-800 dark:bg-gray-900/40 sm:px-6 lg:px-8"><div class="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 text-center text-xs text-gray-500 sm:flex-row sm:text-left dark:text-gray-400"><p>MemFinance — Kendali keuangan, di tangan Anda.</p><a href="/login" class="font-bold text-primary-700 outline-none transition-colors hover:text-primary-800 focus-visible:ring-2 focus-visible:ring-primary-500 dark:text-primary-400">Masuk ke MemFinance <span aria-hidden="true">→</span></a></div></footer>
+		<footer class="border-t border-gray-200 bg-white/60 px-4 py-8 dark:border-gray-800 dark:bg-gray-900/40 sm:px-6 lg:px-8"><div class="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 text-center text-xs text-gray-500 sm:flex-row sm:text-left dark:text-gray-400"><p>MemFinance — Kendali keuangan, di tangan Anda.</p><a href={resolve('/login')} class="font-bold text-primary-700 outline-none transition-colors hover:text-primary-800 focus-visible:ring-2 focus-visible:ring-primary-500 dark:text-primary-400">Masuk ke MemFinance <span aria-hidden="true">→</span></a></div></footer>
 </div>
 
 <style>

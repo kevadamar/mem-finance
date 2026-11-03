@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { tick } from 'svelte';
+	import { app } from '$lib/state/app.svelte';
+	import { getNeedsAttentionCount } from '$lib/data/sync-manager';
 
 	let { open, oncancel, returnFocusTo }: { open: boolean; oncancel: () => void; returnFocusTo?: HTMLElement | null } = $props();
 	let dialog: HTMLDialogElement;
@@ -30,7 +32,14 @@
 				<svg class="size-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
 			</div>
 			<h2 id="logout-title" class="text-xl font-extrabold tracking-tight text-[var(--text-primary)]">Keluar dari MemFinance?</h2>
-			<p id="logout-description" class="mt-2 text-sm leading-6 text-[var(--text-secondary)]">Anda perlu masuk kembali untuk melihat dan mengelola data keuangan. Pastikan semua perubahan sudah tersimpan.</p>
+			<p id="logout-description" class="mt-2 text-sm leading-6 text-[var(--text-secondary)]">
+				Anda perlu masuk kembali untuk melihat dan mengelola data keuangan.
+				{#if app.pendingSync > 0 || getNeedsAttentionCount() > 0}
+					{app.pendingSync + getNeedsAttentionCount()} perubahan masih tersimpan di perangkat dan belum terkonfirmasi di server. Anda dapat mencoba sinkronisasi dulu atau tetap keluar; data ini tetap terpisah untuk akun Anda.
+				{:else}
+					Semua perubahan yang diketahui telah diproses.
+				{/if}
+			</p>
 			<div class="mt-7 flex flex-col-reverse gap-2.5 sm:flex-row sm:justify-end">
 				<button type="button" onclick={closeDialog} class="min-h-12 rounded-xl border px-5 text-sm font-bold text-[var(--text-secondary)] transition hover:bg-[var(--surface-2)] hover:text-[var(--text-primary)] active:scale-[0.98] sm:min-w-28">Tetap masuk</button>
 				<form method="POST" action="/logout" class="sm:min-w-28">
