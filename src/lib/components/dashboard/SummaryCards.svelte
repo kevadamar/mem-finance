@@ -39,7 +39,7 @@
 	<StaleIndicator />
 	<div class="grid grid-cols-2 gap-2.5 sm:gap-3 lg:grid-cols-4 lg:gap-4" aria-label="Ringkasan keuangan">
 		{#if app.transactionsLoading && app.transactions.length === 0}
-			{#each [1, 2, 3, 4] as _}
+			{#each [1, 2, 3, 4] as _ (_)}
 				<Card padding="sm">
 					<Skeleton height="h-3.5" class="w-1/2 mb-2" />
 					<Skeleton height="h-7" class="w-3/4" />

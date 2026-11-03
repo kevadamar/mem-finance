@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { resolve } from '$app/paths';
 	import Card from '$lib/components/ui/Card.svelte';
 	import EmptyState from '$lib/components/ui/EmptyState.svelte';
 	import { app } from '$lib/state/app.svelte';
@@ -51,7 +52,6 @@
 		const spent = budgetData.totalSpent;
 		const capped = Math.min(spent, budget);
 		const remaining = Math.max(budget - spent, 0);
-		const overshoot = Math.max(spent - budget, 0);
 		const data: Array<{ name: string; value: number; itemStyle: { color: string } }> = [];
 		if (capped > 0) data.push({ name: 'Terpakai', value: capped, itemStyle: { color: '#EF4444' } });
 		if (remaining > 0) data.push({ name: 'Sisa', value: remaining, itemStyle: { color: '#22C55E' } });
@@ -81,7 +81,7 @@
 					<p class="text-base font-bold tracking-tight text-gray-950 dark:text-white sm:text-lg">Ringkasan budget</p>
 					<p class="text-xs text-gray-500 dark:text-gray-400">Posisi budget bulan berjalan.</p>
 				</div>
-				<a href="/budgets" class="rounded-lg px-2.5 py-1 text-xs font-semibold text-primary-600 hover:bg-primary-50 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:text-primary-400 dark:hover:bg-primary-950/40 sm:text-sm">Kelola budget →</a>
+				<a href={resolve('/budgets')} class="rounded-lg px-2.5 py-1 text-xs font-semibold text-primary-600 hover:bg-primary-50 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:text-primary-400 dark:hover:bg-primary-950/40 sm:text-sm">Kelola budget →</a>
 			</div>
 			<div class="flex flex-col items-center gap-4 sm:flex-row sm:gap-6">
 				<div class="h-44 w-44 shrink-0 sm:h-48 sm:w-48">{#if chartOption}<Chart {init} options={chartOption} />{/if}</div>

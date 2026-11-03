@@ -7,6 +7,8 @@ declare global {
 			userId: string | null;
 			user: import('@supabase/supabase-js').User | import('$lib/types/user').AppUser | null;
 			gaSheetId: string | null;
+			storageStatus: import('$lib/server/storage-ownership').StorageStatus | null;
+			googleOwnerEmail: string | null;
 		}
 	}
 

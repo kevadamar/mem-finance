@@ -304,13 +304,13 @@
 
 	{#if app.budgetsLoading && app.budgets.length === 0}
 		<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-			{#each [1,2,3,4] as _}<Card><Skeleton height="h-4" class="w-1/2 mb-3" /><Skeleton height="h-3" class="mb-2" /><Skeleton height="h-6" /></Card>{/each}
+			{#each [1,2,3,4] as _ (_)}<Card><Skeleton height="h-4" class="w-1/2 mb-3" /><Skeleton height="h-3" class="mb-2" /><Skeleton height="h-6" /></Card>{/each}
 		</div>
 	{:else if summaries.length === 0}
 		<EmptyState title="Belum ada budget" description="Buat budget untuk mengontrol pengeluaran bulan ini" actionLabel="Tambah Budget" onaction={openAdd} />
 	{:else}
 		<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-			{#each summaries as s}
+			{#each summaries as s (s.categoryId)}
 				<Card class="transition hover:-translate-y-0.5 hover:shadow-md motion-reduce:transform-none motion-reduce:transition-none">
 					<div>
 						<div class="mb-3 flex items-start justify-between gap-3">
@@ -345,7 +345,7 @@
 		<div class="pt-2">
 			<p class="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-2">Budget Nonaktif</p>
 			<div class="space-y-2">
-				{#each inactiveBudgets.filter((b) => Number(b.month) === month && Number(b.year) === year) as b}
+				{#each inactiveBudgets.filter((b) => Number(b.month) === month && Number(b.year) === year) as b (b.id)}
 					<div class="flex items-center justify-between gap-3 px-4 py-3 rounded-lg bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700">
 						<div class="flex items-center gap-2 min-w-0">
 							<span class="text-sm text-gray-500 dark:text-gray-400 line-through truncate">{app.categories.find((c) => c.id === b.categoryId)?.name ?? 'Unknown'}</span>
@@ -440,7 +440,7 @@
 				<p class="text-sm text-gray-400 text-center py-4">Belum ada transaksi untuk kategori ini</p>
 			{:else}
 				<div class="space-y-2 max-h-64 overflow-y-auto">
-					{#each detailTransactions as t}
+					{#each detailTransactions as t (t.id)}
 						<div class="flex items-center justify-between p-2.5 rounded-xl bg-gray-50 dark:bg-gray-800">
 							<div class="min-w-0 flex-1">
 								<p class="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{t.note || 'Tanpa catatan'}</p>

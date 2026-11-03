@@ -11,6 +11,13 @@ function doPost(e) {
       return handleCreateSheet(e);
     }
 
+    if (action === 'transfer_sheet') {
+      return Utils.successResponse(OwnershipService.initiate(sheetId, data && data.targetEmail));
+    }
+    if (action === 'transfer_status') {
+      return Utils.successResponse(OwnershipService.status(sheetId, data && data.targetEmail));
+    }
+
     let result;
     switch (table) {
       case 'transactions': result = TransactionService.handle(action, id, data, sheetId); break;
@@ -35,7 +42,7 @@ function validateSignature(e) {
     const { signature, timestamp } = payload;
     if (!signature || !timestamp) return false;
     if (Math.abs(Date.now() / 1000 - timestamp) > 60) return false;
-    const toSign = JSON.stringify({ action: payload.action, table: payload.table, data: payload.data, id: payload.id, timestamp });
+    const toSign = JSON.stringify({ action: payload.action, table: payload.table, data: payload.data, id: payload.id, sheetId: payload.sheetId, timestamp });
     const expected = Utilities.computeHmacSha256Signature(toSign, GAS_SHARED_SECRET)
       .map(function(b) { var v = (b < 0 ? b + 256 : b).toString(16); return v.length === 1 ? '0' + v : v; }).join('');
     return signature === expected;

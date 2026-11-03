@@ -1,12 +1,14 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { resolve } from '$app/paths';
+	import type { Component } from 'svelte';
 	import SummaryCards from '$lib/components/dashboard/SummaryCards.svelte';
 	import RecentTransactions from '$lib/components/dashboard/RecentTransactions.svelte';
 	import { app, loadTransactionsFromCache, loadCategoriesFromCache, loadBudgetsFromCache } from '$lib/state/app.svelte';
 	import { getTransactionRepo, getCategoryRepo, getBudgetRepo } from '$lib/data/repository-factory';
 
-	let ChartPanel: any = $state();
-	let BudgetOverview: any = $state();
+	let ChartPanel = $state<Component | null>(null);
+	let BudgetOverview = $state<Component | null>(null);
 	let loaded = $state(false);
 
 	async function loadAll() {
@@ -63,7 +65,7 @@
 				</h1>
 				<p class="mt-1 text-sm text-gray-600 dark:text-gray-300">Pantau arus kas dan budget Anda dalam satu tempat.</p>
 			</div>
-			<a href="/transactions?new=1" class="mt-3 inline-flex min-h-11 items-center justify-center gap-1.5 rounded-xl bg-primary-600 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 motion-reduce:transition-none dark:focus:ring-offset-gray-900 sm:mt-0">
+				<a href={resolve('/transactions?new=1')} class="mt-3 inline-flex min-h-11 items-center justify-center gap-1.5 rounded-xl bg-primary-600 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 motion-reduce:transition-none dark:focus:ring-offset-gray-900 sm:mt-0">
 				<svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 5v14M5 12h14" /></svg>
 				Catat transaksi
 			</a>

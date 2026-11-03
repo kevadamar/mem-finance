@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { resolve } from '$app/paths';
 	import { fade } from 'svelte/transition';
 	import { fly } from 'svelte/transition';
 	import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_PUBLISHABLE_KEY, PUBLIC_TURNSTILE_SITE_KEY } from '$env/static/public';
@@ -182,7 +183,7 @@
 	<div class="absolute -left-24 top-0 h-72 w-72 rounded-full bg-primary-100/70 blur-3xl dark:bg-primary-950/40" aria-hidden="true"></div>
 	<div class="relative w-full max-w-md" transition:fade={{ duration: 180 }}>
 		<div class="mb-7 text-center" transition:fly={{ y: -8, duration: 220 }}>
-			<a href="/" class="inline-flex items-center gap-2 text-xl font-bold tracking-tight text-gray-950 dark:text-white"><span class="flex h-9 w-9 items-center justify-center rounded-xl bg-primary-600 text-white" aria-hidden="true"><svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 19V7l7-3 7 3v12l-7 3-7-3Z" /><path d="M8 9h8M8 13h5" /></svg></span>MemFinance</a>
+				<a href={resolve('/')} class="inline-flex items-center gap-2 text-xl font-bold tracking-tight text-gray-950 dark:text-white"><span class="flex h-9 w-9 items-center justify-center rounded-xl bg-primary-600 text-white" aria-hidden="true"><svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 19V7l7-3 7 3v12l-7 3-7-3Z" /><path d="M8 9h8M8 13h5" /></svg></span>MemFinance</a>
 			<p class="mt-3 text-sm text-gray-600 dark:text-gray-400">Masuk untuk melanjutkan pencatatan Anda.</p>
 		</div>
 
@@ -191,7 +192,7 @@
 				<p class="text-sm font-semibold text-gray-900 dark:text-gray-100">Autentikasi belum dikonfigurasi</p>
 				<p class="text-xs text-gray-500 dark:text-gray-400">Gunakan mode lokal tanpa koneksi Supabase.</p>
 				<a
-					href="/dashboard"
+						href={resolve('/dashboard')}
 					class="mt-2 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-primary-600 px-4 text-sm font-semibold text-white transition hover:bg-primary-700"
 				>
 					Lanjut ke Dashboard (Mode Lokal) →
@@ -212,7 +213,7 @@
 
 			{#if data?.canBypass}
 				<a
-					href="/dashboard"
+						href={resolve('/dashboard')}
 					class="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-dashed border-gray-300 bg-gray-50/80 px-4 text-sm font-semibold text-gray-700 transition hover:bg-gray-100 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500/30 dark:border-gray-700 dark:bg-gray-800/60 dark:text-gray-300 dark:hover:bg-gray-800"
 				>
 					<svg class="size-4 shrink-0 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
@@ -255,7 +256,7 @@
 					<div>
 						<p id="otp-label" class="mb-3 text-center text-sm font-medium text-gray-700 dark:text-gray-300">Masukkan 6 digit kode OTP</p>
 						<div class="flex justify-center gap-1 sm:gap-2">
-							{#each otpDigits as _, i}
+								{#each otpDigits as _, i (i)}
 								<input
 									id="otp-{i}"
 									type="text"

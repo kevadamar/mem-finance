@@ -35,7 +35,7 @@
 
 			{#if report.details.length > 0}
 				<div class="max-h-40 overflow-y-auto space-y-1 text-xs">
-					{#each report.details as d}
+					{#each report.details as d (`${d.entity ?? ''}-${d.id ?? ''}-${d.reason}`)}
 						<div class="flex gap-2 text-gray-600 dark:text-gray-400">
 							<span class="text-red-400">•</span>
 							<span>{d.entity ? `${d.entity}: ` : ''}{d.reason}{d.id ? ` (${d.id.slice(0, 8)}...)` : ''}</span>
