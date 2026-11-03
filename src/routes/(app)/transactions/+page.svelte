@@ -47,6 +47,21 @@
 			url.searchParams.delete('new');
 			window.history.replaceState({}, '', url.pathname + (url.search ? url.search : ''));
 		}
+
+		const targetId = $page.url.searchParams.get('id');
+		if (targetId && app.transactions.length > 0) {
+			const tx = app.transactions.find((t) =>
+				t.id === targetId ||
+				(targetId.startsWith('local_') && t.id === targetId.replace('local_', '')) ||
+				(`local_${t.id}` === targetId)
+			);
+			if (tx) {
+				openEdit(tx);
+				const url = new URL(window.location.href);
+				url.searchParams.delete('id');
+				window.history.replaceState({}, '', url.pathname + (url.search ? url.search : ''));
+			}
+		}
 	});
 
 	let filteredTransactions = $derived.by(() => {

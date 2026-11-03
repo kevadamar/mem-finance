@@ -97,7 +97,28 @@ async function syncItem(item: SyncQueueItem): Promise<boolean> {
 		});
 		if (!res.ok) return false;
 		const json = await res.json();
-		return json.success === true;
+		if (!json.success) return false;
+
+		if (item.entity === 'transactions' && item.action === 'create' && json.data) {
+			const payload = item.payload as { localId?: string; id?: string };
+			if (payload?.localId) {
+				await remove(STORES.TRANSACTIONS, payload.localId);
+			}
+			await idbPut(STORES.TRANSACTIONS, json.data);
+			if (browser) {
+				window.dispatchEvent(
+					new CustomEvent('memfinance-transaction-synced', {
+						detail: {
+							localId: payload?.localId,
+							serverId: json.data.id,
+							transaction: json.data
+						}
+					})
+				);
+			}
+		}
+
+		return true;
 	} catch {
 		return false;
 	}

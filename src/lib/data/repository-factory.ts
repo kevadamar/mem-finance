@@ -104,9 +104,14 @@ class IndexedDBTransactionRepository implements ITransactionRepository {
 
 	async create(input: CreateTransactionInput): Promise<Transaction> {
 		const now = new Date().toISOString();
+		const stableId = input.id?.trim() || (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `tx_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`);
+		const localId = `local_${stableId}`;
 		const optimistic: Transaction = {
-			id: `local_${crypto.randomUUID()}`,
-			...input,
+			id: localId,
+			type: input.type,
+			amount: input.amount,
+			categoryId: input.categoryId,
+			date: input.date,
 			note: input.note,
 			createdAt: input.createdAt ?? now,
 			updatedAt: now
@@ -115,9 +120,15 @@ class IndexedDBTransactionRepository implements ITransactionRepository {
 		await idb.put(STORES.TRANSACTIONS, optimistic);
 		emitChange();
 
+		const payload = {
+			...input,
+			id: stableId,
+			localId
+		};
+
 		if (browser && navigator.onLine) {
 			try {
-				const created = await apiCall<Transaction>('/api/transactions', 'POST', input);
+				const created = await apiCall<Transaction>('/api/transactions', 'POST', payload);
 				await idb.remove(STORES.TRANSACTIONS, optimistic.id);
 				await idb.put(STORES.TRANSACTIONS, created);
 				meta.transactions.lastSync = Date.now();
@@ -127,14 +138,14 @@ class IndexedDBTransactionRepository implements ITransactionRepository {
 				await addToSyncQueue({
 					entity: 'transactions',
 					action: 'create',
-					payload: input
+					payload
 				});
 			}
 		} else {
 			await addToSyncQueue({
 				entity: 'transactions',
 				action: 'create',
-				payload: input
+				payload
 			});
 		}
 

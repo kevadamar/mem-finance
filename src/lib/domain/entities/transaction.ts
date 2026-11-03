@@ -13,6 +13,7 @@ export interface Transaction {
 }
 
 export interface CreateTransactionInput {
+	id?: string;
 	type: TransactionType;
 	amount: number;
 	categoryId: string;

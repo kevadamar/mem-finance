@@ -9,6 +9,7 @@ export interface ValidationResult {
 }
 
 interface CreateTransactionInput {
+	id?: string;
 	type?: string;
 	amount?: number;
 	categoryId?: string;
@@ -19,6 +20,10 @@ interface CreateTransactionInput {
 
 export function validateTransaction(input: CreateTransactionInput): ValidationResult {
 	const errors: FieldError[] = [];
+
+	if (input.id !== undefined && (typeof input.id !== 'string' || !input.id.trim())) {
+		errors.push({ field: 'id', message: 'ID transaksi tidak valid' });
+	}
 
 	if (!input.type || !['income', 'expense'].includes(input.type)) {
 		errors.push({ field: 'type', message: 'Tipe transaksi wajib dipilih' });

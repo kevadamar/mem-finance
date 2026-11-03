@@ -65,9 +65,21 @@ class TransactionService {
   }
 
   static create(sheet, data) {
+    const rows = sheet.getDataRange().getValues();
+    const headers = rows[0] || this.HEADERS;
+
+    // Idempotent retry: if client provided id and it already exists, return existing row
+    if (data.id) {
+      for (let i = 1; i < rows.length; i++) {
+        if (rows[i][0] === data.id) {
+          return this._toObj(headers, rows[i]);
+        }
+      }
+    }
+
     const now = new Date().toISOString();
     const createdAt = data.createdAt || now;
-    const id = Utilities.getUuid();
+    const id = data.id || Utilities.getUuid();
     const row = [id, data.type, Number(data.amount), data.categoryId, data.date, data.note || '', createdAt, now, true, data.userId || 'default-admin'];
     sheet.appendRow(row);
     const obj = {};

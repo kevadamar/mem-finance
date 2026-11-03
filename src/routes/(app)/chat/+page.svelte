@@ -6,7 +6,9 @@
 	import { withMutation } from '$lib/state/app.svelte';
 	import { formatRupiah } from '$lib/utils/format';
 	import { buildReceiptParserMessage } from '$lib/utils/receiptChatMessage';
-	import type { ChatMessage, ParserResult } from '$lib/domain/entities/chat';
+	import { createTransactionDraft, validateDraft } from '$lib/utils/chatDraft';
+	import TransactionDraftCard from '$lib/components/chat/TransactionDraftCard.svelte';
+	import type { ChatMessage, ParserResult, TransactionDraft } from '$lib/domain/entities/chat';
 	import type { Category } from '$lib/domain/entities/category';
 	import type Cropper from 'cropperjs';
 
@@ -87,6 +89,7 @@
 	let cameraStream: MediaStream | null = null;
 	let receiptCropper: Cropper | null = null;
 	let cropperInitToken = 0;
+	let unmountSyncListener: (() => void) | null = null;
 
 	onMount(async () => {
 		categories = await getCategoryRepo().getAll();
@@ -96,11 +99,31 @@
 			content: 'Halo! Saya bisa bantu mencatat transaksi kamu.\n\nContoh:\n• "Beli kopi 35rb"\n• "Makan siang 25rb di warteg"\n• "Gaji bulan ini 5jt"\n• "Bayar listrik 250rb"',
 			timestamp: new Date().toISOString()
 		}];
+
+		function handleTransactionSynced(event: Event) {
+			const custom = event as CustomEvent<{ localId?: string; serverId?: string }>;
+			const { localId, serverId } = custom.detail || {};
+			if (!localId && !serverId) return;
+
+			for (const m of messages) {
+				if (m.draft && (m.draft.savedTransactionId === localId || m.draft.id === serverId)) {
+					m.draft.status = 'synced';
+					if (serverId) {
+						m.draft.savedTransactionId = serverId;
+					}
+				}
+			}
+		}
+
+		window.addEventListener('memfinance-transaction-synced', handleTransactionSynced);
+		unmountSyncListener = () => window.removeEventListener('memfinance-transaction-synced', handleTransactionSynced);
+
 		await tick();
 		scrollToBottom();
 	});
 
 	onDestroy(() => {
+		unmountSyncListener?.();
 		revokeAttachedImageUrl();
 		destroyReceiptCropper();
 		revokeCropSourceUrl();
@@ -497,12 +520,14 @@
 			}
 
 			if (result.data) {
+				const draft = createTransactionDraft(result.data, categories);
 				addMessage({
 					role: 'assistant',
 					content: receipt
 						? buildReceiptAssistantMessage(result, receipt)
-						: result.message || `Saya tangkap: ${result.data.type === 'expense' ? '🔴 Pengeluaran' : '🟢 Pemasukan'} Rp ${result.data.amount.toLocaleString('id-ID')} untuk ${result.data.category}. Konfirmasi?`,
-					confirmation: result.data
+						: result.message || `Saya tangkap draf transaksi: ${result.data.type === 'expense' ? '🔴 Pengeluaran' : '🟢 Pemasukan'} ${formatRupiah(result.data.amount)}. Silakan tinjau dan simpan.`,
+					confirmation: result.data,
+					draft
 				});
 			} else {
 				addMessage({ role: 'assistant', content: receipt ? buildReceiptAssistantMessage(result, receipt) : result.message });
@@ -517,60 +542,55 @@
 		}
 	}
 
-	function resolveCategoryId(categoryName: string, type: string): string {
-		// 1. Exact name match
-		const exact = categories.find((c) => c.name.toLowerCase() === categoryName.toLowerCase() && c.type === type);
-		if (exact) return exact.id;
-
-		// 2. Partial name match (e.g., "Makanan" matches "Makanan & Minuman")
-		const partial = categories.find((c) => c.name.toLowerCase().includes(categoryName.toLowerCase()) && c.type === type);
-		if (partial) return partial.id;
-
-		const categoryParts = categories.filter((c) => c.type === type);
-		const fromParts = categoryParts.find((c) => categoryName.toLowerCase().includes(c.name.toLowerCase()));
-		if (fromParts) return fromParts.id;
-
-		// 3. Fallback to "Lainnya" category
-		const lainnya = categories.find((c) => c.name === 'Lainnya' && c.type === type);
-		return lainnya?.id ?? categoryParts[0]?.id ?? '';
-	}
-
-	async function confirmTransaction(msg: ChatMessage) {
-		if (!msg.confirmation || msg.confirmed) return;
-		const confirmation = msg.confirmation;
-
-		const categoryId = resolveCategoryId(confirmation.category, confirmation.type);
-		if (!categoryId) {
-			addMessage({ role: 'assistant', content: '❌ Kategori tidak ditemukan. Silakan input manual.' });
-			return;
-		}
-
-		let note = confirmation.note?.trim();
-		if (note && note.length > 200) {
-			note = note.slice(0, 197) + '...';
-		}
+	async function handleSaveDraft(msg: ChatMessage, draft: TransactionDraft) {
+		if (draft.status === 'saving') return;
+		draft.status = 'saving';
+		draft.errorMessage = undefined;
 
 		try {
-			const useCase = new CreateTransactionUseCase(getTransactionRepo());
-			await withMutation(() => useCase.execute({
-				type: confirmation.type,
-				amount: confirmation.amount,
-				categoryId,
-				date: confirmation.date,
-				note: note || undefined
-			}));
-			msg.confirmed = true;
+			const latestCats = await getCategoryRepo().getAll();
+			categories = latestCats;
 
-			addMessage({
-				role: 'assistant',
-				content: `✅ Transaksi berhasil dicatat!\n${confirmation.type === 'expense' ? 'Pengeluaran' : 'Pemasukan'} Rp ${confirmation.amount.toLocaleString('id-ID')}\nKategori: ${confirmation.category}`
-			});
+			const validation = validateDraft(draft, latestCats);
+			if (!validation.valid) {
+				draft.status = 'failed';
+				draft.validationErrors = validation.errors;
+				draft.errorMessage = Object.values(validation.errors).join('. ');
+				return;
+			}
+
+			let note = draft.note?.trim();
+			if (note && note.length > 200) {
+				note = note.slice(0, 197) + '...';
+			}
+
+			const useCase = new CreateTransactionUseCase(getTransactionRepo());
+			const created = await withMutation(() =>
+				useCase.execute({
+					id: draft.id,
+					type: draft.type,
+					amount: draft.amount,
+					categoryId: draft.categoryId,
+					date: draft.date,
+					note: note || undefined
+				})
+			);
+
+			if (created.id.startsWith('local_')) {
+				draft.status = 'saved_device';
+				draft.savedTransactionId = created.id;
+			} else {
+				draft.status = 'synced';
+				draft.savedTransactionId = created.id;
+			}
 		} catch (err) {
-			addMessage({
-				role: 'assistant',
-				content: `❌ Gagal mencatat transaksi. Error: ${err instanceof Error ? err.message : 'Unknown'}. Silakan coba lagi atau input manual.`
-			});
+			draft.status = 'failed';
+			draft.errorMessage = err instanceof Error ? err.message : 'Gagal mencatat transaksi.';
 		}
+	}
+
+	function handleCancelDraft(msg: ChatMessage, draft: TransactionDraft) {
+		draft.status = 'cancelled';
 	}
 
 	function handleKeydown(e: KeyboardEvent) {
@@ -722,6 +742,20 @@
 				<div class="flex justify-end motion-reduce:transition-none" transition:slide={{ duration: 180 }}>
 					<div class="max-w-[85%] rounded-2xl rounded-br-md bg-primary-600 px-4 py-3 text-sm leading-6 text-white shadow-sm whitespace-pre-wrap break-words">{msg.content}</div>
 				</div>
+			{:else if msg.draft}
+				<div class="flex justify-start motion-reduce:transition-none" transition:slide={{ duration: 180 }}>
+					<div class="w-full max-w-[94%] sm:max-w-[88%] rounded-2xl rounded-bl-md bg-gray-100 p-3.5 sm:p-4 text-sm space-y-3 dark:bg-gray-800">
+						{#if msg.content}
+							<p class="text-gray-700 dark:text-gray-300 whitespace-pre-wrap break-words">{msg.content}</p>
+						{/if}
+						<TransactionDraftCard
+							bind:draft={msg.draft}
+							{categories}
+							onSave={(d) => handleSaveDraft(msg, d)}
+							onCancel={(d) => handleCancelDraft(msg, d)}
+						/>
+					</div>
+				</div>
 			{:else if msg.confirmation && !msg.confirmed}
 				<div class="flex justify-start motion-reduce:transition-none" transition:slide={{ duration: 180 }}>
 					<div class="max-w-[92%] rounded-2xl rounded-bl-md bg-gray-100 px-4 py-3 text-sm space-y-3 dark:bg-gray-800">
@@ -736,14 +770,6 @@
 								<span>{msg.confirmation.date}</span>
 							</div>
 							{#if msg.confirmation.note}<p class="text-xs text-gray-400 italic break-words">{msg.confirmation.note}</p>{/if}
-							<div class="grid grid-cols-2 gap-2 border-t border-gray-100 pt-3 dark:border-gray-800">
-								<button onclick={() => confirmTransaction(msg)}
-									class="min-h-10 rounded-xl bg-green-700 px-3 text-xs font-semibold text-white transition-colors hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50 dark:bg-green-600 dark:hover:bg-green-500"
-								>Simpan</button>
-								<button onclick={() => msg.confirmed = true}
-									class="min-h-10 rounded-xl bg-gray-100 px-3 text-xs font-semibold text-gray-700 transition-colors hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-400 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
-								>Batal</button>
-							</div>
 						</div>
 					</div>
 				</div>
