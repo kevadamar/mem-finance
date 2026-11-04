@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { formatRupiah, formatDate } from '$lib/utils/format';
+	import { resolve } from '$app/paths';
+	import { formatRupiah } from '$lib/utils/format';
 	import { getTodayDateString, validateDraft } from '$lib/utils/chatDraft';
 	import type { Category } from '$lib/domain/entities/category';
 	import type { TransactionDraft, DraftStatus } from '$lib/domain/entities/chat';
@@ -316,7 +317,7 @@
 						required
 					>
 						<option value="">— Pilih Kategori —</option>
-						{#each activeCategoriesForType as cat}
+						{#each activeCategoriesForType as cat (cat.id)}
 							<option value={cat.id}>{cat.name}</option>
 						{/each}
 					</select>
@@ -472,7 +473,7 @@
 				<div class="border-t border-gray-100 pt-3 dark:border-gray-800 flex justify-end">
 					{#if draft.savedTransactionId}
 						<a
-							href="/transactions?id={draft.savedTransactionId}"
+							href={resolve(`/transactions?id=${draft.savedTransactionId}`)}
 							class="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-xl bg-white px-3.5 py-1.5 text-xs font-semibold text-primary-700 border border-primary-200 shadow-xs transition-colors hover:bg-primary-50 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-800 dark:text-primary-300 dark:border-primary-800/70 dark:hover:bg-gray-750"
 						>
 							<span>Lihat transaksi</span>
