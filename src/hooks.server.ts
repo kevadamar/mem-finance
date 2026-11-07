@@ -40,10 +40,46 @@ async function getSheetProfile(userId: string, email: string): Promise<SheetProf
 			.maybeSingle();
 
 		if (selectError) {
+			// Backward compatibility: If migration 20261102_storage_ownership.sql hasn't been run yet in Supabase (code 42703)
+			if (selectError.code === '42703' || selectError.message?.includes('storage_status')) {
+				const { data: legacyProfile, error: legacyError } = await adminClient
+					.schema(APP_SCHEMA)
+					.from('user_profiles')
+					.select('ga_sheet_id')
+					.eq('id', userId)
+					.maybeSingle();
+
+				if (legacyError) {
+					throw new Error(`Failed to read legacy user profile: ${legacyError.message}`);
+				}
+
+				if (legacyProfile) {
+					return {
+						id: legacyProfile.ga_sheet_id,
+						status: legacyProfile.ga_sheet_id ? 'ADMIN_OWNED' : 'CHOICE_REQUIRED',
+						targetEmail: null
+					};
+				}
+
+				const { error: upsertError } = await adminClient
+					.schema(APP_SCHEMA)
+					.from('user_profiles')
+					.upsert({ id: userId, email }, { onConflict: 'id', ignoreDuplicates: true });
+
+				if (upsertError) {
+					throw new Error(`Failed to upsert legacy user profile: ${upsertError.message}`);
+				}
+
+				return { id: null, status: 'CHOICE_REQUIRED', targetEmail: null };
+			}
+
 			throw new Error(`Failed to read user profile: ${selectError.message}`);
 		}
 
-		if (profile) return { id: profile.ga_sheet_id, status: profile.storage_status as StorageStatus, targetEmail: profile.google_owner_email };
+		if (profile) {
+			const status = (profile.storage_status as StorageStatus) || (profile.ga_sheet_id ? 'ADMIN_OWNED' : 'CHOICE_REQUIRED');
+			return { id: profile.ga_sheet_id, status, targetEmail: profile.google_owner_email };
+		}
 
 		const { error: upsertError } = await adminClient
 			.schema(APP_SCHEMA)

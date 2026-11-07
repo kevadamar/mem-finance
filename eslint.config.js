@@ -14,7 +14,8 @@ export default [
 			'.svelte-kit/',
 			'dist/',
 			'node_modules/',
-			'gas/'
+			'gas/',
+			'tests/e2e/'
 		]
 	},
 	{

@@ -1,7 +1,7 @@
 import { env } from '$env/dynamic/private';
 import { DEFAULT_EXPENSE_CATEGORIES, DEFAULT_INCOME_CATEGORIES } from '$lib/domain/entities/category';
 import { gasRequest } from '$lib/data/gas/gas-client';
-import { adminDb, claimStorageSetup, markStorageRecovery } from './storage-ownership';
+import { adminDb, claimStorageSetup, markStorageRecovery, type StorageStatus } from './storage-ownership';
 
 const DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.file';
 export { DRIVE_SCOPE };
@@ -66,10 +66,19 @@ export async function createPersonalSpreadsheet(userId: string, googleEmail: str
 	if (!identityResponse.ok) throw new Error('Could not verify Google account');
 	const identity = await identityResponse.json() as { email?: string; email_verified?: boolean };
 	if (!identity.email_verified || identity.email?.toLowerCase() !== googleEmail) throw new Error('Google account identity mismatch');
-	const { data: profile, error: readError } = await adminDb().from('user_profiles')
-		.select('ga_sheet_id,storage_status,google_owner_email,storage_initialized').eq('id', userId).single();
-	if (readError) throw new Error('Profile unavailable');
-	if (profile?.ga_sheet_id && profile.storage_status !== 'ACCESS_RECOVERY') return { status: profile.storage_status };
+	let profile: { ga_sheet_id?: string | null; storage_status?: string | null; google_owner_email?: string | null; storage_initialized?: boolean } | null;
+	const { data: readData, error: readError } = await adminDb().from('user_profiles')
+		.select('ga_sheet_id,storage_status,google_owner_email,storage_initialized').eq('id', userId).maybeSingle();
+	if (readError && (readError.code === '42703' || readError.message?.includes('storage_status'))) {
+		const { data: legacyData, error: legacyErr } = await adminDb().from('user_profiles').select('ga_sheet_id').eq('id', userId).maybeSingle();
+		if (legacyErr) throw new Error('Profile unavailable');
+		profile = legacyData ? { ...legacyData, storage_status: 'ADMIN_OWNED', google_owner_email: null, storage_initialized: true } : null;
+	} else if (readError) {
+		throw new Error('Profile unavailable');
+	} else {
+		profile = readData;
+	}
+	if (profile?.ga_sheet_id && profile.storage_status !== 'ACCESS_RECOVERY') return { status: (profile.storage_status || 'ADMIN_OWNED') as StorageStatus };
 	if (profile?.ga_sheet_id && profile.google_owner_email?.toLowerCase() !== googleEmail) throw new Error('Google account does not match the file owner');
 	if (!profile?.ga_sheet_id && !await claimStorageSetup(userId, 'personal')) throw new Error('Spreadsheet setup is already running');
 
