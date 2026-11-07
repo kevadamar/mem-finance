@@ -2,7 +2,7 @@ import { createClient, type User } from '@supabase/supabase-js';
 import { PUBLIC_SUPABASE_URL } from '$env/static/public';
 import { env } from '$env/dynamic/private';
 import { gasRequest } from '$lib/data/gas/gas-client';
-import { classifyStorageStatus } from './storage-status';
+import { classifyStorageStatus, checkPersonalStorageEnabled } from './storage-status';
 
 export type StorageStatus = 'CHOICE_REQUIRED' | 'SETUP_IN_PROGRESS' | 'ADMIN_OWNED' | 'TRANSFER_PENDING' | 'USER_OWNED_ADMIN_EDITOR' | 'ACCESS_RECOVERY' | 'SETUP_ERROR';
 
@@ -10,6 +10,17 @@ export function googleIdentityEmail(user: User | null): string | null {
 	const identity = user?.identities?.find((entry) => entry.provider === 'google');
 	const email = identity?.identity_data?.email;
 	return typeof email === 'string' && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? email.toLowerCase() : null;
+}
+
+/**
+ * Determines whether personal Google Drive storage ownership features are enabled.
+ * Controlled by the environment variable `ENABLE_PERSONAL_STORAGE`:
+ * - 'true', '1', or 'all': enabled globally for all users
+ * - comma-separated list of emails or user IDs: enabled only for specific test users (e.g. 'kevadamarg@gmail.com')
+ * - 'false', '0', or unset: disabled globally (safe pre-enhancement / classic mode)
+ */
+export function isPersonalStorageEnabled(userId?: string | null, email?: string | null): boolean {
+	return checkPersonalStorageEnabled(env.ENABLE_PERSONAL_STORAGE, userId, email);
 }
 
 export function adminDb() {

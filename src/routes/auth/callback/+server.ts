@@ -2,12 +2,11 @@ import { redirect } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { verifyStorageIntent } from '$lib/server/storage-consent';
 import { createPersonalSpreadsheet } from '$lib/server/personal-storage';
-import { googleIdentityEmail } from '$lib/server/storage-ownership';
-import { createAdminFallback } from '$lib/server/storage-ownership';
+import { googleIdentityEmail, createAdminFallback, isPersonalStorageEnabled } from '$lib/server/storage-ownership';
 
 export const GET: RequestHandler = async ({ url, locals, cookies }) => {
 	const storageIntent = cookies.get('memfinance_storage_intent');
-	const personalCallback = url.searchParams.get('storage') === 'personal';
+	const personalCallback = url.searchParams.get('storage') === 'personal' && isPersonalStorageEnabled(locals.userId, locals.user?.email);
 	if (storageIntent) cookies.delete('memfinance_storage_intent', { path: '/auth/callback' });
 	const priorUserId = locals.userId;
 	const priorSession = priorUserId && locals.supabase ? (await locals.supabase.auth.getSession()).data.session : null;

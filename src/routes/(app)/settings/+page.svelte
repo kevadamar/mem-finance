@@ -321,18 +321,20 @@
 		</section>
 	{/if}
 
-	<section class="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm sm:p-5 dark:border-gray-800 dark:bg-gray-900" aria-label="Kepemilikan spreadsheet">
-		<h2 class="font-bold text-gray-950 dark:text-white">Kepemilikan spreadsheet</h2>
-		<p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-			{data.storageStatus === 'USER_OWNED_ADMIN_EDITOR' ? 'Spreadsheet ini milik akun Google Anda.' : 'Spreadsheet ini belum terverifikasi sebagai milik akun Google Anda.'}
-		</p>
-		{#if data.storageStatus === 'USER_OWNED_ADMIN_EDITOR'}
-			<p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Admin aplikasi tetap memiliki akses editor agar sinkronisasi melalui Apps Script berjalan.</p>
-		{/if}
-		{#if data.storageStatus === 'USER_OWNED_ADMIN_EDITOR' || data.storageStatus === 'TRANSFER_PENDING'}
-			<button type="button" class="mt-3 text-sm font-semibold text-primary-700 underline dark:text-primary-300" onclick={() => void refreshStorageStatus()}>Periksa status Google Drive</button>
-		{/if}
-	</section>
+	{#if data.personalStorageEnabled}
+		<section class="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm sm:p-5 dark:border-gray-800 dark:bg-gray-900" aria-label="Kepemilikan spreadsheet">
+			<h2 class="font-bold text-gray-950 dark:text-white">Kepemilikan spreadsheet</h2>
+			<p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+				{data.storageStatus === 'USER_OWNED_ADMIN_EDITOR' ? 'Spreadsheet ini milik akun Google Anda.' : 'Spreadsheet ini belum terverifikasi sebagai milik akun Google Anda.'}
+			</p>
+			{#if data.storageStatus === 'USER_OWNED_ADMIN_EDITOR'}
+				<p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Admin aplikasi tetap memiliki akses editor agar sinkronisasi melalui Apps Script berjalan.</p>
+			{/if}
+			{#if data.storageStatus === 'USER_OWNED_ADMIN_EDITOR' || data.storageStatus === 'TRANSFER_PENDING'}
+				<button type="button" class="mt-3 text-sm font-semibold text-primary-700 underline dark:text-primary-300" onclick={() => void refreshStorageStatus()}>Periksa status Google Drive</button>
+			{/if}
+		</section>
+	{/if}
 
 	{#if !legacySummary}
 		<section class="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm sm:p-5 dark:border-gray-800 dark:bg-gray-900" aria-label="Periksa data lokal lama">

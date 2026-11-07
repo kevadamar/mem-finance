@@ -4,7 +4,8 @@ import { dev } from '$app/environment';
 import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_PUBLISHABLE_KEY } from '$env/static/public';
 import { env as privateEnv } from '$env/dynamic/private';
 import { createClient } from '@supabase/supabase-js';
-import type { StorageStatus } from '$lib/server/storage-ownership';
+import { isPersonalStorageEnabled, type StorageStatus } from '$lib/server/storage-ownership';
+import { gasRequest } from '$lib/data/gas/gas-client';
 
 const PUBLIC_PATHS = ['/login', '/auth/callback', '/healthz'];
 const APP_SCHEMA = 'memfinance';
@@ -32,6 +33,41 @@ async function getSheetProfile(userId: string, email: string): Promise<SheetProf
 			}
 		});
 
+		// Mode 1: Pre-enhancement (Classic admin-managed sheet mode)
+		// When personal storage is disabled, skip all storage ownership/status queries.
+		if (!isPersonalStorageEnabled(userId, email)) {
+			const { data: legacyProfile } = await adminClient
+				.schema(APP_SCHEMA)
+				.from('user_profiles')
+				.select('ga_sheet_id')
+				.eq('id', userId)
+				.maybeSingle();
+
+			if (legacyProfile?.ga_sheet_id) {
+				return { id: legacyProfile.ga_sheet_id, status: 'ADMIN_OWNED', targetEmail: null };
+			}
+
+			// Upsert profile record
+			await adminClient
+				.schema(APP_SCHEMA)
+				.from('user_profiles')
+				.upsert({ id: userId, email }, { onConflict: 'id', ignoreDuplicates: true });
+
+			// Provision admin spreadsheet via GAS
+			const gasRes = await gasRequest<{ gaSheetId: string }>('create_sheet', '', { userId });
+			if (gasRes.success && gasRes.data?.gaSheetId) {
+				await adminClient
+					.schema(APP_SCHEMA)
+					.from('user_profiles')
+					.update({ ga_sheet_id: gasRes.data.gaSheetId, updated_at: new Date().toISOString() })
+					.eq('id', userId);
+				return { id: gasRes.data.gaSheetId, status: 'ADMIN_OWNED', targetEmail: null };
+			}
+
+			return { id: null, status: 'ADMIN_OWNED', targetEmail: null };
+		}
+
+		// Mode 2: Enhanced mode (User-owned Google Drive storage delegation)
 		const { data: profile, error: selectError } = await adminClient
 			.schema(APP_SCHEMA)
 			.from('user_profiles')
@@ -162,7 +198,8 @@ export const handle: Handle = async ({ event, resolve }) => {
 	if (dataApi) {
 		const ownerId = event.request.headers.get('x-memfinance-user-id');
 		if (!ownerId || ownerId !== event.locals.userId) return json({ success: false, data: null, error: { code: 'ACCOUNT_CHANGED', message: 'Account changed; reload the app' } }, { status: 409 });
-		if (!event.locals.gaSheetId || !['ADMIN_OWNED', 'TRANSFER_PENDING', 'USER_OWNED_ADMIN_EDITOR'].includes(event.locals.storageStatus ?? '')) {
+		const personalEnabled = isPersonalStorageEnabled(event.locals.userId, event.locals.user?.email);
+		if (!event.locals.gaSheetId || (personalEnabled && !['ADMIN_OWNED', 'TRANSFER_PENDING', 'USER_OWNED_ADMIN_EDITOR'].includes(event.locals.storageStatus ?? ''))) {
 			return json({ success: false, data: null, error: { code: 'SHEET_UNAVAILABLE', message: 'Spreadsheet is not ready' } }, { status: 503 });
 		}
 	}

@@ -172,10 +172,10 @@
 	<Sidebar />
 	<div class="transition-[padding-left] duration-300 ease-in-out {app.sidebarCollapsed ? 'lg:pl-20' : 'lg:pl-64'}">
 		<main class="mx-auto max-w-7xl p-4 pb-[calc(6rem+env(safe-area-inset-bottom))] pt-4 sm:p-6 sm:pb-[calc(6.5rem+env(safe-area-inset-bottom))] lg:p-8 lg:pb-10">
-			{#if data.storageStatus !== 'USER_OWNED_ADMIN_EDITOR'}
+			{#if data.personalStorageEnabled && data.storageStatus !== 'USER_OWNED_ADMIN_EDITOR'}
 				<StorageOwnershipBanner status={data.storageStatus} googleConnected={data.googleConnected} connectedGoogleEmail={data.connectedGoogleEmail ?? undefined} targetEmail={data.googleOwnerEmail ?? undefined} />
 			{/if}
-			{#if data.storageStatus === 'ADMIN_OWNED' || data.storageStatus === 'TRANSFER_PENDING' || data.storageStatus === 'USER_OWNED_ADMIN_EDITOR'}
+			{#if !data.personalStorageEnabled || data.storageStatus === 'ADMIN_OWNED' || data.storageStatus === 'TRANSFER_PENDING' || data.storageStatus === 'USER_OWNED_ADMIN_EDITOR'}
 				{@render children()}
 			{/if}
 		</main>
