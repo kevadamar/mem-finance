@@ -149,23 +149,23 @@
 </div>
 
 <div
-	class="w-full rounded-2xl border transition-all duration-200 overflow-hidden shadow-sm
+	class="w-full rounded-2xl border transition-all duration-200 overflow-hidden shadow-xs
 		{draft.status === 'synced'
-			? 'border-emerald-200 bg-emerald-50/40 dark:border-emerald-800/60 dark:bg-emerald-950/20'
+			? 'border-emerald-200 bg-emerald-50/50 dark:border-emerald-800/60 dark:bg-emerald-950/30'
 			: draft.status === 'saved_device'
-			? 'border-amber-200 bg-amber-50/40 dark:border-amber-800/60 dark:bg-amber-950/20'
+			? 'border-amber-200 bg-amber-50/50 dark:border-amber-800/60 dark:bg-amber-950/30'
 			: draft.status === 'failed'
-			? 'border-rose-200 bg-rose-50/40 dark:border-rose-800/60 dark:bg-rose-950/20'
+			? 'border-rose-200 bg-rose-50/50 dark:border-rose-800/60 dark:bg-rose-950/30'
 			: draft.status === 'cancelled'
-			? 'border-gray-200 bg-gray-50/60 opacity-75 dark:border-gray-800 dark:bg-gray-900/40'
-			: 'border-gray-200 bg-white dark:border-gray-700/80 dark:bg-gray-850'}"
+			? 'border-gray-200 bg-gray-50/60 opacity-70 dark:border-gray-800 dark:bg-gray-900/40'
+			: 'border-gray-200/90 bg-white dark:border-gray-700/70 dark:bg-gray-900'}"
 	data-testid="draft-card"
 	data-draft-id={draft.id}
 	data-status={draft.status}
 >
 	<!-- Status header bar for completed or ongoing states -->
 	{#if draft.status === 'saving'}
-		<div class="flex items-center gap-2 border-b border-primary-100 bg-primary-50 px-4 py-2.5 text-xs font-medium text-primary-800 dark:border-primary-900/50 dark:bg-primary-950/40 dark:text-primary-300">
+		<div class="flex items-center gap-2 border-b border-primary-100 bg-primary-50 px-4 py-2.5 text-xs font-semibold text-primary-800 dark:border-primary-900/50 dark:bg-primary-950/60 dark:text-primary-300">
 			<svg class="h-4 w-4 animate-spin text-primary-600 dark:text-primary-400" viewBox="0 0 24 24" fill="none">
 				<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
 				<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
@@ -173,7 +173,7 @@
 			<span>Menyimpan transaksi...</span>
 		</div>
 	{:else if draft.status === 'synced'}
-		<div class="flex items-center justify-between border-b border-emerald-100 bg-emerald-50 px-4 py-2 text-xs font-medium text-emerald-800 dark:border-emerald-900/40 dark:bg-emerald-950/40 dark:text-emerald-300">
+		<div class="flex items-center justify-between border-b border-emerald-100 bg-emerald-50 px-4 py-2 text-xs font-semibold text-emerald-800 dark:border-emerald-900/50 dark:bg-emerald-950/50 dark:text-emerald-300">
 			<div class="flex items-center gap-1.5">
 				<svg class="h-4 w-4 text-emerald-600 dark:text-emerald-400" viewBox="0 0 20 20" fill="currentColor">
 					<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" />
@@ -183,7 +183,7 @@
 			<span class="text-[11px] text-emerald-700/80 dark:text-emerald-400/80">Tersimpan di server</span>
 		</div>
 	{:else if draft.status === 'saved_device'}
-		<div class="flex items-center justify-between border-b border-amber-100 bg-amber-50 px-4 py-2 text-xs font-medium text-amber-900 dark:border-amber-900/40 dark:bg-amber-950/40 dark:text-amber-300">
+		<div class="flex items-center justify-between border-b border-amber-100 bg-amber-50 px-4 py-2 text-xs font-semibold text-amber-900 dark:border-amber-900/50 dark:bg-amber-950/50 dark:text-amber-300">
 			<div class="flex items-center gap-1.5">
 				<svg class="h-4 w-4 text-amber-600 dark:text-amber-400" viewBox="0 0 20 20" fill="currentColor">
 					<path fill-rule="evenodd" d="M1 10a9 9 0 1118 0 9 9 0 01-18 0zm9-4a.75.75 0 00-.75.75v3.5c0 .414.336.75.75.75h2.5a.75.75 0 000-1.5H10.75V6.75A.75.75 0 0010 6z" clip-rule="evenodd" />
@@ -192,7 +192,7 @@
 			</div>
 		</div>
 	{:else if draft.status === 'failed'}
-		<div class="flex items-center justify-between border-b border-rose-100 bg-rose-50 px-4 py-2 text-xs font-medium text-rose-800 dark:border-rose-900/40 dark:bg-rose-950/40 dark:text-rose-300">
+		<div class="flex items-center justify-between border-b border-rose-100 bg-rose-50 px-4 py-2 text-xs font-semibold text-rose-800 dark:border-rose-900/50 dark:bg-rose-950/50 dark:text-rose-300">
 			<div class="flex items-center gap-1.5">
 				<svg class="h-4 w-4 text-rose-600 dark:text-rose-400" viewBox="0 0 20 20" fill="currentColor">
 					<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd" />
@@ -201,7 +201,7 @@
 			</div>
 		</div>
 	{:else if draft.status === 'cancelled'}
-		<div class="flex items-center gap-1.5 border-b border-gray-100 bg-gray-50 px-4 py-2 text-xs font-medium text-gray-500 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400">
+		<div class="flex items-center gap-1.5 border-b border-gray-100 bg-gray-50 px-4 py-2 text-xs font-semibold text-gray-500 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400">
 			<svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
 				<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM6.75 9.25a.75.75 0 000 1.5h6.5a.75.75 0 000-1.5h-6.5z" clip-rule="evenodd" />
 			</svg>
@@ -214,10 +214,10 @@
 			<!-- Inline Edit Form -->
 			<form onsubmit={(e) => { e.preventDefault(); handleSaveClick(); }} class="space-y-3.5">
 				<div class="flex items-center justify-between border-b border-gray-100 pb-2.5 dark:border-gray-800">
-					<span class="text-xs font-semibold text-gray-900 dark:text-gray-100">Koreksi Draf Transaksi</span>
+					<span class="text-xs font-bold text-gray-900 dark:text-gray-100">Koreksi Draf Transaksi</span>
 					<button
 						type="button"
-						class="text-xs text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+						class="text-xs font-medium text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
 						onclick={cancelEditing}
 					>
 						Tutup
@@ -226,22 +226,22 @@
 
 				<!-- Type selector -->
 				<div>
-					<label for="draft-type-{draft.id}" class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Jenis Transaksi</label>
+					<label for="draft-type-{draft.id}" class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1.5">Jenis Transaksi</label>
 					<div class="grid grid-cols-2 gap-2" id="draft-type-{draft.id}">
 						<button
 							type="button"
-							class="min-h-9 rounded-xl border text-xs font-medium transition-all {editType === 'expense'
-								? 'border-red-500 bg-red-50 text-red-700 font-semibold dark:border-red-600 dark:bg-red-950/40 dark:text-red-300'
-								: 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300'}"
+							class="min-h-9 rounded-xl border text-xs font-semibold transition-all {editType === 'expense'
+								? 'border-rose-500 bg-rose-50 text-rose-700 dark:border-rose-600 dark:bg-rose-950/60 dark:text-rose-200 shadow-2xs'
+								: 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'}"
 							onclick={() => handleTypeChange('expense')}
 						>
 							🔴 Pengeluaran
 						</button>
 						<button
 							type="button"
-							class="min-h-9 rounded-xl border text-xs font-medium transition-all {editType === 'income'
-								? 'border-emerald-500 bg-emerald-50 text-emerald-700 font-semibold dark:border-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-300'
-								: 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300'}"
+							class="min-h-9 rounded-xl border text-xs font-semibold transition-all {editType === 'income'
+								? 'border-emerald-500 bg-emerald-50 text-emerald-700 dark:border-emerald-600 dark:bg-emerald-950/60 dark:text-emerald-200 shadow-2xs'
+								: 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'}"
 							onclick={() => handleTypeChange('income')}
 						>
 							🟢 Pemasukan
@@ -255,20 +255,20 @@
 						Nominal (Rp)
 					</label>
 					<div class="relative">
-						<span class="absolute inset-y-0 left-0 flex items-center pl-3 text-xs text-gray-500">Rp</span>
+						<span class="absolute inset-y-0 left-0 flex items-center pl-3 text-xs font-bold text-gray-400 dark:text-gray-500">Rp</span>
 						<input
 							id="draft-amount-{draft.id}"
 							type="number"
 							min="1"
 							step="1"
 							bind:value={editAmount}
-							class="w-full rounded-xl border border-gray-300 bg-white py-2 pl-9 pr-3 text-sm font-semibold text-gray-900 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
+							class="w-full rounded-xl border border-gray-300 bg-white py-2 pl-9 pr-3 text-sm font-bold text-gray-900 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:focus:border-primary-400"
 							placeholder="0"
 							required
 						/>
 					</div>
 					{#if localErrors.amount}
-						<p class="mt-1 text-xs text-rose-600 dark:text-rose-400">{localErrors.amount}</p>
+						<p class="mt-1 text-xs text-rose-600 dark:text-rose-400 font-medium">{localErrors.amount}</p>
 					{/if}
 				</div>
 
@@ -276,17 +276,17 @@
 				<div>
 					<div class="flex items-center justify-between mb-1">
 						<label for="draft-date-{draft.id}" class="block text-xs font-medium text-gray-700 dark:text-gray-300">Tanggal Pembukuan</label>
-						<div class="flex items-center gap-1">
+						<div class="flex items-center gap-1.5">
 							<button
 								type="button"
-								class="rounded-lg border border-gray-200 px-2 py-0.5 text-[11px] font-medium text-gray-600 hover:bg-gray-100 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-800"
+								class="rounded-lg border border-gray-200 bg-gray-50 px-2.5 py-1 text-[11px] font-semibold text-gray-600 transition-colors hover:bg-gray-100 active:scale-95 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
 								onclick={() => setQuickDate(0)}
 							>
 								Hari ini
 							</button>
 							<button
 								type="button"
-								class="rounded-lg border border-gray-200 px-2 py-0.5 text-[11px] font-medium text-gray-600 hover:bg-gray-100 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-800"
+								class="rounded-lg border border-gray-200 bg-gray-50 px-2.5 py-1 text-[11px] font-semibold text-gray-600 transition-colors hover:bg-gray-100 active:scale-95 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
 								onclick={() => setQuickDate(-1)}
 							>
 								Kemarin
@@ -297,11 +297,11 @@
 						id="draft-date-{draft.id}"
 						type="date"
 						bind:value={editDate}
-						class="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
+						class="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:focus:border-primary-400"
 						required
 					/>
 					{#if localErrors.date}
-						<p class="mt-1 text-xs text-rose-600 dark:text-rose-400">{localErrors.date}</p>
+						<p class="mt-1 text-xs text-rose-600 dark:text-rose-400 font-medium">{localErrors.date}</p>
 					{/if}
 				</div>
 
@@ -313,7 +313,7 @@
 					<select
 						id="draft-cat-{draft.id}"
 						bind:value={editCategoryId}
-						class="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
+						class="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:focus:border-primary-400"
 						required
 					>
 						<option value="">— Pilih Kategori —</option>
@@ -330,18 +330,18 @@
 				<div>
 					<div class="flex items-center justify-between mb-1">
 						<label for="draft-note-{draft.id}" class="block text-xs font-medium text-gray-700 dark:text-gray-300">Catatan</label>
-						<span class="text-[11px] text-gray-400">{editNote.length}/200</span>
+						<span class="text-[11px] text-gray-400 dark:text-gray-500">{editNote.length}/200</span>
 					</div>
 					<input
 						id="draft-note-{draft.id}"
 						type="text"
 						maxlength="200"
 						bind:value={editNote}
-						class="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
+						class="w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:placeholder:text-gray-500 dark:focus:border-primary-400"
 						placeholder="Misal: Makan bareng rekan kantor"
 					/>
 					{#if localErrors.note}
-						<p class="mt-1 text-xs text-rose-600 dark:text-rose-400">{localErrors.note}</p>
+						<p class="mt-1 text-xs text-rose-600 dark:text-rose-400 font-medium">{localErrors.note}</p>
 					{/if}
 				</div>
 
@@ -349,14 +349,14 @@
 				<div class="grid grid-cols-2 gap-2 pt-2 border-t border-gray-100 dark:border-gray-800">
 					<button
 						type="button"
-						class="min-h-10 rounded-xl bg-gray-100 px-4 text-xs font-semibold text-gray-700 transition-colors hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-400 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
+						class="min-h-10 rounded-xl border border-gray-200 bg-gray-100 px-4 text-xs font-semibold text-gray-700 transition-colors hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-400 active:scale-[0.98] dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
 						onclick={cancelEditing}
 					>
 						Batal Koreksi
 					</button>
 					<button
 						type="submit"
-						class="min-h-10 rounded-xl bg-emerald-600 px-4 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:bg-emerald-500 dark:hover:bg-emerald-400"
+						class="min-h-10 rounded-xl bg-emerald-600 px-4 text-xs font-bold text-white shadow-xs transition-colors hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 active:scale-[0.98] dark:bg-emerald-600 dark:hover:bg-emerald-500 dark:focus:ring-offset-gray-900"
 					>
 						Simpan
 					</button>
@@ -370,28 +370,28 @@
 					<span
 						class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold
 							{draft.type === 'expense'
-								? 'bg-rose-100 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300'
-								: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300'}"
+								? 'bg-rose-50 text-rose-700 border border-rose-200/80 dark:bg-rose-950/60 dark:text-rose-300 dark:border-rose-900/60'
+								: 'bg-emerald-50 text-emerald-700 border border-emerald-200/80 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-900/60'}"
 					>
-						<span class="h-1.5 w-1.5 rounded-full {draft.type === 'expense' ? 'bg-rose-500' : 'bg-emerald-500'}"></span>
+						<span class="h-1.5 w-1.5 rounded-full {draft.type === 'expense' ? 'bg-rose-500 dark:bg-rose-400' : 'bg-emerald-500 dark:bg-emerald-400'}"></span>
 						{draft.type === 'expense' ? 'Pengeluaran' : 'Pemasukan'}
 					</span>
 
-					<span class="text-base font-bold tabular-nums text-gray-950 dark:text-gray-50">
+					<span class="text-xl sm:text-2xl font-black tabular-nums tracking-tight text-gray-950 dark:text-white">
 						{formatRupiah(draft.amount)}
 					</span>
 				</div>
 
 				<!-- Key Info Grid -->
 				<div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-					<div class="flex items-center gap-2 rounded-xl bg-gray-50 px-3 py-2 dark:bg-gray-800/60">
-						<span class="text-gray-500 dark:text-gray-400">Kategori:</span>
+					<div class="flex items-center gap-2 rounded-xl border border-gray-200/70 bg-gray-50/80 px-3.5 py-2.5 dark:border-gray-700/60 dark:bg-gray-800/70">
+						<span class="text-[11px] font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Kategori:</span>
 						{#if draft.categoryId && draft.categoryName}
-							<strong class="text-gray-900 dark:text-gray-100 font-medium truncate">{draft.categoryName}</strong>
+							<strong class="text-xs sm:text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">{draft.categoryName}</strong>
 						{:else}
 							<button
 								type="button"
-								class="inline-flex items-center gap-1 font-semibold text-amber-700 hover:underline dark:text-amber-400"
+								class="inline-flex items-center gap-1 text-xs font-bold text-amber-600 hover:underline dark:text-amber-400"
 								onclick={startEditing}
 							>
 								<span>⚠️ Pilih kategori</span>
@@ -399,27 +399,27 @@
 						{/if}
 					</div>
 
-					<div class="flex items-center gap-2 rounded-xl bg-gray-50 px-3 py-2 dark:bg-gray-800/60">
-						<span class="text-gray-500 dark:text-gray-400">Tanggal:</span>
-						<strong class="text-gray-900 dark:text-gray-100 font-medium">{draft.date}</strong>
+					<div class="flex items-center gap-2 rounded-xl border border-gray-200/70 bg-gray-50/80 px-3.5 py-2.5 dark:border-gray-700/60 dark:bg-gray-800/70">
+						<span class="text-[11px] font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400">Tanggal:</span>
+						<strong class="text-xs sm:text-sm font-semibold text-gray-900 dark:text-gray-100">{draft.date}</strong>
 					</div>
 				</div>
 
 				<!-- Note if available -->
 				{#if draft.note}
-					<div class="rounded-xl bg-gray-50/70 px-3 py-2 text-xs text-gray-600 dark:bg-gray-800/40 dark:text-gray-300 break-words">
-						<span class="text-gray-400 dark:text-gray-500">Catatan:</span> {draft.note}
+					<div class="rounded-xl border border-gray-200/60 bg-gray-50/60 px-3.5 py-2.5 text-xs text-gray-700 dark:border-gray-700/50 dark:bg-gray-800/50 dark:text-gray-200 break-words">
+						<span class="text-[11px] font-medium uppercase tracking-wider text-gray-400 dark:text-gray-500 mr-1">Catatan:</span> {draft.note}
 					</div>
 				{/if}
 
 				<!-- Error display if any -->
 				{#if draft.errorMessage}
-					<div class="rounded-xl border border-rose-200 bg-rose-50 p-2.5 text-xs text-rose-700 dark:border-rose-900 dark:bg-rose-950/50 dark:text-rose-200" role="alert">
+					<div class="rounded-xl border border-rose-200 bg-rose-50 p-2.5 text-xs font-medium text-rose-700 dark:border-rose-900 dark:bg-rose-950/50 dark:text-rose-200" role="alert">
 						{draft.errorMessage}
 					</div>
 				{/if}
 				{#if draft.validationErrors?.categoryId}
-					<div class="rounded-xl border border-amber-200 bg-amber-50 p-2.5 text-xs text-amber-800 dark:border-amber-900 dark:bg-amber-950/50 dark:text-amber-200">
+					<div class="rounded-xl border border-amber-200 bg-amber-50 p-2.5 text-xs font-medium text-amber-800 dark:border-amber-900 dark:bg-amber-950/50 dark:text-amber-200">
 						{draft.validationErrors.categoryId}
 					</div>
 				{/if}
@@ -430,7 +430,7 @@
 				<div class="grid grid-cols-3 gap-2 border-t border-gray-100 pt-3 dark:border-gray-800">
 					<button
 						type="button"
-						class="min-h-10 rounded-xl bg-gray-100 px-3 text-xs font-semibold text-gray-700 transition-colors hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-400 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600"
+						class="min-h-10 rounded-xl border border-gray-200 bg-white px-3 text-xs font-semibold text-gray-700 shadow-2xs transition-all hover:bg-gray-50 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-gray-400 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
 						onclick={startEditing}
 					>
 						Ubah
@@ -438,7 +438,7 @@
 
 					<button
 						type="button"
-						class="min-h-10 rounded-xl bg-emerald-600 px-3 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:bg-emerald-500 dark:hover:bg-emerald-400"
+						class="min-h-10 rounded-xl bg-emerald-600 px-3 text-xs font-bold text-white shadow-xs transition-all hover:bg-emerald-500 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 dark:bg-emerald-600 dark:hover:bg-emerald-500 dark:focus:ring-offset-gray-900"
 						onclick={handleSaveClick}
 					>
 						{draft.status === 'failed' ? 'Coba lagi' : 'Simpan'}
@@ -446,7 +446,7 @@
 
 					<button
 						type="button"
-						class="min-h-10 rounded-xl bg-gray-50 px-3 text-xs font-semibold text-rose-600 transition-colors hover:bg-rose-50 hover:text-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-400 dark:bg-gray-800 dark:text-rose-400 dark:hover:bg-rose-950/40"
+						class="min-h-10 rounded-xl border border-gray-200/70 bg-gray-50/80 px-3 text-xs font-semibold text-rose-600 transition-all hover:border-rose-200 hover:bg-rose-50 hover:text-rose-700 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-rose-400 dark:border-gray-700/60 dark:bg-gray-800/80 dark:text-rose-400 dark:hover:border-rose-900/60 dark:hover:bg-rose-950/40"
 						onclick={handleCancelClick}
 					>
 						Batal
@@ -474,7 +474,7 @@
 					{#if draft.savedTransactionId}
 						<a
 							href={resolve(`/transactions?id=${draft.savedTransactionId}`)}
-							class="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-xl bg-white px-3.5 py-1.5 text-xs font-semibold text-primary-700 border border-primary-200 shadow-xs transition-colors hover:bg-primary-50 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-800 dark:text-primary-300 dark:border-primary-800/70 dark:hover:bg-gray-750"
+							class="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-xl bg-primary-50 px-3.5 py-1.5 text-xs font-bold text-primary-700 border border-primary-200 shadow-2xs transition-colors hover:bg-primary-100 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-primary-950/50 dark:text-primary-300 dark:border-primary-800/80 dark:hover:bg-primary-900/60"
 						>
 							<span>Lihat transaksi</span>
 							<svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
