@@ -62,7 +62,19 @@ export const POST: RequestHandler = async ({ request, locals, url }) => {
 		});
 
 		if (!response.ok) {
-			return errorResponse('OCR_SERVICE_ERROR', 'Layanan OCR belum dapat memproses struk ini.', 502);
+			let upstreamMessage: string | null = null;
+			try {
+				const upstreamJson = (await response.json()) as { message?: string };
+				if (typeof upstreamJson?.message === 'string') upstreamMessage = upstreamJson.message;
+			} catch {
+				// Ignore non-JSON upstream response
+			}
+
+			if (response.status === 504 || upstreamMessage?.includes('timed out')) {
+				return errorResponse('OCR_TIMEOUT', 'Pemrosesan OCR melewati batas waktu di server. Coba potong gambar lebih fokus ke area total atau ketik manual.', 504);
+			}
+
+			return errorResponse('OCR_SERVICE_ERROR', upstreamMessage || 'Layanan OCR belum dapat memproses struk ini.', 502);
 		}
 
 		const payload: unknown = await response.json();

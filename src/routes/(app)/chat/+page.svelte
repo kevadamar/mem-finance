@@ -432,6 +432,9 @@
 		try {
 			payload = await response.json();
 		} catch {
+			if (response.status === 504 || response.status === 502) {
+				throw new Error('Pemrosesan OCR memakan waktu terlalu lama atau server sedang sibuk. Coba potong gambar lebih fokus ke area total struk, atau ketik manual.');
+			}
 			throw new Error('Layanan OCR sedang bermasalah atau tidak dapat diakses saat ini.');
 		}
 
