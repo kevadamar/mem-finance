@@ -414,17 +414,36 @@
 		const formData = new FormData();
 		formData.append('file', file, file.name);
 
-		const response = await fetch('/api/receipt-ocr', {
-			method: 'POST',
-			body: formData
-		});
-		const payload = (await response.json()) as ReceiptOCRApiResponse;
-
-		if (!response.ok || !payload.success) {
-			throw new Error(payload.success ? 'OCR gagal memproses gambar.' : payload.error.message);
+		let response: Response;
+		try {
+			response = await fetch('/api/receipt-ocr', {
+				method: 'POST',
+				body: formData
+			});
+		} catch {
+			throw new Error('Tidak dapat terhubung ke server OCR. Periksa koneksi internet Anda.');
 		}
 
-		return payload;
+		if (response.status === 401) {
+			throw new Error('Sesi Anda telah berakhir. Silakan muat ulang halaman atau masuk kembali.');
+		}
+
+		let payload: unknown;
+		try {
+			payload = await response.json();
+		} catch {
+			throw new Error('Layanan OCR sedang bermasalah atau tidak dapat diakses saat ini.');
+		}
+
+		const data = payload as Partial<ReceiptOCRApiResponse>;
+		if (!response.ok || !data?.success) {
+			const errorMsg = data && 'error' in data && typeof data.error?.message === 'string'
+				? data.error.message
+				: 'OCR belum dapat memproses gambar struk ini.';
+			throw new Error(errorMsg);
+		}
+
+		return payload as ReceiptOCRSuccessResponse;
 	}
 
 	async function parseTransactionMessage(text: string): Promise<ParserResult> {
@@ -438,12 +457,27 @@
 			};
 		}
 
-		const res = await fetch('/api/chat', {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ message })
-		});
-		const payload: unknown = await res.json();
+		let res: Response;
+		try {
+			res = await fetch('/api/chat', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ message })
+			});
+		} catch {
+			throw new Error('Tidak dapat terhubung ke server chat. Periksa koneksi internet Anda.');
+		}
+
+		if (res.status === 401) {
+			throw new Error('Sesi Anda telah berakhir. Silakan muat ulang halaman atau masuk kembali.');
+		}
+
+		let payload: unknown;
+		try {
+			payload = await res.json();
+		} catch {
+			throw new Error('Layanan chat sedang bermasalah. Silakan coba beberapa saat lagi.');
+		}
 
 		if (!res.ok) {
 			const errorMessage = typeof payload === 'object' && payload !== null && 'error' in payload

@@ -137,6 +137,19 @@ async function getSheetProfile(userId: string, email: string): Promise<SheetProf
 
 import { getDevUser } from '$lib/server/dev-user';
 
+function clearAuthCookies(cookies: import('@sveltejs/kit').Cookies) {
+	try {
+		const allCookies = cookies.getAll();
+		for (const c of allCookies) {
+			if (c.name.startsWith('sb-')) {
+				cookies.delete(c.name, { path: '/' });
+			}
+		}
+	} catch {
+		// Ignore cookie deletion errors
+	}
+}
+
 export const handle: Handle = async ({ event, resolve }) => {
 	const authDisabled = dev && getPrivateEnv('FORCE_AUTH_DISABLED') === 'true';
 	const path = event.url.pathname;
@@ -162,16 +175,39 @@ export const handle: Handle = async ({ event, resolve }) => {
 	const supabase = createSupabaseServerClient(event);
 	event.locals.supabase = supabase;
 
-	// Refreshes an expiring cookie session before checking the user. `getUser`
-	// verifies the identity with Supabase Auth, unlike an unverified cookie read.
-	await supabase.auth.getSession();
-	const { data: userData } = await supabase.auth.getUser();
+	let user: import('@supabase/supabase-js').User | null = null;
 
-	if (userData.user) {
-		const userId = userData.user.id;
+	// Refreshes an expiring cookie session before checking the user.
+	// We catch any AuthApiError (such as 'refresh_token_not_found') so that
+	// expired or revoked sessions do not crash the Node.js server.
+	try {
+		const { error: sessionError } = await supabase.auth.getSession();
+		if (sessionError) {
+			clearAuthCookies(event.cookies);
+		}
+	} catch (err) {
+		console.warn('[hooks] getSession caught error, clearing auth cookies:', err instanceof Error ? err.message : err);
+		clearAuthCookies(event.cookies);
+	}
+
+	try {
+		const { data: userData, error: userError } = await supabase.auth.getUser();
+		if (!userError && userData?.user) {
+			user = userData.user;
+		} else if (userError) {
+			clearAuthCookies(event.cookies);
+		}
+	} catch (err) {
+		console.warn('[hooks] getUser caught error, clearing auth cookies:', err instanceof Error ? err.message : err);
+		clearAuthCookies(event.cookies);
+		user = null;
+	}
+
+	if (user) {
+		const userId = user.id;
 		event.locals.userId = userId;
-		event.locals.user = userData.user;
-		const sheet = await getSheetProfile(userId, userData.user.email || '');
+		event.locals.user = user;
+		const sheet = await getSheetProfile(userId, user.email || '');
 		event.locals.gaSheetId = sheet.id;
 		event.locals.storageStatus = sheet.status;
 		event.locals.googleOwnerEmail = sheet.targetEmail;

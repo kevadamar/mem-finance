@@ -9,7 +9,15 @@ export const GET: RequestHandler = async ({ url, locals, cookies }) => {
 	const personalCallback = url.searchParams.get('storage') === 'personal' && isPersonalStorageEnabled(locals.userId, locals.user?.email);
 	if (storageIntent) cookies.delete('memfinance_storage_intent', { path: '/auth/callback' });
 	const priorUserId = locals.userId;
-	const priorSession = priorUserId && locals.supabase ? (await locals.supabase.auth.getSession()).data.session : null;
+	let priorSession = null;
+	if (priorUserId && locals.supabase) {
+		try {
+			const { data } = await locals.supabase.auth.getSession();
+			priorSession = data?.session ?? null;
+		} catch {
+			priorSession = null;
+		}
+	}
 	const code = url.searchParams.get('code');
 	if (code && locals.supabase) {
 		const { data, error } = await locals.supabase.auth.exchangeCodeForSession(code);
