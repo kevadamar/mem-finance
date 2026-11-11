@@ -22,6 +22,12 @@
 	let turnstileReady = $state(false);
 	let turnstileWidgetId: string | undefined;
 
+	$effect(() => {
+		if (data?.authError) {
+			error = data.authError;
+		}
+	});
+
 	let supabase = supabaseConfigured 
 		? createBrowserClient(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_PUBLISHABLE_KEY)
 		: null;
@@ -157,6 +163,7 @@
 
 	async function handleGoogleLogin() {
 		if (loading || !supabase) return;
+		resetError();
 		loading = true;
 		const { error: oauthError } = await supabase.auth.signInWithOAuth({
 			provider: 'google',
@@ -202,6 +209,18 @@
 
 		<div class="space-y-5 rounded-2xl border border-gray-200 bg-white p-4 shadow-xl shadow-gray-200/60 sm:p-7 dark:border-gray-800 dark:bg-gray-900 dark:shadow-black/20">
 			<div><h1 class="text-xl font-bold tracking-tight text-gray-950 dark:text-white">Selamat datang</h1><p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Pilih cara yang paling nyaman untuk masuk.</p></div>
+
+			{#if error}
+				<div class="rounded-xl border border-red-200 bg-red-50 p-3 text-xs text-red-700 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-400" transition:fade>
+					<div class="flex items-start gap-2">
+						<svg class="h-4 w-4 shrink-0 text-red-500 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+							<path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+						</svg>
+						<span>{error}</span>
+					</div>
+				</div>
+			{/if}
+
 			<button
 				onclick={handleGoogleLogin}
 				disabled={loading}

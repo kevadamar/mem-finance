@@ -1,4 +1,4 @@
-import { createSupabaseServerClient } from '$lib/server/auth';
+import { createSupabaseServerClient, isRefreshTokenRevoked, clearAuthCookies } from '$lib/server/auth';
 import { json, redirect, type Handle } from '@sveltejs/kit';
 import { dev } from '$app/environment';
 import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_PUBLISHABLE_KEY } from '$env/static/public';
@@ -137,19 +137,6 @@ async function getSheetProfile(userId: string, email: string): Promise<SheetProf
 
 import { getDevUser } from '$lib/server/dev-user';
 
-function clearAuthCookies(cookies: import('@sveltejs/kit').Cookies) {
-	try {
-		const allCookies = cookies.getAll();
-		for (const c of allCookies) {
-			if (c.name.startsWith('sb-')) {
-				cookies.delete(c.name, { path: '/' });
-			}
-		}
-	} catch {
-		// Ignore cookie deletion errors
-	}
-}
-
 export const handle: Handle = async ({ event, resolve }) => {
 	const authDisabled = dev && getPrivateEnv('FORCE_AUTH_DISABLED') === 'true';
 	const path = event.url.pathname;
@@ -180,26 +167,35 @@ export const handle: Handle = async ({ event, resolve }) => {
 	// Refreshes an expiring cookie session before checking the user.
 	// We catch any AuthApiError (such as 'refresh_token_not_found') so that
 	// expired or revoked sessions do not crash the Node.js server.
+	// We do NOT clear cookies for normal unauthenticated requests or code-verifier cookies.
 	try {
 		const { error: sessionError } = await supabase.auth.getSession();
-		if (sessionError) {
-			clearAuthCookies(event.cookies);
+		if (sessionError && isRefreshTokenRevoked(sessionError)) {
+			clearAuthCookies(event.cookies, 'getSession revoked token');
 		}
 	} catch (err) {
-		console.warn('[hooks] getSession caught error, clearing auth cookies:', err instanceof Error ? err.message : err);
-		clearAuthCookies(event.cookies);
+		if (isRefreshTokenRevoked(err)) {
+			console.warn('[hooks] getSession caught revoked token error, clearing auth cookies:', err instanceof Error ? err.message : err);
+			clearAuthCookies(event.cookies, 'getSession exception');
+		} else {
+			console.warn('[hooks] getSession caught error:', err instanceof Error ? err.message : err);
+		}
 	}
 
 	try {
 		const { data: userData, error: userError } = await supabase.auth.getUser();
 		if (!userError && userData?.user) {
 			user = userData.user;
-		} else if (userError) {
-			clearAuthCookies(event.cookies);
+		} else if (userError && isRefreshTokenRevoked(userError)) {
+			clearAuthCookies(event.cookies, 'getUser revoked token');
 		}
 	} catch (err) {
-		console.warn('[hooks] getUser caught error, clearing auth cookies:', err instanceof Error ? err.message : err);
-		clearAuthCookies(event.cookies);
+		if (isRefreshTokenRevoked(err)) {
+			console.warn('[hooks] getUser caught revoked token error, clearing auth cookies:', err instanceof Error ? err.message : err);
+			clearAuthCookies(event.cookies, 'getUser exception');
+		} else {
+			console.warn('[hooks] getUser caught error:', err instanceof Error ? err.message : err);
+		}
 		user = null;
 	}
 

@@ -31,3 +31,5 @@ export function createSupabaseServerClient(event: RequestEvent) {
 		}
 	);
 }
+
+export { isRefreshTokenRevoked, clearAuthCookies } from './auth-resilience';
