@@ -119,8 +119,8 @@
 
 <section class="retro-card overflow-hidden bg-[var(--surface-1)]" aria-labelledby="receipt-ocr-title">
 	<div class="border-b-[1.5px] border-[var(--border-strong)] bg-[var(--surface-2)] px-5 py-4">
-		<div class="flex items-center gap-2 text-[11px] font-mono font-bold tracking-widest uppercase text-[var(--brand-primary)]">
-			<span class="inline-block size-1.5 rounded-full bg-[var(--brand-primary)]"></span>
+		<div class="flex items-center gap-2 text-[11px] font-mono font-bold tracking-widest uppercase text-[var(--brand-text)]">
+			<span class="inline-block size-1.5 rounded-full bg-[var(--brand-fill)]"></span>
 			OCR Scanner
 		</div>
 		<h2 id="receipt-ocr-title" class="mt-1 text-lg font-black tracking-tight text-[var(--text-primary)]">Scan Struk Transaksi</h2>
@@ -137,7 +137,7 @@
 			ondragleave={() => (isDragging = false)}
 			ondrop={handleDrop}
 		>
-			<span class="grid size-12 place-items-center rounded-lg border-[1.5px] border-[var(--border-strong)] bg-[var(--surface-1)] text-[var(--brand-primary)] shadow-[var(--shadow-retro-sm)]" aria-hidden="true">
+			<span class="grid size-12 place-items-center rounded-lg border-[1.5px] border-[var(--border-strong)] bg-[var(--surface-1)] text-[var(--brand-text)] shadow-[var(--shadow-retro-sm)]" aria-hidden="true">
 				<svg class="size-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M7 16a4 4 0 01.88-7.9A5 5 0 0117.9 9.6 3.5 3.5 0 0117.5 16H15m-3-7v9m0-9-3 3m3-3 3 3" />
 				</svg>

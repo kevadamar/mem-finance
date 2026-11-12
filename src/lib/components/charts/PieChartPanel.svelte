@@ -2,6 +2,7 @@
 	import Card from '$lib/components/ui/Card.svelte';
 	import EmptyState from '$lib/components/ui/EmptyState.svelte';
 	import { app } from '$lib/state/app.svelte';
+	import { theme } from '$lib/state/theme.svelte';
 	import { formatRupiah, parseDate } from '$lib/utils/format';
 	import type { TransactionType } from '$lib/domain/entities/transaction';
 	import { onMount } from 'svelte';
@@ -18,17 +19,9 @@
 	let transactionType = $state<TransactionType>('expense');
 	let prefersReducedMotion = $state(false);
 	let isDesktop = $state(false);
-	let isDark = $state(false);
 	const periodLabels: Record<string, string> = { week: 'Minggu Ini', month: 'Bulan Ini', 'last-month': 'Bulan Lalu', '3months': '3 Bulan' };
 
 	onMount(() => {
-		const checkDark = () => {
-			isDark = document.documentElement.classList.contains('dark');
-		};
-		checkDark();
-		const observer = new MutationObserver(checkDark);
-		observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
-
 		const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
 		const desktopQuery = window.matchMedia('(min-width: 640px)');
 		const sync = () => { prefersReducedMotion = motionQuery.matches; isDesktop = desktopQuery.matches; };
@@ -36,37 +29,36 @@
 		motionQuery.addEventListener('change', sync);
 		desktopQuery.addEventListener('change', sync);
 		return () => {
-			observer.disconnect();
 			motionQuery.removeEventListener('change', sync);
 			desktopQuery.removeEventListener('change', sync);
 		};
 	});
 
-	let chartOption = $derived.by((): EChartsOption | null => {
+	let rankedData = $derived.by(() => {
 		const txs = app.transactions;
 		const cats = app.categories;
-		if (txs.length === 0) return null;
+		if (txs.length === 0) return [];
 
 		const now = new Date();
 		let start: Date, end: Date;
 		switch (period) {
 			case 'week': {
 				const day = now.getDay();
-					start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - day);
-					end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+				start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - day);
+				end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
 				break;
 			}
 			case 'last-month':
 				start = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-					end = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59, 999);
+				end = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59, 999);
 				break;
 			case '3months':
-					start = new Date(now.getFullYear(), now.getMonth() - 2, 1);
-					end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+				start = new Date(now.getFullYear(), now.getMonth() - 2, 1);
+				end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
 				break;
 			default:
-					start = new Date(now.getFullYear(), now.getMonth(), 1);
-					end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+				start = new Date(now.getFullYear(), now.getMonth(), 1);
+				end = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
 		}
 
 		const filtered = txs.filter((t) => {
@@ -75,22 +67,44 @@
 			return d >= start && d <= end;
 		});
 
-		if (filtered.length === 0) return null;
+		if (filtered.length === 0) return [];
 
 		const grouped: Record<string, number> = {};
-		for (const t of filtered) grouped[t.categoryId] = (grouped[t.categoryId] || 0) + t.amount;
+		let total = 0;
+		for (const t of filtered) {
+			grouped[t.categoryId] = (grouped[t.categoryId] || 0) + t.amount;
+			total += t.amount;
+		}
 
-		const data = Object.entries(grouped)
+		return Object.entries(grouped)
 			.map(([catId, amount]) => {
 				const cat = cats.find((c) => c.id === catId);
-				return { name: cat?.name ?? 'Lainnya', value: amount, itemStyle: { color: cat?.color ?? '#6B7280' } };
+				const percent = total > 0 ? Math.round((amount / total) * 100) : 0;
+				return {
+					id: catId,
+					name: cat?.name ?? 'Lainnya',
+					amount,
+					percent,
+					color: cat?.color ?? '#6B7280'
+				};
 			})
-			.sort((a, b) => b.value - a.value);
+			.sort((a, b) => b.amount - a.amount);
+	});
 
-		const legendColor = isDark ? '#b8c4be' : '#47564e';
-		const tooltipBg = isDark ? '#1a1f1d' : '#fbf9f4';
-		const tooltipBorder = isDark ? '#2f3b35' : '#1e2420';
-		const tooltipText = isDark ? '#e5e7eb' : '#121514';
+	let chartOption = $derived.by((): EChartsOption | null => {
+		if (rankedData.length === 0) return null;
+
+		const isDark = theme.isDark;
+		const data = rankedData.map((item) => ({
+			name: item.name,
+			value: item.amount,
+			itemStyle: { color: item.color }
+		}));
+
+		const legendColor = isDark ? '#a8a29e' : '#57534e';
+		const tooltipBg = isDark ? '#1a1f1d' : '#ffffff';
+		const tooltipBorder = isDark ? '#44534c' : '#292524';
+		const tooltipText = isDark ? '#f5f5f4' : '#1c1917';
 
 		return {
 			animation: !prefersReducedMotion,
@@ -118,7 +132,7 @@
 					itemStyle: { borderRadius: 4, borderColor: isDark ? '#121514' : '#fbf9f4', borderWidth: 2 },
 					label: { show: false },
 					emphasis: {
-						label: { show: true, fontSize: 14, fontWeight: 'bold', color: isDark ? '#F9FAFB' : '#111827' },
+						label: { show: true, fontSize: 14, fontWeight: 'bold', color: isDark ? '#f5f5f4' : '#1c1917' },
 						scaleSize: 6
 					},
 					data
@@ -131,8 +145,8 @@
 
 <Card>
 	<div class="mb-4">
-		<div class="flex items-center gap-2 text-[11px] font-mono font-bold tracking-widest uppercase text-[var(--brand-primary)]">
-			<span class="inline-block size-1.5 rounded-full bg-[var(--brand-primary)]"></span>
+		<div class="flex items-center gap-2 text-[11px] font-mono font-bold tracking-widest uppercase text-[var(--brand-text)]">
+			<span class="inline-block size-1.5 rounded-full bg-[var(--brand-fill)]"></span>
 			Visualisasi
 		</div>
 		<p class="text-base sm:text-lg font-bold tracking-tight text-[var(--text-primary)]">Distribusi Transaksi</p>
@@ -167,10 +181,29 @@
 	</div>
 
 	{#if app.transactionsLoading}
-		<div class="flex h-64 items-center justify-center" aria-live="polite" aria-label="Memuat distribusi transaksi"><div class="h-8 w-8 animate-spin rounded-full border-2 border-primary-100 border-b-primary-600 motion-reduce:animate-none dark:border-primary-950"></div></div>
-	{:else if !chartOption}
+		<div class="flex h-64 items-center justify-center" aria-live="polite" aria-label="Memuat distribusi transaksi"><div class="h-8 w-8 animate-spin rounded-full border-2 border-[var(--border-subtle)] border-b-[var(--brand-fill)] motion-reduce:animate-none"></div></div>
+	{:else if !chartOption || rankedData.length === 0}
 		<EmptyState title="Belum ada transaksi" description="Transaksi {transactionType === 'expense' ? 'pengeluaran' : 'pemasukan'} untuk periode ini belum ada." />
 	{:else}
 		<div class="h-80 sm:h-72 lg:h-80"><Chart {init} options={chartOption} /></div>
+
+		<!-- Ringkasan tekstual/ranking kategori alternatif aksesibilitas WCAG -->
+		<div class="mt-4 border-t-[1.5px] border-[var(--border-subtle)] pt-3">
+			<p class="font-mono text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)] mb-2">Rincian Ranking Kategori</p>
+			<div class="space-y-1.5 max-h-48 overflow-y-auto pr-1">
+				{#each rankedData as item (item.id)}
+					<div class="flex items-center justify-between gap-2 rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-2)] px-3 py-1.5 font-mono text-xs">
+						<div class="flex items-center gap-2 min-w-0">
+							<span class="size-2.5 rounded-full shrink-0 ring-1 ring-black/10 dark:ring-white/20" style="background-color: {item.color}"></span>
+							<span class="font-bold text-[var(--text-primary)] truncate">{item.name}</span>
+						</div>
+						<div class="shrink-0 text-right">
+							<span class="font-bold tabular-nums text-[var(--text-primary)]">{formatRupiah(item.amount)}</span>
+							<span class="text-[var(--text-secondary)] ml-1">({item.percent}%)</span>
+						</div>
+					</div>
+				{/each}
+			</div>
+		</div>
 	{/if}
 </Card>

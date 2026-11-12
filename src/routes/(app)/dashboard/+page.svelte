@@ -57,8 +57,8 @@
 
 <div class="space-y-5 sm:space-y-6">
 	<header class="retro-card p-4 sm:p-6 bg-[var(--surface-1)]">
-		<div class="flex items-center gap-2 text-[11px] font-mono font-bold tracking-widest uppercase text-[var(--brand-primary)]">
-			<span class="inline-block size-2 rounded-full bg-[var(--brand-primary)] animate-pulse"></span>
+		<div class="flex items-center gap-2 text-[11px] font-mono font-bold tracking-widest uppercase text-[var(--brand-text)]">
+			<span class="inline-block size-2 rounded-full bg-[var(--brand-fill)] animate-pulse"></span>
 			Buku Kas Digital · Ringkasan
 		</div>
 		<div class="mt-2 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
@@ -70,7 +70,7 @@
 			</div>
 			<a
 				href={resolve('/transactions?new=1')}
-				class="retro-btn-push mt-2 sm:mt-0 inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border-[1.5px] border-[var(--border-strong)] bg-[var(--brand-primary)] px-4 py-2 font-mono text-xs sm:text-sm font-bold uppercase tracking-wider text-white shadow-[var(--shadow-retro-sm)]"
+				class="retro-btn-push mt-2 sm:mt-0 inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border-[1.5px] border-[var(--border-strong)] bg-[var(--brand-fill)] px-4 py-2 font-mono text-xs sm:text-sm font-bold uppercase tracking-wider text-[var(--on-brand)] shadow-[var(--shadow-retro-sm)]"
 			>
 				<svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 5v14M5 12h14" /></svg>
 				Catat transaksi
@@ -90,8 +90,8 @@
 					<ChartPanel />
 				</div>
 			{:else}
-				<div class="flex h-64 items-center justify-center rounded-2xl border border-gray-200 bg-white p-5 shadow-sm dark:border-gray-800 dark:bg-gray-900" aria-live="polite" aria-label="Memuat grafik">
-					<div class="h-8 w-8 animate-spin rounded-full border-2 border-primary-100 border-b-primary-600 motion-reduce:animate-none dark:border-primary-950"></div>
+				<div class="flex h-64 items-center justify-center rounded-2xl border-[1.5px] border-[var(--border-strong)] bg-[var(--surface-1)] p-5 shadow-[var(--shadow-retro-sm)]" aria-live="polite" aria-label="Memuat grafik">
+					<div class="h-8 w-8 animate-spin rounded-full border-2 border-[var(--border-subtle)] border-b-[var(--brand-fill)] motion-reduce:animate-none"></div>
 				</div>
 			{/if}
 		</div>

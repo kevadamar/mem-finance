@@ -764,12 +764,12 @@
 
 <div class="retro-card mx-auto flex h-[calc(100dvh-12rem)] min-h-[24rem] max-w-4xl flex-col overflow-hidden bg-[var(--surface-1)] sm:h-[calc(100dvh-10rem)] lg:h-[calc(100dvh-7.5rem)]">
 	<header class="flex items-start gap-3 border-b-[1.5px] border-[var(--border-strong)] bg-[var(--surface-2)] px-4 py-3 sm:px-5 sm:py-4">
-		<div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border-[1.5px] border-[var(--border-strong)] bg-[var(--brand-primary)] text-white shadow-[var(--shadow-retro-sm)]" aria-hidden="true">
+		<div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border-[1.5px] border-[var(--border-strong)] bg-[var(--brand-fill)] text-[var(--on-brand)] shadow-[var(--shadow-retro-sm)]" aria-hidden="true">
 			<svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 9h10M7 13h6M6 19l-3 2 1-4a8 8 0 1 1 3 2Z" /></svg>
 		</div>
 		<div class="min-w-0">
-			<div class="flex items-center gap-2 text-[11px] font-mono font-bold tracking-widest uppercase text-[var(--brand-primary)]">
-				<span class="inline-block size-1.5 rounded-full bg-[var(--brand-primary)] animate-pulse"></span>
+			<div class="flex items-center gap-2 text-[11px] font-mono font-bold tracking-widest uppercase text-[var(--brand-text)]">
+				<span class="inline-block size-1.5 rounded-full bg-[var(--brand-fill)] animate-pulse"></span>
 				Pencatatan Cerdas
 			</div>
 			<h1 class="font-bold text-[var(--text-primary)]">Catat dengan AI</h1>
@@ -781,7 +781,7 @@
 		{#each messages as msg (msg.id)}
 			{#if msg.role === 'user'}
 				<div class="flex justify-end motion-reduce:transition-none" transition:slide={{ duration: 180 }}>
-					<div class="max-w-[85%] rounded-xl rounded-br-none border-[1.5px] border-[var(--border-strong)] bg-[var(--brand-primary)] px-4 py-3 font-sans text-sm leading-6 text-white shadow-[var(--shadow-retro-sm)] whitespace-pre-wrap break-words">{msg.content}</div>
+					<div class="max-w-[85%] rounded-xl rounded-br-none border-[1.5px] border-[var(--border-strong)] bg-[var(--brand-fill)] px-4 py-3 font-sans text-sm leading-6 text-[var(--on-brand)] shadow-[var(--shadow-retro-sm)] whitespace-pre-wrap break-words">{msg.content}</div>
 				</div>
 			{:else if msg.draft}
 				<div class="flex justify-start motion-reduce:transition-none" transition:slide={{ duration: 180 }}>
@@ -800,39 +800,39 @@
 			{:else if msg.confirmation && !msg.confirmed}
 				<div class="flex justify-start motion-reduce:transition-none" transition:slide={{ duration: 180 }}>
 					<div class="max-w-[92%] rounded-xl rounded-bl-none border-[1.5px] border-[var(--border-strong)] bg-[var(--surface-2)] px-4 py-3 text-sm space-y-3 shadow-[var(--shadow-retro-sm)]">
-						<p class="text-gray-700 dark:text-gray-300 whitespace-pre-wrap break-words">{msg.content}</p>
-						<div class="rounded-xl border border-gray-200 bg-white p-3.5 space-y-3 dark:border-gray-700 dark:bg-gray-900">
-							<div class="flex items-center justify-between gap-3 text-xs text-gray-500">
-								<span class="inline-flex items-center gap-1.5 font-medium {msg.confirmation.type === 'expense' ? 'text-red-700 dark:text-red-300' : 'text-green-700 dark:text-green-300'}"><span class="h-2 w-2 rounded-full {msg.confirmation.type === 'expense' ? 'bg-red-500' : 'bg-green-500'}"></span>{msg.confirmation.type === 'expense' ? 'Pengeluaran' : 'Pemasukan'}</span>
-								<span class="font-bold tabular-nums text-gray-900 dark:text-gray-100">{formatRupiah(msg.confirmation.amount)}</span>
+						<p class="text-[var(--text-primary)] whitespace-pre-wrap break-words">{msg.content}</p>
+						<div class="rounded-xl border-[1.5px] border-[var(--border-strong)] bg-[var(--surface-1)] p-3.5 space-y-3 shadow-[var(--shadow-retro-sm)]">
+							<div class="flex items-center justify-between gap-3 text-xs text-[var(--text-secondary)]">
+								<span class="inline-flex items-center gap-1.5 font-bold {msg.confirmation.type === 'expense' ? 'text-[var(--expense-fg)]' : 'text-[var(--income-fg)]'}"><span class="h-2 w-2 rounded-full {msg.confirmation.type === 'expense' ? 'bg-[var(--expense-fg)]' : 'bg-[var(--income-fg)]'}"></span>{msg.confirmation.type === 'expense' ? 'Pengeluaran' : 'Pemasukan'}</span>
+								<span class="font-bold tabular-nums text-[var(--text-primary)]">{formatRupiah(msg.confirmation.amount)}</span>
 							</div>
-							<div class="flex items-center justify-between text-xs text-gray-500">
-								<span>Kategori: <strong class="text-gray-700 dark:text-gray-300">{msg.confirmation.category}</strong></span>
+							<div class="flex items-center justify-between text-xs text-[var(--text-secondary)]">
+								<span>Kategori: <strong class="text-[var(--text-primary)]">{msg.confirmation.category}</strong></span>
 								<span>{msg.confirmation.date}</span>
 							</div>
-							{#if msg.confirmation.note}<p class="text-xs text-gray-400 italic break-words">{msg.confirmation.note}</p>{/if}
+							{#if msg.confirmation.note}<p class="text-xs text-[var(--text-secondary)] italic break-words">{msg.confirmation.note}</p>{/if}
 						</div>
 					</div>
 				</div>
 			{:else if msg.role === 'assistant'}
 				<div class="flex justify-start motion-reduce:transition-none" transition:slide={{ duration: 180 }}>
-					<div class="max-w-[85%] rounded-2xl rounded-bl-md bg-gray-100 px-4 py-3 text-sm leading-6 text-gray-700 dark:bg-gray-800 dark:text-gray-300 whitespace-pre-wrap break-words">{msg.content}</div>
+					<div class="max-w-[85%] rounded-xl rounded-bl-none border-[1.5px] border-[var(--border-strong)] bg-[var(--surface-2)] px-4 py-3 text-sm leading-6 text-[var(--text-primary)] shadow-[var(--shadow-retro-sm)] whitespace-pre-wrap break-words">{msg.content}</div>
 				</div>
 			{/if}
 		{/each}
 
 		{#if loading}
 			<div class="flex justify-start" transition:fade={{ duration: 150 }}>
-				<div class="flex items-center gap-1.5 px-4 py-3 bg-gray-100 dark:bg-gray-800 rounded-2xl rounded-bl-md">
-					<span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0ms"></span>
-					<span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 150ms"></span>
-					<span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 300ms"></span>
+				<div class="flex items-center gap-1.5 px-4 py-3 bg-[var(--surface-2)] border-[1.5px] border-[var(--border-strong)] rounded-xl rounded-bl-none shadow-[var(--shadow-retro-sm)]">
+					<span class="w-2 h-2 bg-[var(--text-secondary)] rounded-full animate-bounce" style="animation-delay: 0ms"></span>
+					<span class="w-2 h-2 bg-[var(--text-secondary)] rounded-full animate-bounce" style="animation-delay: 150ms"></span>
+					<span class="w-2 h-2 bg-[var(--text-secondary)] rounded-full animate-bounce" style="animation-delay: 300ms"></span>
 				</div>
 			</div>
 		{/if}
 	</div>
 
-	<div class="border-t border-gray-200 bg-white p-3 sm:p-4 dark:border-gray-800 dark:bg-gray-900">
+	<div class="border-t-[1.5px] border-[var(--border-strong)] bg-[var(--surface-2)] p-3 sm:p-4">
 		<div class="mb-2 flex gap-2 overflow-x-auto pb-1 sm:flex-wrap" aria-label="Contoh pesan">
 			{#each ['Beli kopi 35rb', 'Makan siang 25rb', 'Gaji bulan ini 5jt'] as suggestion (suggestion)}
 				<button type="button" class="shrink-0 rounded-full border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-600 transition-colors hover:border-primary-300 hover:bg-primary-50 hover:text-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500/30 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800" onclick={() => input = suggestion}>{suggestion}</button>
@@ -943,7 +943,7 @@
 				{#if isComposerDirty}
 					<button
 						type="submit"
-						class="retro-btn-push absolute right-1.5 top-1/2 grid size-9 -translate-y-1/2 place-items-center rounded-lg border-[1.5px] border-[var(--border-strong)] bg-[var(--brand-primary)] text-white shadow-[var(--shadow-retro-sm)] focus:outline-none disabled:opacity-50"
+						class="retro-btn-push absolute right-1.5 top-1/2 grid size-9 -translate-y-1/2 place-items-center rounded-lg border-[1.5px] border-[var(--border-strong)] bg-[var(--brand-fill)] text-[var(--on-brand)] shadow-[var(--shadow-retro-sm)] focus:outline-none disabled:opacity-50"
 						disabled={loading}
 						aria-label={loading ? 'Memproses transaksi' : 'Kirim transaksi'}
 						transition:scale={{ duration: 140, start: 0.92 }}
@@ -960,7 +960,7 @@
 				{/if}
 			</div>
 		</form>
-		<p class="mt-2 hidden text-xs text-gray-500 dark:text-gray-400 sm:block">Tekan Enter untuk mengirim. Gambar struk akan dibaca otomatis sebelum konfirmasi.</p>
+		<p class="mt-2 hidden font-mono text-xs text-[var(--text-secondary)] sm:block">Tekan Enter untuk mengirim. Gambar struk akan dibaca otomatis sebelum konfirmasi.</p>
 	</div>
 </div>
 

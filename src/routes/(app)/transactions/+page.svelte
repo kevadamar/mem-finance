@@ -213,8 +213,8 @@
 <div class="mx-auto max-w-5xl space-y-5 sm:space-y-7">
 	<header class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
 		<div>
-			<div class="flex items-center gap-2 text-[11px] font-mono font-bold tracking-widest uppercase text-[var(--brand-primary)]">
-				<span class="inline-block size-1.5 rounded-full bg-[var(--brand-primary)]"></span>
+			<div class="flex items-center gap-2 text-[11px] font-mono font-bold tracking-widest uppercase text-[var(--brand-text)]">
+				<span class="inline-block size-1.5 rounded-full bg-[var(--brand-fill)]"></span>
 				Buku Kas · Catatan
 			</div>
 			<h1 class="mt-1 text-2xl font-black tracking-tight text-[var(--text-primary)] sm:text-3xl">Transaksi</h1>
@@ -258,7 +258,7 @@
 						title="{showFilters ? 'Sembunyikan' : 'Tampilkan'} filter">
 						<svg class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" /></svg>
 						{#if filterCount > 0}
-							<span class="absolute -top-1.5 -right-1.5 flex h-4.5 min-w-4.5 items-center justify-center rounded-full border border-[var(--border-strong)] bg-[var(--brand-primary)] px-1 font-mono text-[10px] font-bold text-white shadow-xs">{filterCount}</span>
+							<span class="absolute -top-1.5 -right-1.5 flex h-4.5 min-w-4.5 items-center justify-center rounded-full border border-[var(--border-strong)] bg-[var(--brand-fill)] px-1 font-mono text-[10px] font-bold text-[var(--on-brand)] shadow-xs">{filterCount}</span>
 						{/if}
 					</button>
 				</div>
@@ -301,7 +301,7 @@
 	<section class="retro-card overflow-hidden bg-[var(--surface-1)]" aria-label="Daftar transaksi">
 		<div class="flex items-center justify-between border-b-[1.5px] border-[var(--border-strong)] bg-[var(--surface-2)] px-4 py-3 sm:px-5">
 			<p class="font-mono text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">Daftar Transaksi · {filteredTransactions.length} Total</p>
-			{#if filterCount > 0 || filterSearch}<button class="font-mono text-xs font-bold uppercase tracking-wider text-[var(--brand-primary)] hover:underline focus:outline-none" onclick={clearFilters}>Reset Filter</button>{/if}
+			{#if filterCount > 0 || filterSearch}<button class="font-mono text-xs font-bold uppercase tracking-wider text-[var(--brand-text)] hover:underline focus:outline-none" onclick={clearFilters}>Reset Filter</button>{/if}
 		</div>
 		{#if app.transactionsLoading && app.transactions.length === 0}
 			<div class="space-y-4 p-5">
@@ -326,8 +326,8 @@
 						e.preventDefault();
 						openEdit(t);
 					}}>
-						<div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border-[1.5px] border-[var(--border-strong)] font-mono text-sm font-black shadow-[1px_1px_0_var(--shadow-retro)] sm:h-11 sm:w-11" style="background-color: {t.type === 'expense' ? 'var(--color-danger-50, #fee2e2)' : 'var(--color-success-50, #dcfce7)'}">
-							<span style="color: {t.type === 'expense' ? 'var(--brand-danger)' : 'var(--brand-success)'}">{t.type === 'expense' ? '↓' : '↑'}</span>
+						<div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border-[1.5px] border-[var(--border-strong)] font-mono text-sm font-black shadow-[var(--shadow-retro-sm)] sm:h-11 sm:w-11 {t.type === 'expense' ? 'bg-danger-50 text-[var(--expense-fg)] dark:bg-rose-950/40 dark:text-rose-300' : 'bg-emerald-50 text-[var(--income-fg)] dark:bg-emerald-950/40 dark:text-emerald-300'}" aria-hidden="true">
+							<span>{t.type === 'expense' ? '↓' : '↑'}</span>
 						</div>
 						<div class="flex-1 min-w-0">
 							<div class="flex items-center gap-1.5">
@@ -339,13 +339,13 @@
 									{#if t.id.startsWith('local_')}<span class="ml-1 font-mono text-[10px] font-normal text-amber-600 dark:text-amber-400">(belum sync)</span>{/if}
 								</p>
 							</div>
-							<p class="mt-0.5 truncate font-mono text-xs text-[var(--text-tertiary)]">{t.note || formatDateTime(t.createdAt)}</p>
+							<p class="mt-0.5 truncate font-mono text-xs text-[var(--text-secondary)]">{t.note || formatDateTime(t.createdAt)}</p>
 						</div>
 						<div class="text-right shrink-0">
-							<p class="whitespace-nowrap font-mono text-sm font-bold tabular-nums tracking-tight {t.type === 'expense' ? 'text-danger-700 dark:text-danger-400' : 'text-emerald-800 dark:text-emerald-400'}">{t.type === 'expense' ? '-' : '+'}{formatRupiah(t.amount)}</p>
-							<p class="mt-0.5 font-mono text-[11px] text-[var(--text-tertiary)]">{t.date || formatDateTime(t.createdAt)}</p>
+							<p class="whitespace-nowrap font-mono text-sm font-bold tabular-nums tracking-tight {t.type === 'expense' ? 'text-[var(--expense-fg)]' : 'text-[var(--income-fg)]'}">{t.type === 'expense' ? '−' : '+'}{formatRupiah(t.amount)}</p>
+							<p class="mt-0.5 font-mono text-[11px] text-[var(--text-secondary)]">{t.date || formatDateTime(t.createdAt)}</p>
 						</div>
-						<button onclick={(e) => { e.stopPropagation(); deleteConfirm = t.id; }} class="retro-btn-push hidden sm:grid min-h-8 min-w-8 shrink-0 place-items-center rounded-md border-[1.5px] border-transparent text-[var(--text-tertiary)] transition-colors hover:border-[var(--border-strong)] hover:bg-danger-50 hover:text-danger-600 focus:outline-none sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100 dark:hover:bg-danger-950/40" aria-label="Hapus transaksi">
+						<button onclick={(e) => { e.stopPropagation(); deleteConfirm = t.id; }} class="retro-btn-push hidden sm:grid min-h-10 min-w-10 sm:min-h-9 sm:min-w-9 shrink-0 place-items-center rounded-md border-[1.5px] border-transparent text-[var(--text-secondary)] transition-colors hover:border-[var(--border-strong)] hover:bg-danger-50 hover:text-danger-600 focus:outline-none sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100 dark:hover:bg-danger-950/40" aria-label="Hapus transaksi">
 							<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
 						</button>
 					</div>

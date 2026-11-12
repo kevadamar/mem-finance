@@ -279,8 +279,8 @@
 
 <div class="space-y-5 sm:space-y-6">
 	<header class="retro-card p-4 sm:p-6 bg-[var(--surface-1)]">
-		<div class="flex items-center gap-2 text-[11px] font-mono font-bold tracking-widest uppercase text-[var(--brand-primary)]">
-			<span class="inline-block size-1.5 rounded-full bg-[var(--brand-primary)]"></span>
+		<div class="flex items-center gap-2 text-[11px] font-mono font-bold tracking-widest uppercase text-[var(--brand-text)]">
+			<span class="inline-block size-1.5 rounded-full bg-[var(--brand-fill)]"></span>
 			Buku Kas · Alokasi Anggaran
 		</div>
 		<div class="mt-2 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
@@ -296,13 +296,13 @@
 	</header>
 
 	<div class="flex items-center justify-center" aria-label="Pilih periode budget">
-		<div class="retro-card inline-flex items-center gap-1 rounded-lg border-[1.5px] border-[var(--border-strong)] bg-[var(--surface-1)] p-1 shadow-[var(--shadow-retro-sm)]">
-			<button onclick={prevMonth} aria-label="Bulan sebelumnya" class="retro-btn-push grid min-h-9 min-w-9 place-items-center rounded-md border-[1.5px] border-[var(--border-strong)] bg-[var(--surface-2)] text-[var(--text-primary)] shadow-[1px_1px_0_var(--shadow-retro)]">
-				<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" /></svg>
+		<div class="retro-card inline-flex items-center gap-1.5 rounded-xl border-[1.5px] border-[var(--border-strong)] bg-[var(--surface-1)] p-1.5 shadow-[var(--shadow-retro-sm)]">
+			<button onclick={prevMonth} aria-label="Bulan sebelumnya" class="retro-btn-push grid min-h-11 min-w-11 place-items-center rounded-lg border-[1.5px] border-[var(--border-strong)] bg-[var(--surface-2)] text-[var(--text-primary)] shadow-[1px_1px_0_var(--shadow-retro)]">
+				<svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" /></svg>
 			</button>
 			<span class="min-w-40 px-3 text-center font-mono text-xs font-bold uppercase tracking-wider text-[var(--text-primary)]" aria-live="polite">{monthNames[month - 1]} {year}</span>
-			<button onclick={nextMonth} aria-label="Bulan berikutnya" class="retro-btn-push grid min-h-9 min-w-9 place-items-center rounded-md border-[1.5px] border-[var(--border-strong)] bg-[var(--surface-2)] text-[var(--text-primary)] shadow-[1px_1px_0_var(--shadow-retro)]">
-				<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" /></svg>
+			<button onclick={nextMonth} aria-label="Bulan berikutnya" class="retro-btn-push grid min-h-11 min-w-11 place-items-center rounded-lg border-[1.5px] border-[var(--border-strong)] bg-[var(--surface-2)] text-[var(--text-primary)] shadow-[1px_1px_0_var(--shadow-retro)]">
+				<svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" /></svg>
 			</button>
 		</div>
 	</div>
@@ -330,9 +330,9 @@
 								<div class="min-w-0"><span class="font-bold text-[var(--text-primary)] truncate">{s.categoryName}</span><p class="font-mono text-xs font-bold text-[var(--text-secondary)]">{s.percentage}% terpakai</p></div>
 							</div>
 							<div class="flex shrink-0 items-center gap-1.5">
-								<button onclick={() => openDetail(s)} class="retro-btn-push min-h-8 rounded-md border-[1.5px] border-[var(--border-strong)] bg-[var(--surface-2)] px-2.5 font-mono text-[11px] font-bold uppercase tracking-wider text-[var(--text-primary)] shadow-[1px_1px_0_var(--shadow-retro)] hover:bg-[var(--surface-1)]" aria-label={`Lihat detail budget ${s.categoryName}`}>Detail</button>
-								<button onclick={() => deleteConfirmCatId = s.categoryId} class="retro-btn-push grid min-h-8 min-w-8 place-items-center rounded-md border-[1.5px] border-transparent text-[var(--text-tertiary)] hover:border-[var(--border-strong)] hover:bg-danger-50 hover:text-danger-600 dark:hover:bg-danger-950/40" aria-label={`Hapus budget ${s.categoryName}`}>
-									<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+								<button onclick={() => openDetail(s)} class="retro-btn-push min-h-10 rounded-lg border-[1.5px] border-[var(--border-strong)] bg-[var(--surface-2)] px-3 font-mono text-xs font-bold uppercase tracking-wider text-[var(--text-primary)] shadow-[1px_1px_0_var(--shadow-retro)] hover:bg-[var(--surface-1)]" aria-label={`Lihat detail budget ${s.categoryName}`}>Detail</button>
+								<button onclick={() => deleteConfirmCatId = s.categoryId} class="retro-btn-push grid min-h-10 min-w-10 sm:min-h-9 sm:min-w-9 place-items-center rounded-lg border-[1.5px] border-transparent text-[var(--text-secondary)] hover:border-[var(--border-strong)] hover:bg-danger-50 hover:text-danger-600 dark:hover:bg-danger-950/40" aria-label={`Hapus budget ${s.categoryName}`}>
+									<svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
 								</button>
 							</div>
 						</div>
@@ -345,7 +345,7 @@
 								<span class="shrink-0 font-bold text-[var(--text-primary)]">Sisa {formatRupiah(s.remainingAmount)}</span>
 							{/if}
 						</div>
-						<p class="mt-1 font-mono text-right text-[11px] text-[var(--text-tertiary)]">dari {formatRupiah(s.budgetAmount)}</p>
+						<p class="mt-1 font-mono text-right text-[11px] text-[var(--text-secondary)]">dari {formatRupiah(s.budgetAmount)}</p>
 					</div>
 				</Card>
 			{/each}

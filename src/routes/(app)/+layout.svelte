@@ -12,12 +12,12 @@
 	import LoadingOverlay from '$lib/components/ui/LoadingOverlay.svelte';
 	import { initSyncManager, stopSyncManager, subscribe, getPendingSyncCount, getNeedsAttentionCount, getIsOnline, syncPending, retryNeedsAttention } from '$lib/data/sync-manager';
 	import { app, showToast, toggleMobileSidebar } from '$lib/state/app.svelte';
+	import { theme } from '$lib/state/theme.svelte';
 	import { setActiveUser } from '$lib/data/idb';
 	import { resetRepos } from '$lib/data/repository-factory';
 
 	let { data, children } = $props();
 	let refreshTimer: ReturnType<typeof setInterval> | undefined;
-	let isDark = $state(false);
 	let attentionCount = $state(0);
 	let selectedUserId: string | null = null;
 	let syncStarted = false;
@@ -36,22 +36,13 @@
 	});
 
 	$effect(() => {
-		if (typeof document !== 'undefined') {
-			isDark = document.documentElement.classList.contains('dark');
-		}
 		if (data?.user) {
 			app.user = data.user;
 		}
 	});
 
-	function toggleDark() {
-		isDark = !isDark;
-		document.documentElement.classList.toggle('dark', isDark);
-		document.documentElement.classList.toggle('light', !isDark);
-		localStorage.setItem('memfinance_dark_mode', String(isDark));
-	}
-
 	onMount(() => {
+		theme.init();
 		syncStarted = true;
 		let lastAccountCheck = 0;
 		async function checkAccountOnFocus() {
@@ -151,7 +142,7 @@
 				</svg>
 			</button>
 			<a href={resolve('/dashboard')} class="flex items-center gap-2 outline-none">
-				<div class="grid size-8 place-items-center rounded-lg border-[1.5px] border-[var(--border-strong)] bg-[var(--brand-primary)] text-white shadow-[var(--shadow-retro-sm)]" aria-hidden="true">
+				<div class="grid size-8 place-items-center rounded-lg border-[1.5px] border-[var(--border-strong)] bg-[var(--brand-fill)] text-[var(--on-brand)] shadow-[var(--shadow-retro-sm)]" aria-hidden="true">
 					<svg class="size-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M7 16.5V8.8c0-.9.73-1.63 1.63-1.63.62 0 1.18.35 1.46.9L12 11.7l1.91-3.63a1.63 1.63 0 012.88.76v7.67M7 16.5h9.8M9.7 16.5v-2.1m4.6 2.1v-2.1" /></svg>
 				</div>
 				<span class="text-base font-black tracking-tight text-[var(--text-primary)]">MemFinance</span>
@@ -160,11 +151,11 @@
 		<div class="flex items-center gap-1">
 			<button
 				type="button"
-				onclick={toggleDark}
+				onclick={() => theme.toggleDark()}
 				class="retro-btn-push grid size-9 place-items-center rounded-lg border-[1.5px] border-[var(--border-strong)] bg-[var(--surface-1)] text-[var(--text-secondary)] shadow-[var(--shadow-retro-sm)] hover:text-[var(--text-primary)]"
-				aria-label={isDark ? 'Mode terang' : 'Mode gelap'}
+				aria-label={theme.isDark ? 'Ganti ke mode terang' : 'Ganti ke mode gelap'}
 			>
-				<svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d={isDark ? 'M12 3v2m0 14v2m9-9h-2M5 12H3m15.364-6.364-1.414 1.414M7.05 16.95l-1.414 1.414m12.728 0-1.414-1.414M7.05 7.05 5.636 5.636M15 12a3 3 0 11-6 0 3 3 0 016 0z' : 'M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 10120.354 15.354z'} /></svg>
+				<svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d={theme.isDark ? 'M12 3v2m0 14v2m9-9h-2M5 12H3m15.364-6.364-1.414 1.414M7.05 16.95l-1.414 1.414m12.728 0-1.414-1.414M7.05 7.05 5.636 5.636M15 12a3 3 0 11-6 0 3 3 0 016 0z' : 'M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 10120.354 15.354z'} /></svg>
 			</button>
 		</div>
 	</header>

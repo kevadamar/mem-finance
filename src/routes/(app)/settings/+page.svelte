@@ -7,6 +7,7 @@
 	import { parseCSVFile, executeCSVImport } from '$lib/data/import-csv';
 	import { loadTransactionsFromCache, loadCategoriesFromCache, loadBudgetsFromCache } from '$lib/state/app.svelte';
 	import { app } from '$lib/state/app.svelte';
+	import { theme } from '$lib/state/theme.svelte';
 	import { setGmtOffset } from '$lib/utils/format';
 	import ImportPreviewModal from '$lib/components/settings/ImportPreviewModal.svelte';
 	import ImportReportModal from '$lib/components/settings/ImportReportModal.svelte';
@@ -58,10 +59,9 @@
 		if (data.userId !== owner || getActiveUser() !== owner) throw new Error('Akun berubah. Pilih file lagi untuk akun saat ini.');
 	}
 
-	let darkMode = $state(false);
 	let message = $state('');
 	let resetConfirmOpen = $state(false);
-	const preferenceKeys = ['memfinance_dark_mode', 'memfinance_gmt', 'memfinance_sidebar_collapsed'] as const;
+	const preferenceKeys = ['memfinance_theme', 'memfinance_dark_mode', 'memfinance_gmt', 'memfinance_sidebar_collapsed'] as const;
 
 	const gmtOptions = Array.from({ length: 19 }, (_, i) => {
 		const val = i - 9;
@@ -83,19 +83,6 @@
 	};
 	let importPreview = $state<ImportPreview | null>(null);
 	let importReport = $state<ImportReport | null>(null);
-
-	$effect(() => {
-		if (typeof document !== 'undefined') {
-			darkMode = document.documentElement.classList.contains('dark');
-		}
-	});
-
-	function toggleDarkMode() {
-		darkMode = !darkMode;
-		localStorage.setItem('memfinance_dark_mode', String(darkMode));
-		document.documentElement.classList.toggle('dark', darkMode);
-		document.documentElement.classList.toggle('light', !darkMode);
-	}
 
 	async function refreshStorageStatus() {
 		const response = await fetch('/api/storage/status');
@@ -294,8 +281,8 @@
 
 <div class="mx-auto max-w-3xl space-y-5 sm:space-y-7">
 	<header>
-		<div class="flex items-center gap-2 text-[11px] font-mono font-bold tracking-widest uppercase text-[var(--brand-primary)]">
-			<span class="inline-block size-1.5 rounded-full bg-[var(--brand-primary)]"></span>
+		<div class="flex items-center gap-2 text-[11px] font-mono font-bold tracking-widest uppercase text-[var(--brand-text)]">
+			<span class="inline-block size-1.5 rounded-full bg-[var(--brand-fill)]"></span>
 			Sistem · Konfigurasi
 		</div>
 		<h1 class="mt-1 text-2xl font-black tracking-tight text-[var(--text-primary)] sm:text-3xl">Pengaturan</h1>
@@ -338,30 +325,30 @@
 				<p class="mt-1 text-xs text-[var(--text-tertiary)]">Admin aplikasi tetap memiliki akses editor agar sinkronisasi melalui Apps Script berjalan.</p>
 			{/if}
 			{#if data.storageStatus === 'USER_OWNED_ADMIN_EDITOR' || data.storageStatus === 'TRANSFER_PENDING'}
-				<button type="button" class="mt-3 font-mono text-xs font-bold uppercase tracking-wider text-[var(--brand-primary)] underline" onclick={() => void refreshStorageStatus()}>Periksa status Google Drive →</button>
+				<button type="button" class="mt-3 font-mono text-xs font-bold uppercase tracking-wider text-[var(--brand-text)] underline" onclick={() => void refreshStorageStatus()}>Periksa status Google Drive →</button>
 			{/if}
 		</section>
 	{/if}
 
 	{#if !legacySummary}
-		<section class="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm sm:p-5 dark:border-gray-800 dark:bg-gray-900" aria-label="Periksa data lokal lama">
-			<h2 class="font-bold text-gray-950 dark:text-white">Data lokal versi lama</h2>
-			<p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Jika Anda memakai MemFinance sebelum data perangkat dipisahkan per akun, periksa apakah ada arsip lokal yang perlu dipulihkan.</p>
-			<button type="button" class="mt-3 min-h-10 rounded-xl border border-gray-300 px-3 text-sm font-semibold text-gray-900 dark:border-gray-700 dark:text-gray-100" onclick={() => void inspectLegacy()}>Periksa arsip lokal</button>
+		<section class="retro-card bg-[var(--surface-1)] p-4 sm:p-5" aria-label="Periksa data lokal lama">
+			<h2 class="font-bold text-[var(--text-primary)]">Data lokal versi lama</h2>
+			<p class="mt-1 text-sm text-[var(--text-secondary)]">Jika Anda memakai MemFinance sebelum data perangkat dipisahkan per akun, periksa apakah ada arsip lokal yang perlu dipulihkan.</p>
+			<button type="button" class="retro-btn-push mt-3 inline-flex min-h-11 items-center justify-center rounded-lg border-[1.5px] border-[var(--border-strong)] bg-[var(--surface-2)] px-4 font-mono text-xs font-bold uppercase tracking-wider text-[var(--text-primary)] shadow-[var(--shadow-retro-sm)]" onclick={() => void inspectLegacy()}>Periksa arsip lokal</button>
 		</section>
 	{:else}
-		<section class="rounded-2xl border border-amber-300 bg-amber-50 p-4 sm:p-5 dark:border-amber-800 dark:bg-amber-950/40" aria-label="Pemulihan data lokal lama">
+		<section class="rounded-2xl border-[1.5px] border-amber-600 bg-amber-50 p-4 sm:p-5 dark:border-amber-700 dark:bg-amber-950/40 shadow-[var(--shadow-retro-sm)]" aria-label="Pemulihan data lokal lama">
 			<h2 class="font-bold text-amber-950 dark:text-amber-100">Data lokal dari versi lama ditemukan</h2>
 			<p class="mt-1 text-sm text-amber-900 dark:text-amber-200">{legacySummary.transactions} transaksi, {legacySummary.categories} kategori, {legacySummary.budgets} anggaran, dan {legacySummary.pending} operasi antrean. Data lama tidak otomatis dikaitkan ke akun mana pun.</p>
 			<p class="mt-2 text-sm text-amber-900 dark:text-amber-200">Unduh cadangan sebelum memulihkan. Jika perangkat pernah dipakai beberapa akun, jangan lanjut tanpa memeriksa pemilik data. Antrean dipulihkan sebagai “perlu tindakan” dan tidak langsung dikirim; bandingkan dengan data server sebelum mencoba sinkronisasi agar tidak terduplikasi.</p>
 			<div class="mt-3 flex flex-wrap gap-2">
-				<button type="button" class="min-h-10 rounded-xl border border-amber-500 px-3 text-sm font-semibold text-amber-950 dark:text-amber-100" onclick={() => { if (legacySnapshot) { downloadLegacyBackup(legacySnapshot); legacyBackupDownloaded = true; } }}>Unduh arsip lokal lama</button>
+				<button type="button" class="retro-btn-push inline-flex min-h-11 items-center rounded-lg border-[1.5px] border-amber-700 bg-amber-100 px-4 font-mono text-xs font-bold uppercase tracking-wider text-amber-950 dark:bg-amber-900 dark:text-amber-100 shadow-[var(--shadow-retro-sm)]" onclick={() => { if (legacySnapshot) { downloadLegacyBackup(legacySnapshot); legacyBackupDownloaded = true; } }}>Unduh arsip lokal lama</button>
 			</div>
 			<label class="mt-3 flex items-start gap-2 text-sm text-amber-950 dark:text-amber-100">
 				<input type="checkbox" class="mt-1" bind:checked={legacyConfirmed} disabled={!legacyBackupDownloaded} />
 				<span>Saya sudah mengunduh cadangan dan memastikan data ini milik akun {data.user?.email ?? data.userId}.</span>
 			</label>
-			<button type="button" class="mt-3 min-h-10 rounded-xl bg-amber-800 px-4 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50" disabled={!legacyConfirmed || legacyBusy} onclick={() => void recoverLegacy()}>{legacyBusy ? 'Memulihkan…' : 'Salin data ke akun ini'}</button>
+			<button type="button" class="retro-btn-push mt-3 inline-flex min-h-11 items-center rounded-lg border-[1.5px] border-[var(--border-strong)] bg-amber-800 px-4 font-mono text-xs font-bold uppercase tracking-wider text-white shadow-[var(--shadow-retro-sm)] disabled:cursor-not-allowed disabled:opacity-50" disabled={!legacyConfirmed || legacyBusy} onclick={() => void recoverLegacy()}>{legacyBusy ? 'Memulihkan…' : 'Salin data ke akun ini'}</button>
 		</section>
 	{/if}
 
@@ -379,27 +366,41 @@
 			</select>
 		</div>
 
-		<div class="flex items-center justify-between gap-4 p-4 sm:p-5">
+		<div class="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
 			<div>
 				<p class="font-bold text-[var(--text-primary)]">Mode Tampilan</p>
-				<p class="text-xs text-[var(--text-secondary)]">Kertas Gading Hangat / Fosfor Vintage</p>
+				<p class="text-xs text-[var(--text-secondary)]">Kertas Gading Hangat / Fosfor Vintage / Ikuti Sistem</p>
 			</div>
-			<button
-				onclick={toggleDarkMode}
-				class="relative h-7 w-12 rounded-full border-[1.5px] border-[var(--border-strong)] transition-colors focus:outline-none shadow-[var(--shadow-retro-sm)] {darkMode ? 'bg-[var(--brand-primary)]' : 'bg-[var(--surface-2)]'}"
-				role="switch"
-				aria-checked={darkMode}
-				aria-label="{darkMode ? 'Nonaktifkan' : 'Aktifkan'} mode gelap"
-			>
-				<span class="absolute left-0.5 top-0.5 h-5 w-5 rounded-full border border-[var(--border-strong)] bg-white shadow transition-transform motion-reduce:transition-none {darkMode ? 'translate-x-5' : 'translate-x-0'}"></span>
-			</button>
+			<div class="inline-flex rounded-lg border-[1.5px] border-[var(--border-strong)] bg-[var(--surface-2)] p-1 shadow-[var(--shadow-retro-sm)]" role="group" aria-label="Preferensi tema tampilan">
+				<button
+					type="button"
+					onclick={() => theme.setPreference('system')}
+					class="min-h-9 rounded-md px-3 font-mono text-xs font-bold uppercase tracking-wider transition-all {theme.preference === 'system' ? 'border-[1.5px] border-[var(--border-strong)] bg-[var(--surface-1)] text-[var(--text-primary)] shadow-[1px_1px_0_var(--shadow-retro)]' : 'border-[1.5px] border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}"
+				>
+					Sistem
+				</button>
+				<button
+					type="button"
+					onclick={() => theme.setPreference('light')}
+					class="min-h-9 rounded-md px-3 font-mono text-xs font-bold uppercase tracking-wider transition-all {theme.preference === 'light' ? 'border-[1.5px] border-[var(--border-strong)] bg-[var(--surface-1)] text-[var(--text-primary)] shadow-[1px_1px_0_var(--shadow-retro)]' : 'border-[1.5px] border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}"
+				>
+					Terang
+				</button>
+				<button
+					type="button"
+					onclick={() => theme.setPreference('dark')}
+					class="min-h-9 rounded-md px-3 font-mono text-xs font-bold uppercase tracking-wider transition-all {theme.preference === 'dark' ? 'border-[1.5px] border-[var(--border-strong)] bg-[var(--surface-1)] text-[var(--text-primary)] shadow-[1px_1px_0_var(--shadow-retro)]' : 'border-[1.5px] border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}"
+				>
+					Gelap
+				</button>
+			</div>
 		</div>
 
 		<div class="p-4 sm:p-5">
 			<p class="font-bold text-[var(--text-primary)] mb-0.5">Manajemen Data</p>
 			<p class="text-xs text-[var(--text-secondary)] mb-4">Ekspor atau impor preferensi perangkat. Untuk data keuangan, gunakan ekspor CSV atau SQLite di bawah.</p>
 			<div class="grid gap-2.5 sm:grid-cols-2">
-				<button onclick={exportPreferences} class="retro-btn-push inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border-[1.5px] border-[var(--border-strong)] bg-[var(--brand-primary)] px-4 font-mono text-xs font-bold uppercase tracking-wider text-white shadow-[var(--shadow-retro-sm)]">
+				<button onclick={exportPreferences} class="retro-btn-push inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border-[1.5px] border-[var(--border-strong)] bg-[var(--brand-fill)] px-4 font-mono text-xs font-bold uppercase tracking-wider text-[var(--on-brand)] shadow-[var(--shadow-retro-sm)]">
 					<svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
 					Ekspor JSON
 				</button>
@@ -409,7 +410,7 @@
 				</button>
 			</div>
 			<div class="mt-5 border-t-[1.5px] border-[var(--border-strong)] pt-4">
-				<p class="mb-2.5 font-mono text-[11px] font-bold uppercase tracking-widest text-[var(--brand-primary)]">Format Tabel & Database</p>
+				<p class="mb-2.5 font-mono text-[11px] font-bold uppercase tracking-widest text-[var(--brand-text)]">Format Tabel & Database</p>
 				<div class="grid gap-2 sm:grid-cols-2">
 					<button onclick={handleExportCSV} disabled={csvBusy} class="retro-btn-push inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border-[1.5px] border-[var(--border-strong)] bg-[var(--surface-1)] px-4 font-mono text-xs font-bold uppercase tracking-wider text-[var(--text-primary)] shadow-[var(--shadow-retro-sm)] disabled:opacity-50">
 						<svg class="size-4 text-[var(--text-secondary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>

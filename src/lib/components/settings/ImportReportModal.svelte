@@ -16,7 +16,7 @@
 			<div class="flex items-center gap-3">
 				<span class="flex h-10 w-10 items-center justify-center rounded-lg border-[1.5px] border-[var(--border-strong)] bg-emerald-50 font-mono text-base font-black text-emerald-800 shadow-[var(--shadow-retro-sm)] dark:bg-emerald-950 dark:text-emerald-300" aria-hidden="true">✓</span>
 				<div>
-					<div class="flex items-center gap-2 text-[11px] font-mono font-bold tracking-widest uppercase text-[var(--brand-primary)]">
+					<div class="flex items-center gap-2 text-[11px] font-mono font-bold tracking-widest uppercase text-[var(--brand-text)]">
 						Laporan Impor
 					</div>
 					<h2 id="import-report-title" class="text-base sm:text-lg font-black text-[var(--text-primary)]">Hasil Impor {format.toUpperCase()}</h2>
@@ -49,7 +49,7 @@
 				</div>
 			{/if}
 
-			<button onclick={onclose} class="retro-btn-push min-h-11 w-full rounded-lg border-[1.5px] border-[var(--border-strong)] bg-[var(--brand-primary)] px-4 font-mono text-xs font-bold uppercase tracking-wider text-white shadow-[var(--shadow-retro-sm)]">
+			<button onclick={onclose} class="retro-btn-push min-h-11 w-full rounded-lg border-[1.5px] border-[var(--border-strong)] bg-[var(--brand-fill)] px-4 font-mono text-xs font-bold uppercase tracking-wider text-[var(--on-brand)] shadow-[var(--shadow-retro-sm)]">
 				Tutup Laporan
 			</button>
 		</div>

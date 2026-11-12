@@ -48,6 +48,21 @@
 	--text-primary: #1c1917;
 	--text-secondary: #57534e;
 	--text-tertiary: #78716c;
+	--text-muted: #57534e;
+
+	/* Semantic Brand Tokens */
+	--brand-fill: #1b6848;
+	--on-brand: #ffffff;
+	--brand-text: #1b6848;
+	--brand-primary: #1b6848;
+
+	/* Semantic Financial Status Tokens */
+	--income-fg: #15803d;
+	--expense-fg: #b91c1c;
+	--warning-fg: #b45309;
+	--brand-success: #15803d;
+	--brand-danger: #b91c1c;
+
 	--border-subtle: #e6dfd3;
 	--border-strong: #292524;
 	--ink-border: #292524;
@@ -70,11 +85,26 @@
 	--surface-raised: #1f2623;
 	--text-primary: #f5f5f4;
 	--text-secondary: #a8a29e;
-	--text-tertiary: #78716c;
+	--text-tertiary: #a8a29e;
+	--text-muted: #a8a29e;
+
+	/* Semantic Brand Tokens */
+	--brand-fill: #5eb68d;
+	--on-brand: #1c1917;
+	--brand-text: #5eb68d;
+	--brand-primary: #5eb68d;
+
+	/* Semantic Financial Status Tokens */
+	--income-fg: #4ade80;
+	--expense-fg: #f87171;
+	--warning-fg: #fbbf24;
+	--brand-success: #4ade80;
+	--brand-danger: #f87171;
+
 	--border-subtle: #2d3732;
 	--border-strong: #44534c;
 	--ink-border: #44534c;
-	--focus-ring: #34d399;
+	--focus-ring: #5eb68d;
 
 	/* Dark Mode Solid Shadows */
 	--shadow-retro-sm: 1.5px 1.5px 0px #080a09;

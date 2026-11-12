@@ -190,7 +190,7 @@
 	<div class="relative w-full max-w-md" transition:fade={{ duration: 180 }}>
 		<div class="mb-7 text-center" transition:fly={{ y: -8, duration: 220 }}>
 			<a href={resolve('/')} class="inline-flex items-center gap-2.5 text-2xl font-black tracking-tight text-[var(--text-primary)]">
-				<span class="flex h-10 w-10 items-center justify-center rounded-lg border-[1.5px] border-[var(--border-strong)] bg-[var(--brand-primary)] text-white shadow-[var(--shadow-retro-sm)]" aria-hidden="true">
+				<span class="flex h-10 w-10 items-center justify-center rounded-lg border-[1.5px] border-[var(--border-strong)] bg-[var(--brand-fill)] text-[var(--on-brand)] shadow-[var(--shadow-retro-sm)]" aria-hidden="true">
 					<svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 19V7l7-3 7 3v12l-7 3-7-3Z" /><path d="M8 9h8M8 13h5" /></svg>
 				</span>
 				MemFinance
@@ -204,7 +204,7 @@
 				<p class="text-xs text-[var(--text-secondary)]">Gunakan mode lokal tanpa koneksi Supabase.</p>
 				<a
 					href={resolve('/dashboard')}
-					class="retro-btn-push mt-2 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border-[1.5px] border-[var(--border-strong)] bg-[var(--brand-primary)] px-4 font-mono text-xs font-bold uppercase tracking-wider text-white shadow-[var(--shadow-retro-sm)]"
+					class="retro-btn-push mt-2 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border-[1.5px] border-[var(--border-strong)] bg-[var(--brand-fill)] px-4 font-mono text-xs font-bold uppercase tracking-wider text-[var(--on-brand)] shadow-[var(--shadow-retro-sm)]"
 				>
 					Lanjut ke Dashboard (Mode Lokal) →
 				</a>
@@ -213,8 +213,8 @@
 
 		<div class="retro-card space-y-5 p-5 sm:p-7 bg-[var(--surface-1)]">
 			<div>
-				<div class="flex items-center gap-2 text-[11px] font-mono font-bold tracking-widest uppercase text-[var(--brand-primary)]">
-					<span class="inline-block size-1.5 rounded-full bg-[var(--brand-primary)]"></span>
+				<div class="flex items-center gap-2 text-[11px] font-mono font-bold tracking-widest uppercase text-[var(--brand-text)]">
+					<span class="inline-block size-1.5 rounded-full bg-[var(--brand-fill)]"></span>
 					Autentikasi Akun
 				</div>
 				<h1 class="mt-1 text-xl font-black tracking-tight text-[var(--text-primary)]">Selamat Datang</h1>
@@ -284,7 +284,7 @@
 						<p class="text-sm text-green-600 dark:text-green-400 text-center" transition:fade>{successMessage}</p>
 					{/if}
 					<div>
-						<p id="otp-label" class="mb-3 text-center text-sm font-medium text-gray-700 dark:text-gray-300">Masukkan 6 digit kode OTP</p>
+						<p id="otp-label" class="mb-3 text-center font-mono text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">Masukkan 6 digit kode OTP</p>
 						<div class="flex justify-center gap-1 sm:gap-2">
 								{#each otpDigits as _, i (i)}
 								<input
@@ -295,7 +295,7 @@
 									value={otpDigits[i]}
 									oninput={(e) => handleOtpInput(i, e)}
 									onkeydown={(e) => handleOtpKeydown(i, e)}
-									aria-label="Digit OTP {i + 1}" aria-describedby="otp-label" class="h-11 w-9 max-w-12 rounded-xl border border-gray-300 bg-white text-center text-base font-bold text-gray-900 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/30 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 sm:h-14 sm:w-12 sm:text-lg"
+									aria-label="Digit OTP {i + 1}" aria-describedby="otp-label" class="h-11 w-9 max-w-12 rounded-lg border-[1.5px] border-[var(--border-strong)] bg-[var(--surface-1)] text-center font-mono text-base font-bold text-[var(--text-primary)] shadow-[var(--shadow-retro-sm)] focus:outline-none focus:ring-2 focus:ring-primary-500/30 sm:h-14 sm:w-12 sm:text-lg"
 								/>
 							{/each}
 						</div>
@@ -307,11 +307,11 @@
 						{loading ? 'Memverifikasi...' : 'Verifikasi'}
 					</Button>
 					<div class="flex items-center justify-between text-xs">
-						<button onclick={handleBack} class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">← Kembali</button>
+						<button onclick={handleBack} class="font-mono text-xs font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)]">← Kembali</button>
 						<button
 							onclick={handleResend}
 							disabled={!canResend}
-							class="text-primary-600 hover:text-primary-700 disabled:text-gray-400 disabled:cursor-not-allowed"
+							class="font-mono text-xs font-bold text-[var(--brand-text)] hover:underline disabled:text-[var(--text-tertiary)] disabled:no-underline disabled:cursor-not-allowed"
 						>
 							{#if resendCooldown > 0}
 								Kirim ulang ({resendCooldown}s)

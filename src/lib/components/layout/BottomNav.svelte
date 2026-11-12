@@ -1,29 +1,17 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import { resolve } from '$app/paths';
-	import { onMount } from 'svelte';
 	import { fade, fly } from 'svelte/transition';
 	import { navItems } from './nav-items';
 	import LogoutConfirm from './LogoutConfirm.svelte';
+	import { theme } from '$lib/state/theme.svelte';
 
 	const primaryItems = navItems.filter((item) => ['/dashboard', '/transactions', '/budgets'].includes(item.href));
 	const moreItems = navItems.filter((item) => ['/chat', '/categories', '/settings'].includes(item.href));
 	let moreOpen = $state(false);
-	let isDark = $state(false);
 	let logoutOpen = $state(false);
 	let logoutTrigger = $state<HTMLButtonElement | null>(null);
 	let moreTrigger = $state<HTMLButtonElement | null>(null);
-
-	onMount(() => {
-		isDark = document.documentElement.classList.contains('dark');
-	});
-
-	function toggleDark() {
-		isDark = !isDark;
-		document.documentElement.classList.toggle('dark', isDark);
-		document.documentElement.classList.toggle('light', !isDark);
-		localStorage.setItem('memfinance_dark_mode', String(isDark));
-	}
 
 	function isActive(href: string) {
 		return $page.url.pathname === href || $page.url.pathname.startsWith(`${href}/`);
@@ -62,11 +50,11 @@
 			</div>
 			<div class="mt-3.5 grid grid-cols-2 gap-2.5">
 				<button
-					onclick={toggleDark}
+					onclick={() => theme.toggleDark()}
 					class="flex min-h-11 items-center justify-center gap-2 rounded-xl border-[1.5px] border-[var(--border-strong)] bg-[var(--surface-1)] text-xs font-bold uppercase tracking-wider text-[var(--text-primary)] shadow-[var(--shadow-retro-sm)] transition-all hover:bg-[var(--surface-2)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
 				>
-					<svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d={isDark ? 'M12 3v2m0 14v2m9-9h-2M5 12H3m15.364-6.364-1.414 1.414M7.05 16.95l-1.414 1.414m12.728 0-1.414-1.414M7.05 7.05 5.636 5.636M15 12a3 3 0 11-6 0 3 3 0 016 0z' : 'M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 10120.354 15.354z'} /></svg>
-					{isDark ? 'Mode Terang' : 'Mode Gelap'}
+					<svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d={theme.isDark ? 'M12 3v2m0 14v2m9-9h-2M5 12H3m15.364-6.364-1.414 1.414M7.05 16.95l-1.414 1.414m12.728 0-1.414-1.414M7.05 7.05 5.636 5.636M15 12a3 3 0 11-6 0 3 3 0 016 0z' : 'M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 10120.354 15.354z'} /></svg>
+					{theme.isDark ? 'Mode Terang' : 'Mode Gelap'}
 				</button>
 				<button
 					bind:this={logoutTrigger}
@@ -88,7 +76,7 @@
 			<a
 				href={resolve(item.href)}
 				aria-current={isActive(item.href) ? 'page' : undefined}
-				class="flex min-h-12 flex-col items-center gap-1 rounded-xl px-1 pt-1 font-mono text-[10px] font-bold uppercase {isActive(item.href) ? 'text-primary-700 dark:text-primary-300' : 'text-[var(--text-tertiary)]'}"
+				class="flex min-h-12 flex-col items-center gap-1 rounded-xl px-1 pt-1 font-mono text-[10px] font-bold uppercase {isActive(item.href) ? 'text-[var(--brand-text)] font-extrabold' : 'text-[var(--text-secondary)]'}"
 			>
 				<svg class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d={item.icon} /></svg>
 				<span>{item.short}</span>
@@ -102,7 +90,7 @@
 					window.dispatchEvent(new CustomEvent('memfinance-open-create-transaction'));
 				}
 			}}
-			class="-mt-7 mx-auto grid size-14 place-items-center rounded-2xl border-[2px] border-[var(--border-strong)] bg-primary-600 text-white shadow-[var(--shadow-retro)] transition-all hover:-translate-y-1 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none focus:outline-none"
+			class="-mt-7 mx-auto grid size-14 place-items-center rounded-2xl border-[2px] border-[var(--border-strong)] bg-[var(--brand-fill)] text-[var(--on-brand)] shadow-[var(--shadow-retro)] transition-all hover:-translate-y-1 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none focus:outline-none"
 			aria-label="Catat transaksi baru"
 		>
 			<svg class="size-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" /></svg>
@@ -111,7 +99,7 @@
 			<a
 				href={resolve(item.href)}
 				aria-current={isActive(item.href) ? 'page' : undefined}
-				class="flex min-h-12 flex-col items-center gap-1 rounded-xl px-1 pt-1 font-mono text-[10px] font-bold uppercase {isActive(item.href) ? 'text-primary-700 dark:text-primary-300' : 'text-[var(--text-tertiary)]'}"
+				class="flex min-h-12 flex-col items-center gap-1 rounded-xl px-1 pt-1 font-mono text-[10px] font-bold uppercase {isActive(item.href) ? 'text-[var(--brand-text)] font-extrabold' : 'text-[var(--text-secondary)]'}"
 			>
 				<svg class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d={item.icon} /></svg>
 				<span>{item.short}</span>
@@ -122,7 +110,7 @@
 			onclick={() => moreOpen = !moreOpen}
 			aria-expanded={moreOpen}
 			aria-controls="more-menu"
-			class="flex min-h-12 flex-col items-center gap-1 rounded-xl px-1 pt-1 font-mono text-[10px] font-bold uppercase {moreOpen || moreItems.some((item) => isActive(item.href)) ? 'text-primary-700 dark:text-primary-300' : 'text-[var(--text-tertiary)]'}"
+			class="flex min-h-12 flex-col items-center gap-1 rounded-xl px-1 pt-1 font-mono text-[10px] font-bold uppercase {moreOpen || moreItems.some((item) => isActive(item.href)) ? 'text-[var(--brand-text)] font-extrabold' : 'text-[var(--text-secondary)]'}"
 		>
 			<svg class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12a2 2 0 114 0 2 2 0 01-4 0zm5 0a2 2 0 114 0 2 2 0 01-4 0zm5 0a2 2 0 114 0 2 2 0 01-4 0z" /></svg>
 			<span>Lainnya</span>

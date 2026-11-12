@@ -65,21 +65,21 @@
 	});
 </script>
 
-<Card class="border-primary-100 dark:border-primary-900/50">
+<Card>
 	{#if app.budgetsLoading && app.budgets.length === 0}
-		<div class="flex h-48 items-center justify-center" aria-live="polite" aria-label="Memuat ringkasan budget"><div class="h-8 w-8 animate-spin rounded-full border-2 border-primary-100 border-b-primary-600 motion-reduce:animate-none dark:border-primary-950"></div></div>
+		<div class="flex h-48 items-center justify-center" aria-live="polite" aria-label="Memuat ringkasan budget"><div class="h-8 w-8 animate-spin rounded-full border-2 border-[var(--border-subtle)] border-b-[var(--brand-fill)] motion-reduce:animate-none"></div></div>
 	{:else if !budgetData}
 		<div class="flex items-center justify-between gap-2 mb-1">
-			<p class="text-base font-bold tracking-tight text-gray-950 dark:text-white sm:text-lg">Ringkasan budget</p>
+			<p class="text-base font-bold tracking-tight text-[var(--text-primary)] sm:text-lg">Ringkasan budget</p>
 		</div>
-		<p class="mb-2 text-xs text-gray-500 dark:text-gray-400 sm:text-sm">Tetapkan batas per kategori agar pengeluaran tetap terkendali.</p>
+		<p class="mb-2 text-xs text-[var(--text-secondary)] sm:text-sm">Tetapkan batas per kategori agar pengeluaran tetap terkendali.</p>
 		<EmptyState title="Belum ada budget" description="Buat budget bulan ini untuk mengontrol pengeluaran" actionLabel="Atur Budget Sekarang" onaction={() => window.location.href = '/budgets'} />
 	{:else}
 		<div transition:fade={{ duration: prefersReducedMotion ? 0 : 250 }}>
 			<div class="mb-4 flex items-center justify-between gap-2">
 				<div>
-					<p class="text-base font-bold tracking-tight text-gray-950 dark:text-white sm:text-lg">Ringkasan budget</p>
-					<p class="text-xs text-gray-500 dark:text-gray-400">Posisi budget bulan berjalan.</p>
+					<p class="text-base font-bold tracking-tight text-[var(--text-primary)] sm:text-lg">Ringkasan budget</p>
+					<p class="text-xs text-[var(--text-secondary)]">Posisi budget bulan berjalan.</p>
 				</div>
 				<a
 					href={resolve('/budgets')}
@@ -93,19 +93,19 @@
 				<div class="grid w-full flex-1 grid-cols-3 gap-2 sm:gap-3">
 					<div class="rounded-xl border-[1.5px] border-[var(--border-strong)] bg-[var(--surface-2)] p-2.5 text-center shadow-[var(--shadow-retro-sm)] sm:p-3 sm:text-left">
 						<p class="font-mono text-[10px] font-bold uppercase tracking-wider text-[var(--text-secondary)] sm:text-xs">Batas Total</p>
-						<p class="mt-1 truncate font-mono text-xs font-bold text-[var(--text-primary)] sm:text-base">{formatRupiah(budgetData.totalBudget)}</p>
+						<p class="mt-1 font-mono text-xs font-bold text-[var(--text-primary)] tabular-nums sm:text-base break-words">{formatRupiah(budgetData.totalBudget)}</p>
 					</div>
 					<div class="rounded-xl border-[1.5px] border-[var(--border-strong)] bg-[var(--surface-2)] p-2.5 text-center shadow-[var(--shadow-retro-sm)] sm:p-3 sm:text-left">
 						<p class="font-mono text-[10px] font-bold uppercase tracking-wider text-[var(--text-secondary)] sm:text-xs">Terpakai</p>
-						<p class="mt-1 truncate font-mono text-xs font-bold text-danger-600 dark:text-danger-400 sm:text-base">{formatRupiah(budgetData.totalSpent)}</p>
+						<p class="mt-1 font-mono text-xs font-bold text-[var(--expense-fg)] tabular-nums sm:text-base break-words">{formatRupiah(budgetData.totalSpent)}</p>
 						{#if budgetData.unbudgetedSpent > 0}
-							<p class="mt-0.5 hidden truncate font-mono text-[9px] text-[var(--text-tertiary)] sm:block">+{formatRupiah(budgetData.unbudgetedSpent)} luar alokasi</p>
+							<p class="mt-0.5 hidden font-mono text-[9px] text-[var(--text-secondary)] sm:block break-words">+{formatRupiah(budgetData.unbudgetedSpent)} luar alokasi</p>
 						{/if}
 					</div>
 					<div class="rounded-xl border-[1.5px] border-[var(--border-strong)] bg-[var(--surface-2)] p-2.5 text-center shadow-[var(--shadow-retro-sm)] sm:p-3 sm:text-left">
 						<p class="font-mono text-[10px] font-bold uppercase tracking-wider text-[var(--text-secondary)] sm:text-xs">Sisa Kuota</p>
-						<p class="mt-1 truncate font-mono text-xs font-bold sm:text-base {budgetData.remaining >= 0 ? 'text-emerald-700 dark:text-emerald-400' : 'text-danger-600 dark:text-danger-400'}">{formatRupiah(Math.abs(budgetData.remaining))}</p>
-						<span class="mt-0.5 inline-block font-mono text-[10px] font-bold uppercase {budgetData.remaining >= 0 ? 'text-emerald-700 dark:text-emerald-400' : 'text-danger-600 dark:text-danger-400'}">[{budgetData.remaining >= 0 ? 'AMAN' : 'OVER'}]</span>
+						<p class="mt-1 font-mono text-xs font-bold tabular-nums sm:text-base break-words {budgetData.remaining >= 0 ? 'text-[var(--income-fg)]' : 'text-[var(--expense-fg)]'}">{formatRupiah(Math.abs(budgetData.remaining))}</p>
+						<span class="mt-0.5 inline-block font-mono text-[10px] font-bold uppercase {budgetData.remaining >= 0 ? 'text-[var(--income-fg)]' : 'text-[var(--expense-fg)]'}">[{budgetData.remaining >= 0 ? 'AMAN' : 'OVER'}]</span>
 					</div>
 				</div>
 			</div>

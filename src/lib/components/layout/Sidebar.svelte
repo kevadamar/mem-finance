@@ -1,28 +1,16 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import { resolve } from '$app/paths';
-	import { onMount } from 'svelte';
 	import { fade, fly } from 'svelte/transition';
 	import { navItems } from './nav-items';
 	import LogoutConfirm from './LogoutConfirm.svelte';
 	import { app, toggleSidebarCollapsed, closeMobileSidebar } from '$lib/state/app.svelte';
+	import { theme } from '$lib/state/theme.svelte';
 
-	let isDark = $state(false);
 	let logoutOpen = $state(false);
 	let logoutTrigger = $state<HTMLButtonElement | null>(null);
 	const mainItems = navItems.filter((item) => ['/dashboard', '/transactions', '/budgets'].includes(item.href));
 	const secondaryItems = navItems.filter((item) => ['/chat', '/categories', '/settings'].includes(item.href));
-
-	onMount(() => {
-		isDark = document.documentElement.classList.contains('dark');
-	});
-
-	function toggleDark() {
-		isDark = !isDark;
-		document.documentElement.classList.toggle('dark', isDark);
-		document.documentElement.classList.toggle('light', !isDark);
-		localStorage.setItem('memfinance_dark_mode', String(isDark));
-	}
 
 	function isActive(href: string) {
 		return $page.url.pathname === href || $page.url.pathname.startsWith(`${href}/`);
@@ -151,14 +139,14 @@
 			</div>
 		{/if}
 		<button
-			onclick={toggleDark}
-			title={isDark ? 'Mode terang' : 'Mode gelap'}
-			aria-label={isDark ? 'Mode terang' : 'Mode gelap'}
+			onclick={() => theme.toggleDark()}
+			title={theme.isDark ? 'Mode terang' : 'Mode gelap'}
+			aria-label={theme.isDark ? 'Mode terang' : 'Mode gelap'}
 			class="flex min-h-11 w-full items-center {app.sidebarCollapsed ? 'justify-center px-0' : 'gap-3 px-3'} rounded-xl border-[1.5px] border-transparent font-bold text-xs uppercase tracking-wide text-[var(--text-secondary)] transition-all hover:border-[var(--border-strong)] hover:bg-[var(--surface-2)] hover:text-[var(--text-primary)] hover:shadow-[var(--shadow-retro-sm)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
 		>
-			<svg class="size-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d={isDark ? 'M12 3v2m0 14v2m9-9h-2M5 12H3m15.364-6.364-1.414 1.414M7.05 16.95l-1.414 1.414m12.728 0-1.414-1.414M7.05 7.05 5.636 5.636M15 12a3 3 0 11-6 0 3 3 0 016 0z' : 'M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 10120.354 15.354z'} /></svg>
+			<svg class="size-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d={theme.isDark ? 'M12 3v2m0 14v2m9-9h-2M5 12H3m15.364-6.364-1.414 1.414M7.05 16.95l-1.414 1.414m12.728 0-1.414-1.414M7.05 7.05 5.636 5.636M15 12a3 3 0 11-6 0 3 3 0 016 0z' : 'M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 10120.354 15.354z'} /></svg>
 			{#if !app.sidebarCollapsed}
-				<span>{isDark ? 'Mode Terang' : 'Mode Gelap'}</span>
+				<span>{theme.isDark ? 'Mode Terang' : 'Mode Gelap'}</span>
 			{/if}
 		</button>
 		<button
@@ -195,7 +183,7 @@
 		>
 			<div class="flex h-16 items-center justify-between border-b-[1.5px] border-[var(--border-strong)] bg-[var(--surface-2)] px-4">
 				<div class="flex items-center gap-3">
-					<div class="grid size-9 place-items-center rounded-xl border-[1.5px] border-[var(--border-strong)] bg-primary-600 text-white shadow-[var(--shadow-retro-sm)]" aria-hidden="true">
+					<div class="grid size-9 place-items-center rounded-xl border-[1.5px] border-[var(--border-strong)] bg-[var(--brand-fill)] text-[var(--on-brand)] shadow-[var(--shadow-retro-sm)]" aria-hidden="true">
 						<svg class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16.5V8.8c0-.9.73-1.63 1.63-1.63.62 0 1.18.35 1.46.9L12 11.7l1.91-3.63a1.63 1.63 0 012.88.76v7.67M7 16.5h9.8M9.7 16.5v-2.1m4.6 2.1v-2.1" /></svg>
 					</div>
 					<div>
@@ -264,9 +252,9 @@
 						</div>
 					</div>
 				{/if}
-				<button onclick={toggleDark} class="flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-sm font-semibold text-[var(--text-secondary)] transition-colors hover:bg-[var(--surface-2)] hover:text-[var(--text-primary)]">
-					<svg class="size-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d={isDark ? 'M12 3v2m0 14v2m9-9h-2M5 12H3m15.364-6.364-1.414 1.414M7.05 16.95l-1.414 1.414m12.728 0-1.414-1.414M7.05 7.05 5.636 5.636M15 12a3 3 0 11-6 0 3 3 0 016 0z' : 'M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 10120.354 15.354z'} /></svg>
-					{isDark ? 'Mode terang' : 'Mode gelap'}
+				<button onclick={() => theme.toggleDark()} class="flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-sm font-semibold text-[var(--text-secondary)] transition-colors hover:bg-[var(--surface-2)] hover:text-[var(--text-primary)]">
+					<svg class="size-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d={theme.isDark ? 'M12 3v2m0 14v2m9-9h-2M5 12H3m15.364-6.364-1.414 1.414M7.05 16.95l-1.414 1.414m12.728 0-1.414-1.414M7.05 7.05 5.636 5.636M15 12a3 3 0 11-6 0 3 3 0 016 0z' : 'M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 10120.354 15.354z'} /></svg>
+					{theme.isDark ? 'Mode terang' : 'Mode gelap'}
 				</button>
 				<button bind:this={logoutTrigger} type="button" onclick={() => { closeMobileSidebar(); logoutOpen = true; }} class="flex min-h-11 w-full items-center gap-3 rounded-xl px-3 text-sm font-semibold text-danger-500 transition-colors hover:bg-danger-50 dark:hover:bg-rose-950">
 					<svg class="size-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>

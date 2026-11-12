@@ -143,8 +143,8 @@
 
 <div class="space-y-5 sm:space-y-6">
 	<header class="retro-card p-4 sm:p-6 bg-[var(--surface-1)]">
-		<div class="flex items-center gap-2 text-[11px] font-mono font-bold tracking-widest uppercase text-[var(--brand-primary)]">
-			<span class="inline-block size-1.5 rounded-full bg-[var(--brand-primary)]"></span>
+		<div class="flex items-center gap-2 text-[11px] font-mono font-bold tracking-widest uppercase text-[var(--brand-text)]">
+			<span class="inline-block size-1.5 rounded-full bg-[var(--brand-fill)]"></span>
 			Buku Kas · Indeks Kategori
 		</div>
 		<div class="mt-2 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
@@ -176,11 +176,11 @@
 							</div>
 							<span class="flex-1 min-w-0 text-sm font-bold text-[var(--text-primary)] truncate">{c.name}</span>
 							{#if c.isDefault}<span class="shrink-0 font-mono text-[10px] uppercase font-bold text-[var(--text-secondary)] bg-[var(--surface-2)] border border-[var(--border-strong)] px-1.5 py-0.5 rounded">default</span>{/if}
-							<button onclick={(e) => { e.stopPropagation(); openCatEdit(c); }} class="retro-btn-push grid min-h-8 min-w-8 shrink-0 place-items-center rounded-md border-[1.5px] border-transparent text-[var(--text-tertiary)] hover:border-[var(--border-strong)] hover:bg-[var(--surface-1)] hover:text-[var(--brand-primary)] sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100 motion-reduce:transition-none" aria-label={`Edit kategori ${c.name}`}>
-								<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+							<button onclick={(e) => { e.stopPropagation(); openCatEdit(c); }} class="retro-btn-push grid min-h-10 min-w-10 sm:min-h-9 sm:min-w-9 shrink-0 place-items-center rounded-lg border-[1.5px] border-transparent text-[var(--text-secondary)] hover:border-[var(--border-strong)] hover:bg-[var(--surface-1)] hover:text-[var(--brand-text)] opacity-90 sm:opacity-75 hover:opacity-100 focus:opacity-100 motion-reduce:transition-none" aria-label={`Edit kategori ${c.name}`}>
+								<svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
 							</button>
-							<button onclick={(e) => { e.stopPropagation(); catDeleteConfirm = c.id; }} disabled={c.isDefault} class="retro-btn-push grid min-h-8 min-w-8 shrink-0 place-items-center rounded-md border-[1.5px] border-transparent text-[var(--text-tertiary)] hover:border-[var(--border-strong)] hover:bg-danger-50 hover:text-danger-600 disabled:cursor-not-allowed disabled:opacity-30 dark:hover:bg-danger-950/30 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100 motion-reduce:transition-none" aria-label={`Nonaktifkan kategori ${c.name}`}>
-								<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+							<button onclick={(e) => { e.stopPropagation(); catDeleteConfirm = c.id; }} disabled={c.isDefault} class="retro-btn-push grid min-h-10 min-w-10 sm:min-h-9 sm:min-w-9 shrink-0 place-items-center rounded-lg border-[1.5px] border-transparent text-[var(--text-secondary)] hover:border-[var(--border-strong)] hover:bg-danger-50 hover:text-danger-600 disabled:cursor-not-allowed disabled:opacity-30 dark:hover:bg-danger-950/30 opacity-90 sm:opacity-75 hover:opacity-100 focus:opacity-100 motion-reduce:transition-none" aria-label={`Nonaktifkan kategori ${c.name}`}>
+								<svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
 							</button>
 						</div>
 					{/each}
@@ -207,11 +207,11 @@
 							</div>
 							<span class="flex-1 min-w-0 text-sm font-bold text-[var(--text-primary)] truncate">{c.name}</span>
 							{#if c.isDefault}<span class="shrink-0 font-mono text-[10px] uppercase font-bold text-[var(--text-secondary)] bg-[var(--surface-2)] border border-[var(--border-strong)] px-1.5 py-0.5 rounded">default</span>{/if}
-							<button onclick={(e) => { e.stopPropagation(); openCatEdit(c); }} class="retro-btn-push grid min-h-8 min-w-8 shrink-0 place-items-center rounded-md border-[1.5px] border-transparent text-[var(--text-tertiary)] hover:border-[var(--border-strong)] hover:bg-[var(--surface-1)] hover:text-[var(--brand-primary)] sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100 motion-reduce:transition-none" aria-label={`Edit kategori ${c.name}`}>
-								<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+							<button onclick={(e) => { e.stopPropagation(); openCatEdit(c); }} class="retro-btn-push grid min-h-10 min-w-10 sm:min-h-9 sm:min-w-9 shrink-0 place-items-center rounded-lg border-[1.5px] border-transparent text-[var(--text-secondary)] hover:border-[var(--border-strong)] hover:bg-[var(--surface-1)] hover:text-[var(--brand-text)] opacity-90 sm:opacity-75 hover:opacity-100 focus:opacity-100 motion-reduce:transition-none" aria-label={`Edit kategori ${c.name}`}>
+								<svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
 							</button>
-							<button onclick={(e) => { e.stopPropagation(); catDeleteConfirm = c.id; }} disabled={c.isDefault} class="retro-btn-push grid min-h-8 min-w-8 shrink-0 place-items-center rounded-md border-[1.5px] border-transparent text-[var(--text-tertiary)] hover:border-[var(--border-strong)] hover:bg-danger-50 hover:text-danger-600 disabled:cursor-not-allowed disabled:opacity-30 dark:hover:bg-danger-950/30 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100 motion-reduce:transition-none" aria-label={`Nonaktifkan kategori ${c.name}`}>
-								<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+							<button onclick={(e) => { e.stopPropagation(); catDeleteConfirm = c.id; }} disabled={c.isDefault} class="retro-btn-push grid min-h-10 min-w-10 sm:min-h-9 sm:min-w-9 shrink-0 place-items-center rounded-lg border-[1.5px] border-transparent text-[var(--text-secondary)] hover:border-[var(--border-strong)] hover:bg-danger-50 hover:text-danger-600 disabled:cursor-not-allowed disabled:opacity-30 dark:hover:bg-danger-950/30 opacity-90 sm:opacity-75 hover:opacity-100 focus:opacity-100 motion-reduce:transition-none" aria-label={`Nonaktifkan kategori ${c.name}`}>
+								<svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
 							</button>
 						</div>
 					{/each}
@@ -220,17 +220,17 @@
 		</div>
 
 		{#if inactiveCats.length > 0}
-			<div class="border-t border-gray-200 dark:border-gray-800 p-5">
-				<p class="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-3">Nonaktif</p>
-				<div class="space-y-1">
+			<div class="border-t-[1.5px] border-[var(--border-strong)] bg-[var(--surface-2)] p-4 sm:p-5">
+				<p class="font-mono text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)] mb-3">Nonaktif</p>
+				<div class="space-y-1.5">
 					{#each inactiveCats as c (c.id)}
-						<div class="flex items-center gap-3 px-3 py-2 rounded-lg bg-gray-50 dark:bg-gray-800/30">
+						<div class="flex items-center gap-3 px-3 py-2 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-1)]">
 							<div class="flex size-8 shrink-0 items-center justify-center rounded-lg text-sm opacity-50" style="background-color: {c.color}20">
 								<span>{getCategoryGlyph(c)}</span>
 							</div>
-							<span class="flex-1 text-sm text-gray-500 dark:text-gray-400 line-through truncate">{c.name}</span>
-							<span class="text-[10px] text-gray-400 uppercase">{c.type === 'expense' ? 'Pengeluaran' : 'Pemasukan'}</span>
-							<button onclick={() => restoreCat(c.id)} class="px-2.5 py-1 rounded-lg bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-medium hover:bg-green-200 dark:hover:bg-green-900/50 transition-colors">Pulihkan</button>
+							<span class="flex-1 text-sm text-[var(--text-secondary)] line-through truncate">{c.name}</span>
+							<span class="font-mono text-[10px] font-bold text-[var(--text-secondary)] uppercase">{c.type === 'expense' ? 'Pengeluaran' : 'Pemasukan'}</span>
+							<button onclick={() => restoreCat(c.id)} class="retro-btn-push min-h-9 px-3 rounded-lg border border-[var(--border-strong)] bg-emerald-50 text-emerald-800 font-mono text-xs font-bold dark:bg-emerald-950/60 dark:text-emerald-300">Pulihkan</button>
 						</div>
 					{/each}
 				</div>
@@ -244,9 +244,9 @@
 		<Input label="Nama Kategori" placeholder="Contoh: Belanja Bulanan" bind:value={catFormName} required />
 
 		{#if !isEditingCat}
-			<div class="flex gap-2">
-				<button type="button" onclick={() => catFormType = 'expense'} class="flex-1 py-2 rounded-lg text-sm font-semibold transition-colors {catFormType === 'expense' ? 'bg-red-500 text-white shadow-xs' : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'}">Pengeluaran</button>
-				<button type="button" onclick={() => catFormType = 'income'} class="flex-1 py-2 rounded-lg text-sm font-semibold transition-colors {catFormType === 'income' ? 'bg-green-500 text-white shadow-xs' : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'}">Pemasukan</button>
+			<div class="grid grid-cols-2 gap-2 rounded-xl border-[1.5px] border-[var(--border-strong)] bg-[var(--surface-2)] p-1.5 shadow-[var(--shadow-retro-sm)]">
+				<button type="button" onclick={() => catFormType = 'expense'} class="min-h-10 rounded-lg text-xs font-mono font-bold uppercase tracking-wider transition-all {catFormType === 'expense' ? 'border-[1.5px] border-[var(--border-strong)] bg-danger-50 text-danger-700 shadow-[var(--shadow-retro-sm)] dark:bg-danger-950/60 dark:text-danger-300' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}">Pengeluaran</button>
+				<button type="button" onclick={() => catFormType = 'income'} class="min-h-10 rounded-lg text-xs font-mono font-bold uppercase tracking-wider transition-all {catFormType === 'income' ? 'border-[1.5px] border-[var(--border-strong)] bg-emerald-50 text-emerald-800 shadow-[var(--shadow-retro-sm)] dark:bg-emerald-950/60 dark:text-emerald-300' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}">Pemasukan</button>
 			</div>
 		{/if}
 

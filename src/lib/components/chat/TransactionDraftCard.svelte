@@ -205,11 +205,11 @@
 		{#if isEditing}
 			<!-- Inline Edit Form -->
 			<form onsubmit={(e) => { e.preventDefault(); handleSaveClick(); }} class="space-y-3.5">
-				<div class="flex items-center justify-between border-b border-gray-100 pb-2.5 dark:border-gray-800">
-					<span class="text-xs font-bold text-gray-900 dark:text-gray-100">Koreksi Draf Transaksi</span>
+				<div class="flex items-center justify-between border-b border-[var(--border-subtle)] pb-2.5">
+					<span class="text-xs font-bold text-[var(--text-primary)]">Koreksi Draf Transaksi</span>
 					<button
 						type="button"
-						class="text-xs font-medium text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
+						class="text-xs font-medium text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
 						onclick={cancelEditing}
 					>
 						Tutup
@@ -218,43 +218,43 @@
 
 				<!-- Type selector -->
 				<div>
-					<label for="draft-type-{draft.id}" class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1.5">Jenis Transaksi</label>
+					<label for="draft-type-{draft.id}" class="block text-xs font-medium text-[var(--text-secondary)] mb-1.5">Jenis Transaksi</label>
 					<div class="grid grid-cols-2 gap-2" id="draft-type-{draft.id}">
 						<button
 							type="button"
-							class="min-h-9 rounded-xl border text-xs font-semibold transition-all {editType === 'expense'
-								? 'border-rose-500 bg-rose-50 text-rose-700 dark:border-rose-600 dark:bg-rose-950/60 dark:text-rose-200 shadow-2xs'
-								: 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'}"
+							class="min-h-10 rounded-lg border text-xs font-mono font-bold uppercase tracking-wider transition-all {editType === 'expense'
+								? 'border-[1.5px] border-[var(--border-strong)] bg-danger-50 text-danger-700 dark:bg-danger-950/60 dark:text-danger-300 shadow-[var(--shadow-retro-sm)]'
+								: 'border-[1.5px] border-[var(--border-subtle)] bg-[var(--surface-1)] text-[var(--text-secondary)] hover:bg-[var(--surface-2)]'}"
 							onclick={() => handleTypeChange('expense')}
 						>
-							🔴 Pengeluaran
+							↓ Pengeluaran
 						</button>
 						<button
 							type="button"
-							class="min-h-9 rounded-xl border text-xs font-semibold transition-all {editType === 'income'
-								? 'border-emerald-500 bg-emerald-50 text-emerald-700 dark:border-emerald-600 dark:bg-emerald-950/60 dark:text-emerald-200 shadow-2xs'
-								: 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'}"
+							class="min-h-10 rounded-lg border text-xs font-mono font-bold uppercase tracking-wider transition-all {editType === 'income'
+								? 'border-[1.5px] border-[var(--border-strong)] bg-emerald-50 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 shadow-[var(--shadow-retro-sm)]'
+								: 'border-[1.5px] border-[var(--border-subtle)] bg-[var(--surface-1)] text-[var(--text-secondary)] hover:bg-[var(--surface-2)]'}"
 							onclick={() => handleTypeChange('income')}
 						>
-							🟢 Pemasukan
+							↑ Pemasukan
 						</button>
 					</div>
 				</div>
 
 				<!-- Amount input -->
 				<div>
-					<label for="draft-amount-{draft.id}" class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+					<label for="draft-amount-{draft.id}" class="block text-xs font-medium text-[var(--text-secondary)] mb-1">
 						Nominal (Rp)
 					</label>
 					<div class="relative">
-						<span class="absolute inset-y-0 left-0 flex items-center pl-3 text-xs font-bold text-gray-400 dark:text-gray-500">Rp</span>
+						<span class="absolute inset-y-0 left-0 flex items-center pl-3 text-xs font-bold text-[var(--text-secondary)]">Rp</span>
 						<input
 							id="draft-amount-{draft.id}"
 							type="number"
 							min="1"
 							step="1"
 							bind:value={editAmount}
-							class="w-full rounded-xl border border-gray-300 bg-white py-2 pl-9 pr-3 text-sm font-bold text-gray-900 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:focus:border-primary-400"
+							class="w-full rounded-lg border-[1.5px] border-[var(--border-strong)] bg-[var(--surface-1)] py-2 pl-9 pr-3 text-sm font-bold text-[var(--text-primary)] shadow-[var(--shadow-retro-sm)] focus:outline-none"
 							placeholder="0"
 							required
 						/>
@@ -338,17 +338,17 @@
 				</div>
 
 				<!-- Action buttons inside edit mode -->
-				<div class="grid grid-cols-2 gap-2 pt-2 border-t border-gray-100 dark:border-gray-800">
+				<div class="grid grid-cols-2 gap-2 pt-2 border-t border-[var(--border-subtle)]">
 					<button
 						type="button"
-						class="min-h-10 rounded-xl border border-gray-200 bg-gray-100 px-4 text-xs font-semibold text-gray-700 transition-colors hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-400 active:scale-[0.98] dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
+						class="retro-btn-push min-h-11 rounded-lg border-[1.5px] border-[var(--border-strong)] bg-[var(--surface-2)] px-4 font-mono text-xs font-bold uppercase tracking-wider text-[var(--text-primary)] shadow-[var(--shadow-retro-sm)]"
 						onclick={cancelEditing}
 					>
 						Batal Koreksi
 					</button>
 					<button
 						type="submit"
-						class="min-h-10 rounded-xl bg-emerald-600 px-4 text-xs font-bold text-white shadow-xs transition-colors hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 active:scale-[0.98] dark:bg-emerald-600 dark:hover:bg-emerald-500 dark:focus:ring-offset-gray-900"
+						class="retro-btn-push min-h-11 rounded-lg border-[1.5px] border-[var(--border-strong)] bg-[var(--brand-fill)] px-4 font-mono text-xs font-bold uppercase tracking-wider text-[var(--on-brand)] shadow-[var(--shadow-retro-sm)]"
 					>
 						Simpan
 					</button>
@@ -430,7 +430,7 @@
 
 					<button
 						type="button"
-						class="min-h-11 rounded-xl border-[1.5px] border-[var(--border-strong)] bg-emerald-600 px-3 text-xs font-bold uppercase tracking-wider text-white shadow-[var(--shadow-retro-sm)] transition-all hover:bg-emerald-700 hover:shadow-[var(--shadow-retro)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none focus:outline-none"
+						class="min-h-11 rounded-lg border-[1.5px] border-[var(--border-strong)] bg-[var(--brand-fill)] px-3 font-mono text-xs font-bold uppercase tracking-wider text-[var(--on-brand)] shadow-[var(--shadow-retro-sm)] transition-all hover:shadow-[var(--shadow-retro)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none focus:outline-none"
 						onclick={handleSaveClick}
 					>
 						{draft.status === 'failed' ? 'Coba Lagi' : 'Simpan'}

@@ -16,14 +16,28 @@
 		%sveltekit.head%
 		<script>
 			(function() {
-				const stored = localStorage.getItem('memfinance_dark_mode');
-				if (stored === 'true') {
-					document.documentElement.classList.add('dark');
-					document.documentElement.classList.remove('light');
-				} else {
-					document.documentElement.classList.add('light');
-					document.documentElement.classList.remove('dark');
-				}
+				try {
+					var stored = localStorage.getItem('memfinance_theme') || localStorage.getItem('memfinance_dark_mode');
+					var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+					var isDark = false;
+					if (stored === 'dark' || stored === 'true') {
+						isDark = true;
+					} else if (stored === 'light' || stored === 'false') {
+						isDark = false;
+					} else {
+						isDark = prefersDark;
+					}
+					var cl = document.documentElement.classList;
+					if (isDark) {
+						cl.add('dark');
+						cl.remove('light');
+						document.documentElement.style.colorScheme = 'dark';
+					} else {
+						cl.add('light');
+						cl.remove('dark');
+						document.documentElement.style.colorScheme = 'light';
+					}
+				} catch (e) {}
 			})();
 		</script>
 		<script>
