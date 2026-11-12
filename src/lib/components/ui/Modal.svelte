@@ -61,14 +61,14 @@
 {#if open}
 	<div class="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4" role="presentation">
 		<button class="absolute inset-0 cursor-default bg-black/45 backdrop-blur-[2px]" onclick={() => onclose?.()} aria-label="Tutup dialog" transition:fade={{ duration: 150 }}></button>
-		<div bind:this={dialog} tabindex="-1" class="app-surface relative z-10 max-h-[min(92dvh,48rem)] w-full overflow-y-auto rounded-t-3xl border shadow-[var(--shadow-float)] sm:max-w-lg sm:rounded-2xl" role="dialog" aria-modal="true" aria-labelledby={title ? 'dialog-title' : undefined} aria-describedby={description ? 'dialog-description' : undefined} onkeydown={handleKeydown} transition:fly={{ y: 18, duration: 220 }}>
+		<div bind:this={dialog} tabindex="-1" class="app-surface relative z-10 max-h-[min(92dvh,48rem)] w-full overflow-y-auto rounded-t-3xl border-t-[2px] border-x-[2px] sm:border-[2px] border-[var(--border-strong)] shadow-[var(--shadow-float)] sm:max-w-lg sm:rounded-2xl" role="dialog" aria-modal="true" aria-labelledby={title ? 'dialog-title' : undefined} aria-describedby={description ? 'dialog-description' : undefined} onkeydown={handleKeydown} transition:fly={{ y: 18, duration: 220 }}>
 			{#if title}
-				<div class="flex items-center justify-between gap-3 border-b px-5 py-4">
+				<div class="flex items-center justify-between gap-3 border-b-[1.5px] border-[var(--border-strong)] bg-[var(--surface-2)] px-5 py-4">
 					<div>
-						<h2 id="dialog-title" class="text-lg font-bold tracking-tight text-[var(--text-primary)]">{title}</h2>
-						{#if description}<p id="dialog-description" class="mt-1 text-sm text-[var(--text-secondary)]">{description}</p>{/if}
+						<h2 id="dialog-title" class="text-base sm:text-lg font-bold tracking-tight text-[var(--text-primary)]">{title}</h2>
+						{#if description}<p id="dialog-description" class="mt-0.5 text-xs text-[var(--text-secondary)]">{description}</p>{/if}
 					</div>
-					<button data-dialog-autofocus onclick={() => onclose?.()} class="-mr-2 grid size-10 shrink-0 place-items-center rounded-xl text-[var(--text-secondary)] hover:bg-[var(--surface-2)] hover:text-[var(--text-primary)]" aria-label="Tutup">
+					<button data-dialog-autofocus onclick={() => onclose?.()} class="-mr-1 grid size-9 shrink-0 place-items-center rounded-lg border-[1.5px] border-transparent text-[var(--text-secondary)] hover:border-[var(--border-strong)] hover:bg-[var(--surface-1)] hover:text-[var(--text-primary)] hover:shadow-[var(--shadow-retro-sm)] transition-[background-color,border-color,box-shadow]" aria-label="Tutup">
 						<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
 					</button>
 				</div>

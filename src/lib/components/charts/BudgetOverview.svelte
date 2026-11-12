@@ -81,26 +81,31 @@
 					<p class="text-base font-bold tracking-tight text-gray-950 dark:text-white sm:text-lg">Ringkasan budget</p>
 					<p class="text-xs text-gray-500 dark:text-gray-400">Posisi budget bulan berjalan.</p>
 				</div>
-				<a href={resolve('/budgets')} class="rounded-lg px-2.5 py-1 text-xs font-semibold text-primary-600 hover:bg-primary-50 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:text-primary-400 dark:hover:bg-primary-950/40 sm:text-sm">Kelola budget →</a>
+				<a
+					href={resolve('/budgets')}
+					class="inline-flex items-center gap-1 rounded-lg border-[1.5px] border-[var(--border-strong)] bg-[var(--surface-1)] px-2.5 py-1 text-xs font-bold uppercase tracking-wider text-[var(--text-primary)] shadow-[var(--shadow-retro-sm)] transition hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[var(--shadow-retro)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none focus:outline-none"
+				>
+					Kelola Anggaran →
+				</a>
 			</div>
 			<div class="flex flex-col items-center gap-4 sm:flex-row sm:gap-6">
 				<div class="h-44 w-44 shrink-0 sm:h-48 sm:w-48">{#if chartOption}<Chart {init} options={chartOption} />{/if}</div>
 				<div class="grid w-full flex-1 grid-cols-3 gap-2 sm:gap-3">
-					<div class="rounded-xl border border-gray-100 bg-gray-50 p-2.5 text-center dark:border-gray-800 dark:bg-gray-800/70 sm:p-3 sm:text-left">
-						<p class="text-[11px] font-medium text-[var(--text-secondary)] sm:text-xs">Total Budget</p>
-						<p class="mt-1 truncate text-xs font-bold text-gray-900 tabular-nums dark:text-gray-100 sm:text-base">{formatRupiah(budgetData.totalBudget)}</p>
+					<div class="rounded-xl border-[1.5px] border-[var(--border-strong)] bg-[var(--surface-2)] p-2.5 text-center shadow-[var(--shadow-retro-sm)] sm:p-3 sm:text-left">
+						<p class="font-mono text-[10px] font-bold uppercase tracking-wider text-[var(--text-secondary)] sm:text-xs">Batas Total</p>
+						<p class="mt-1 truncate font-mono text-xs font-bold text-[var(--text-primary)] sm:text-base">{formatRupiah(budgetData.totalBudget)}</p>
 					</div>
-					<div class="rounded-xl border border-gray-100 bg-gray-50 p-2.5 text-center dark:border-gray-800 dark:bg-gray-800/70 sm:p-3 sm:text-left">
-						<p class="text-[11px] font-medium text-[var(--text-secondary)] sm:text-xs">Terpakai</p>
-						<p class="mt-1 truncate text-xs font-bold text-red-600 tabular-nums sm:text-base">{formatRupiah(budgetData.totalSpent)}</p>
+					<div class="rounded-xl border-[1.5px] border-[var(--border-strong)] bg-[var(--surface-2)] p-2.5 text-center shadow-[var(--shadow-retro-sm)] sm:p-3 sm:text-left">
+						<p class="font-mono text-[10px] font-bold uppercase tracking-wider text-[var(--text-secondary)] sm:text-xs">Terpakai</p>
+						<p class="mt-1 truncate font-mono text-xs font-bold text-danger-600 dark:text-danger-400 sm:text-base">{formatRupiah(budgetData.totalSpent)}</p>
 						{#if budgetData.unbudgetedSpent > 0}
-							<p class="mt-0.5 hidden truncate text-[10px] text-gray-400 sm:block">+{formatRupiah(budgetData.unbudgetedSpent)} luar budget</p>
+							<p class="mt-0.5 hidden truncate font-mono text-[9px] text-[var(--text-tertiary)] sm:block">+{formatRupiah(budgetData.unbudgetedSpent)} luar alokasi</p>
 						{/if}
 					</div>
-					<div class="rounded-xl border border-gray-100 bg-gray-50 p-2.5 text-center dark:border-gray-800 dark:bg-gray-800/70 sm:p-3 sm:text-left">
-						<p class="text-[11px] font-medium text-[var(--text-secondary)] sm:text-xs">Sisa</p>
-						<p class="mt-1 truncate text-xs font-bold tabular-nums sm:text-base {budgetData.remaining >= 0 ? 'text-green-600 dark:text-green-400' : 'text-orange-600 dark:text-orange-400'}">{formatRupiah(Math.abs(budgetData.remaining))}</p>
-						<p class="mt-0.5 text-[10px] font-medium {budgetData.remaining >= 0 ? 'text-green-600 dark:text-green-400' : 'text-orange-600 dark:text-orange-400'}">{budgetData.remaining >= 0 ? 'Aman' : 'Over'}</p>
+					<div class="rounded-xl border-[1.5px] border-[var(--border-strong)] bg-[var(--surface-2)] p-2.5 text-center shadow-[var(--shadow-retro-sm)] sm:p-3 sm:text-left">
+						<p class="font-mono text-[10px] font-bold uppercase tracking-wider text-[var(--text-secondary)] sm:text-xs">Sisa Kuota</p>
+						<p class="mt-1 truncate font-mono text-xs font-bold sm:text-base {budgetData.remaining >= 0 ? 'text-emerald-700 dark:text-emerald-400' : 'text-danger-600 dark:text-danger-400'}">{formatRupiah(Math.abs(budgetData.remaining))}</p>
+						<span class="mt-0.5 inline-block font-mono text-[10px] font-bold uppercase {budgetData.remaining >= 0 ? 'text-emerald-700 dark:text-emerald-400' : 'text-danger-600 dark:text-danger-400'}">[{budgetData.remaining >= 0 ? 'AMAN' : 'OVER'}]</span>
 					</div>
 				</div>
 			</div>

@@ -18,8 +18,8 @@
 </script>
 
 <div class={className}>
-	<div class="h-2.5 w-full overflow-hidden rounded-full bg-[var(--surface-2)]">
+	<div class="h-3 w-full overflow-hidden rounded-full border-[1.5px] border-[var(--border-strong)] bg-[var(--surface-2)] p-[1px] shadow-[inset_0_1px_2px_rgba(0,0,0,0.1)]">
 		<div class="h-full rounded-full transition-[width] duration-500 ease-gentle motion-reduce:transition-none {barColor}" style="width: {pct}%" role="progressbar" aria-valuenow={value} aria-valuemin="0" aria-valuemax={max} aria-valuetext={`${pct}%`}></div>
 	</div>
-	{#if showLabel}<p class="mt-1 text-xs text-[var(--text-secondary)]">{pct}%</p>{/if}
+	{#if showLabel}<p class="mt-1 font-mono text-xs font-bold text-[var(--text-secondary)]">{pct}%</p>{/if}
 </div>

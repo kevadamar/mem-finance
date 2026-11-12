@@ -87,10 +87,10 @@
 			})
 			.sort((a, b) => b.value - a.value);
 
-		const legendColor = isDark ? '#D1D5DB' : '#4B5563';
-		const tooltipBg = isDark ? '#1F2937' : '#FFFFFF';
-		const tooltipBorder = isDark ? '#374151' : '#E5E7EB';
-		const tooltipText = isDark ? '#F9FAFB' : '#111827';
+		const legendColor = isDark ? '#b8c4be' : '#47564e';
+		const tooltipBg = isDark ? '#1a1f1d' : '#fbf9f4';
+		const tooltipBorder = isDark ? '#2f3b35' : '#1e2420';
+		const tooltipText = isDark ? '#e5e7eb' : '#121514';
 
 		return {
 			animation: !prefersReducedMotion,
@@ -100,21 +100,22 @@
 				appendToBody: true,
 				backgroundColor: tooltipBg,
 				borderColor: tooltipBorder,
-				textStyle: { color: tooltipText, fontSize: 13 },
+				borderWidth: 1.5,
+				textStyle: { color: tooltipText, fontSize: 13, fontFamily: 'var(--font-mono)' },
 				formatter: (p: { name: string; value: number; percent: number }) =>
 					`<strong>${p.name}</strong><br/>${formatRupiah(p.value)} (${p.percent}%)`
 			},
 			legend: isDesktop
-				? { orient: 'vertical', right: 8, top: 'center', textStyle: { fontSize: 12, color: legendColor }, type: 'scroll' }
-				: { orient: 'horizontal', bottom: 0, left: 'center', textStyle: { fontSize: 11, color: legendColor }, type: 'scroll' },
+				? { orient: 'vertical', right: 8, top: 'center', textStyle: { fontSize: 12, color: legendColor, fontFamily: 'var(--font-sans)' }, type: 'scroll' }
+				: { orient: 'horizontal', bottom: 0, left: 'center', textStyle: { fontSize: 11, color: legendColor, fontFamily: 'var(--font-sans)' }, type: 'scroll' },
 			series: [
 				{
 					type: 'pie',
 					radius: isDesktop ? ['45%', '75%'] : ['44%', '70%'],
 					center: isDesktop ? ['40%', '50%'] : ['50%', '45%'],
 					avoidLabelOverlap: false,
-					padAngle: 1,
-					itemStyle: { borderRadius: 5, borderColor: isDark ? '#111827' : '#FFFFFF', borderWidth: 2 },
+					padAngle: 1.5,
+					itemStyle: { borderRadius: 4, borderColor: isDark ? '#121514' : '#fbf9f4', borderWidth: 2 },
 					label: { show: false },
 					emphasis: {
 						label: { show: true, fontSize: 14, fontWeight: 'bold', color: isDark ? '#F9FAFB' : '#111827' },
@@ -130,17 +131,38 @@
 
 <Card>
 	<div class="mb-4">
-		<p class="text-lg font-semibold tracking-tight text-gray-950 dark:text-white">Distribusi transaksi</p>
-		<p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Lihat kategori yang paling banyak menyerap dana.</p>
+		<div class="flex items-center gap-2 text-[11px] font-mono font-bold tracking-widest uppercase text-[var(--brand-primary)]">
+			<span class="inline-block size-1.5 rounded-full bg-[var(--brand-primary)]"></span>
+			Visualisasi
+		</div>
+		<p class="text-base sm:text-lg font-bold tracking-tight text-[var(--text-primary)]">Distribusi Transaksi</p>
+		<p class="mt-0.5 text-xs text-[var(--text-secondary)]">Kategori yang paling banyak menyerap dana.</p>
 	</div>
 	<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
-		<div class="inline-flex w-full rounded-xl bg-gray-100 p-1 dark:bg-gray-800 sm:w-auto" role="group" aria-label="Jenis transaksi">
-			<button onclick={() => transactionType = 'expense'} aria-pressed={transactionType === 'expense'} class="min-h-10 flex-1 rounded-lg px-3 text-sm font-semibold transition focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-1 motion-reduce:transition-none {transactionType === 'expense' ? 'bg-white text-red-600 shadow-sm dark:bg-gray-700 dark:text-red-400' : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white'}">Pengeluaran</button>
-			<button onclick={() => transactionType = 'income'} aria-pressed={transactionType === 'income'} class="min-h-10 flex-1 rounded-lg px-3 text-sm font-semibold transition focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-1 motion-reduce:transition-none {transactionType === 'income' ? 'bg-white text-green-600 shadow-sm dark:bg-gray-700 dark:text-green-400' : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white'}">Pemasukan</button>
+		<div class="inline-flex w-full rounded-lg border-[1.5px] border-[var(--border-strong)] bg-[var(--surface-2)] p-1 sm:w-auto shadow-[var(--shadow-retro-sm)]" role="group" aria-label="Jenis transaksi">
+			<button
+				onclick={() => transactionType = 'expense'}
+				aria-pressed={transactionType === 'expense'}
+				class="min-h-9 flex-1 rounded-[6px] px-3 font-mono text-xs font-bold uppercase tracking-wider transition {transactionType === 'expense' ? 'border-[1.5px] border-[var(--border-strong)] bg-[var(--surface-1)] text-danger-700 shadow-[1px_1px_0_var(--shadow-retro)] dark:text-danger-300' : 'border-[1.5px] border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}"
+			>
+				Pengeluaran
+			</button>
+			<button
+				onclick={() => transactionType = 'income'}
+				aria-pressed={transactionType === 'income'}
+				class="min-h-9 flex-1 rounded-[6px] px-3 font-mono text-xs font-bold uppercase tracking-wider transition {transactionType === 'income' ? 'border-[1.5px] border-[var(--border-strong)] bg-[var(--surface-1)] text-emerald-800 shadow-[1px_1px_0_var(--shadow-retro)] dark:text-emerald-300' : 'border-[1.5px] border-transparent text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}"
+			>
+				Pemasukan
+			</button>
 		</div>
 		<label class="sr-only" for="chart-period">Periode grafik</label>
-		<select id="chart-period" value={period} onchange={(e) => period = (e.target as HTMLSelectElement).value as typeof period} class="min-h-10 w-full rounded-xl border border-gray-300 bg-white pl-3.5 pr-10 text-sm font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-300 sm:w-auto">
-				{#each Object.entries(periodLabels) as [value, label] (value)}<option {value}>{label}</option>{/each}
+		<select
+			id="chart-period"
+			value={period}
+			onchange={(e) => period = (e.target as HTMLSelectElement).value as typeof period}
+			class="min-h-10 w-full rounded-lg border-[1.5px] border-[var(--border-strong)] bg-[var(--surface-1)] pl-3.5 pr-10 font-mono text-xs font-bold uppercase tracking-wider text-[var(--text-primary)] shadow-[var(--shadow-retro-sm)] focus:outline-none sm:w-auto"
+		>
+			{#each Object.entries(periodLabels) as [value, label] (value)}<option {value}>{label}</option>{/each}
 		</select>
 	</div>
 

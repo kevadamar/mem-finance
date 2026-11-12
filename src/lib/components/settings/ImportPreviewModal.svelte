@@ -43,7 +43,7 @@
 					{#if summary.dateRange}
 					<div class="flex justify-between">
 						<span class="text-gray-500">Rentang tanggal</span>
-							<span class="text-gray-700 dark:text-gray-300">{summary.dateRange.start} – {summary.dateRange.end}</span>
+							<span class="text-gray-700 dark:text-gray-300">{summary.dateRange.start} s/d {summary.dateRange.end}</span>
 					</div>
 				{/if}
 					{#if summary.totalAmount !== undefined}

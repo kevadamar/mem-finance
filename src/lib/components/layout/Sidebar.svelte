@@ -39,20 +39,20 @@
 
 <!-- Desktop Sidebar (Collapsible: w-64 <-> w-20) -->
 <aside
-	class="app-surface hidden lg:fixed lg:inset-y-0 lg:left-0 lg:z-30 lg:flex lg:flex-col lg:border-r transition-[width] duration-300 ease-in-out {app.sidebarCollapsed ? 'lg:w-20' : 'lg:w-64'}"
+	class="app-surface hidden lg:fixed lg:inset-y-0 lg:left-0 lg:z-30 lg:flex lg:flex-col lg:border-r-[2px] border-[var(--border-strong)] transition-[width] duration-300 ease-in-out {app.sidebarCollapsed ? 'lg:w-20' : 'lg:w-64'}"
 	aria-label="Navigasi utama"
 >
 	<!-- Header -->
 	<div class="flex h-20 items-center {app.sidebarCollapsed ? 'justify-center px-2' : 'justify-between px-5'}">
 		{#if app.sidebarCollapsed}
 			<div class="flex flex-col items-center gap-1.5">
-				<div class="grid size-10 place-items-center rounded-xl bg-primary-600 text-white shadow-md shadow-primary-700/20" aria-hidden="true">
+				<div class="grid size-10 place-items-center rounded-xl border-[1.5px] border-[var(--border-strong)] bg-primary-600 text-white shadow-[var(--shadow-retro-sm)]" aria-hidden="true">
 					<svg class="size-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16.5V8.8c0-.9.73-1.63 1.63-1.63.62 0 1.18.35 1.46.9L12 11.7l1.91-3.63a1.63 1.63 0 012.88.76v7.67M7 16.5h9.8M9.7 16.5v-2.1m4.6 2.1v-2.1" /></svg>
 				</div>
 				<button
 					type="button"
 					onclick={toggleSidebarCollapsed}
-					class="grid size-7 place-items-center rounded-lg text-[var(--text-secondary)] hover:bg-[var(--surface-2)] hover:text-[var(--text-primary)] transition-colors"
+					class="grid size-7 place-items-center rounded-lg border-[1.5px] border-transparent text-[var(--text-secondary)] hover:border-[var(--border-strong)] hover:bg-[var(--surface-2)] hover:text-[var(--text-primary)] hover:shadow-[var(--shadow-retro-sm)] transition-all"
 					title="Perluas menu (expand)"
 					aria-label="Perluas sidebar"
 				>
@@ -61,18 +61,18 @@
 			</div>
 		{:else}
 			<div class="flex items-center gap-3">
-				<div class="grid size-10 place-items-center rounded-xl bg-primary-600 text-white shadow-md shadow-primary-700/20" aria-hidden="true">
+				<div class="grid size-10 place-items-center rounded-xl border-[1.5px] border-[var(--border-strong)] bg-primary-600 text-white shadow-[var(--shadow-retro-sm)]" aria-hidden="true">
 					<svg class="size-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16.5V8.8c0-.9.73-1.63 1.63-1.63.62 0 1.18.35 1.46.9L12 11.7l1.91-3.63a1.63 1.63 0 012.88.76v7.67M7 16.5h9.8M9.7 16.5v-2.1m4.6 2.1v-2.1" /></svg>
 				</div>
 				<div>
-					<p class="text-base font-extrabold tracking-tight text-[var(--text-primary)]">MemFinance</p>
-					<p class="text-xs text-[var(--text-secondary)]">Keuangan lebih tenang</p>
+					<p class="font-mono text-base font-bold tracking-tight text-[var(--text-primary)]">MemFinance</p>
+					<p class="font-mono text-[10px] font-bold uppercase tracking-wider text-[var(--text-secondary)]">Buku Kas Pribadi</p>
 				</div>
 			</div>
 			<button
 				type="button"
 				onclick={toggleSidebarCollapsed}
-				class="grid size-9 shrink-0 place-items-center rounded-xl text-[var(--text-secondary)] hover:bg-[var(--surface-2)] hover:text-[var(--text-primary)] transition-colors"
+				class="grid size-9 shrink-0 place-items-center rounded-xl border-[1.5px] border-transparent text-[var(--text-secondary)] hover:border-[var(--border-strong)] hover:bg-[var(--surface-2)] hover:text-[var(--text-primary)] hover:shadow-[var(--shadow-retro-sm)] transition-all"
 				title="Ciutkan menu (collapse)"
 				aria-label="Ciutkan sidebar"
 			>
@@ -84,7 +84,7 @@
 	<!-- Navigation items -->
 	<nav class="flex-1 overflow-y-auto {app.sidebarCollapsed ? 'px-2' : 'px-3'} pb-4" aria-label="Menu aplikasi">
 		{#if !app.sidebarCollapsed}
-			<p class="px-3 pb-2 pt-3 text-[11px] font-bold uppercase tracking-[0.12em] text-[var(--text-tertiary)]">Ringkasan</p>
+			<p class="px-3 pb-2 pt-3 font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">Ringkasan</p>
 		{:else}
 			<div class="my-2 border-t border-[var(--border-subtle)]"></div>
 		{/if}
@@ -94,7 +94,7 @@
 					href={resolve(item.href)}
 					aria-current={isActive(item.href) ? 'page' : undefined}
 					title={item.label}
-					class="flex min-h-11 items-center {app.sidebarCollapsed ? 'justify-center px-0' : 'gap-3 px-3'} rounded-xl text-sm font-semibold transition-colors {isActive(item.href) ? 'bg-primary-50 text-primary-800 dark:bg-primary-900/40 dark:text-primary-200' : 'text-[var(--text-secondary)] hover:bg-[var(--surface-2)] hover:text-[var(--text-primary)]'}"
+					class="flex min-h-11 items-center {app.sidebarCollapsed ? 'justify-center px-0' : 'gap-3 px-3'} rounded-xl text-xs font-bold uppercase tracking-wide transition-all duration-100 {isActive(item.href) ? 'border-[1.5px] border-[var(--border-strong)] bg-emerald-50 text-emerald-950 shadow-[var(--shadow-retro-sm)] dark:bg-emerald-950/60 dark:text-emerald-200' : 'border-[1.5px] border-transparent text-[var(--text-secondary)] hover:border-[var(--border-strong)] hover:bg-[var(--surface-2)] hover:text-[var(--text-primary)] hover:shadow-[var(--shadow-retro-sm)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none'}"
 				>
 					<svg class="size-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d={item.icon} /></svg>
 					{#if !app.sidebarCollapsed}
@@ -105,7 +105,7 @@
 		</div>
 
 		{#if !app.sidebarCollapsed}
-			<p class="px-3 pb-2 pt-7 text-[11px] font-bold uppercase tracking-[0.12em] text-[var(--text-tertiary)]">Kelola</p>
+			<p class="px-3 pb-2 pt-6 font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">Kelola</p>
 		{:else}
 			<div class="my-3 border-t border-[var(--border-subtle)]"></div>
 		{/if}
@@ -115,7 +115,7 @@
 					href={resolve(item.href)}
 					aria-current={isActive(item.href) ? 'page' : undefined}
 					title={item.label}
-					class="flex min-h-11 items-center {app.sidebarCollapsed ? 'justify-center px-0' : 'gap-3 px-3'} rounded-xl text-sm font-semibold transition-colors {isActive(item.href) ? 'bg-primary-50 text-primary-800 dark:bg-primary-900/40 dark:text-primary-200' : 'text-[var(--text-secondary)] hover:bg-[var(--surface-2)] hover:text-[var(--text-primary)]'}"
+					class="flex min-h-11 items-center {app.sidebarCollapsed ? 'justify-center px-0' : 'gap-3 px-3'} rounded-xl text-xs font-bold uppercase tracking-wide transition-all duration-100 {isActive(item.href) ? 'border-[1.5px] border-[var(--border-strong)] bg-emerald-50 text-emerald-950 shadow-[var(--shadow-retro-sm)] dark:bg-emerald-950/60 dark:text-emerald-200' : 'border-[1.5px] border-transparent text-[var(--text-secondary)] hover:border-[var(--border-strong)] hover:bg-[var(--surface-2)] hover:text-[var(--text-primary)] hover:shadow-[var(--shadow-retro-sm)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none'}"
 				>
 					<svg class="size-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d={item.icon} /></svg>
 					{#if !app.sidebarCollapsed}
@@ -127,25 +127,25 @@
 	</nav>
 
 	<!-- Footer -->
-	<div class="space-y-1 border-t {app.sidebarCollapsed ? 'p-2' : 'p-3'}">
+	<div class="space-y-1 border-t-[1.5px] border-[var(--border-strong)] {app.sidebarCollapsed ? 'p-2' : 'p-3'}">
 		{#if app.user}
-			<div class="mb-1 flex items-center {app.sidebarCollapsed ? 'justify-center px-0 py-1' : 'gap-2.5 px-2.5 py-2'} rounded-xl bg-[var(--surface-2)]/60">
+			<div class="mb-1 flex items-center {app.sidebarCollapsed ? 'justify-center px-0 py-1' : 'gap-2.5 px-2.5 py-2'} rounded-xl border-[1.5px] border-[var(--border-strong)] bg-[var(--surface-2)] shadow-[var(--shadow-retro-sm)]">
 				{#if app.user.user_metadata?.avatar_url}
 					<img
 						src={app.user.user_metadata.avatar_url}
 						alt={app.user.user_metadata.name || 'User'}
-						class="size-8 shrink-0 rounded-full ring-2 ring-primary-500/20 object-cover"
+						class="size-8 shrink-0 rounded-full border border-[var(--border-strong)] object-cover"
 						title="{app.user.user_metadata.name || app.user.email} ({app.user.email})"
 					/>
 				{:else}
-					<div class="grid size-8 shrink-0 place-items-center rounded-full bg-primary-100 text-xs font-bold text-primary-700 dark:bg-primary-950 dark:text-primary-300">
+					<div class="grid size-8 shrink-0 place-items-center rounded-lg border border-[var(--border-strong)] bg-emerald-100 font-mono text-xs font-bold text-emerald-900 dark:bg-emerald-900 dark:text-emerald-100">
 						{(app.user.user_metadata?.name || app.user.email || 'U').charAt(0).toUpperCase()}
 					</div>
 				{/if}
 				{#if !app.sidebarCollapsed}
 					<div class="min-w-0 flex-1">
 						<p class="truncate text-xs font-bold text-[var(--text-primary)]">{app.user.user_metadata?.name || 'Pengguna'}</p>
-						<p class="truncate text-[10px] text-[var(--text-secondary)]">{app.user.email}</p>
+						<p class="truncate font-mono text-[10px] text-[var(--text-secondary)]">{app.user.email}</p>
 					</div>
 				{/if}
 			</div>
@@ -154,11 +154,11 @@
 			onclick={toggleDark}
 			title={isDark ? 'Mode terang' : 'Mode gelap'}
 			aria-label={isDark ? 'Mode terang' : 'Mode gelap'}
-			class="flex min-h-11 w-full items-center {app.sidebarCollapsed ? 'justify-center px-0' : 'gap-3 px-3'} rounded-xl text-sm font-semibold text-[var(--text-secondary)] transition-colors hover:bg-[var(--surface-2)] hover:text-[var(--text-primary)]"
+			class="flex min-h-11 w-full items-center {app.sidebarCollapsed ? 'justify-center px-0' : 'gap-3 px-3'} rounded-xl border-[1.5px] border-transparent font-bold text-xs uppercase tracking-wide text-[var(--text-secondary)] transition-all hover:border-[var(--border-strong)] hover:bg-[var(--surface-2)] hover:text-[var(--text-primary)] hover:shadow-[var(--shadow-retro-sm)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
 		>
 			<svg class="size-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d={isDark ? 'M12 3v2m0 14v2m9-9h-2M5 12H3m15.364-6.364-1.414 1.414M7.05 16.95l-1.414 1.414m12.728 0-1.414-1.414M7.05 7.05 5.636 5.636M15 12a3 3 0 11-6 0 3 3 0 016 0z' : 'M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 10120.354 15.354z'} /></svg>
 			{#if !app.sidebarCollapsed}
-				<span>{isDark ? 'Mode terang' : 'Mode gelap'}</span>
+				<span>{isDark ? 'Mode Terang' : 'Mode Gelap'}</span>
 			{/if}
 		</button>
 		<button
@@ -167,7 +167,7 @@
 			onclick={() => logoutOpen = true}
 			title="Keluar"
 			aria-label="Keluar dari akun"
-			class="flex min-h-11 w-full items-center {app.sidebarCollapsed ? 'justify-center px-0' : 'gap-3 px-3'} rounded-xl text-sm font-semibold text-danger-500 transition-colors hover:bg-danger-50 dark:hover:bg-rose-950"
+			class="flex min-h-11 w-full items-center {app.sidebarCollapsed ? 'justify-center px-0' : 'gap-3 px-3'} rounded-xl border-[1.5px] border-transparent font-bold text-xs uppercase tracking-wide text-danger-600 transition-all hover:border-[var(--border-strong)] hover:bg-danger-50 hover:shadow-[var(--shadow-retro-sm)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none dark:hover:bg-rose-950/40"
 		>
 			<svg class="size-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
 			{#if !app.sidebarCollapsed}
@@ -181,31 +181,31 @@
 {#if app.mobileSidebarOpen}
 	<div class="fixed inset-0 z-50 lg:hidden" role="presentation">
 		<button
-			class="absolute inset-0 cursor-default bg-black/40 backdrop-blur-sm"
+			class="absolute inset-0 cursor-default bg-black/45 backdrop-blur-[2px]"
 			aria-label="Tutup menu navigasi"
 			onclick={closeMobileSidebar}
 			transition:fade={{ duration: 180 }}
 		></button>
 		<div
-			class="app-surface absolute inset-y-0 left-0 z-10 flex w-72 max-w-[85vw] flex-col border-r shadow-2xl"
+			class="app-surface absolute inset-y-0 left-0 z-10 flex w-72 max-w-[85vw] flex-col border-r-[2px] border-[var(--border-strong)] shadow-[var(--shadow-float)]"
 			role="dialog"
 			aria-modal="true"
 			aria-label="Navigasi drawer"
 			transition:fly={{ x: -280, duration: 250 }}
 		>
-			<div class="flex h-16 items-center justify-between border-b px-4">
+			<div class="flex h-16 items-center justify-between border-b-[1.5px] border-[var(--border-strong)] bg-[var(--surface-2)] px-4">
 				<div class="flex items-center gap-3">
-					<div class="grid size-9 place-items-center rounded-xl bg-primary-600 text-white shadow-md shadow-primary-700/20" aria-hidden="true">
+					<div class="grid size-9 place-items-center rounded-xl border-[1.5px] border-[var(--border-strong)] bg-primary-600 text-white shadow-[var(--shadow-retro-sm)]" aria-hidden="true">
 						<svg class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16.5V8.8c0-.9.73-1.63 1.63-1.63.62 0 1.18.35 1.46.9L12 11.7l1.91-3.63a1.63 1.63 0 012.88.76v7.67M7 16.5h9.8M9.7 16.5v-2.1m4.6 2.1v-2.1" /></svg>
 					</div>
 					<div>
-						<p class="text-base font-extrabold tracking-tight text-[var(--text-primary)]">MemFinance</p>
-						<p class="text-xs text-[var(--text-secondary)]">Keuangan lebih tenang</p>
+						<p class="font-mono text-base font-bold tracking-tight text-[var(--text-primary)]">MemFinance</p>
+						<p class="font-mono text-[10px] font-bold uppercase tracking-wider text-[var(--text-secondary)]">Buku Kas Pribadi</p>
 					</div>
 				</div>
 				<button
 					onclick={closeMobileSidebar}
-					class="grid size-10 place-items-center rounded-xl text-[var(--text-secondary)] hover:bg-[var(--surface-2)] hover:text-[var(--text-primary)]"
+					class="grid size-9 place-items-center rounded-lg border-[1.5px] border-transparent text-[var(--text-secondary)] hover:border-[var(--border-strong)] hover:bg-[var(--surface-1)] hover:text-[var(--text-primary)] hover:shadow-[var(--shadow-retro-sm)]"
 					aria-label="Tutup menu navigasi"
 				>
 					<svg class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
@@ -213,14 +213,14 @@
 			</div>
 
 			<nav class="flex-1 overflow-y-auto px-3 pb-4" aria-label="Menu aplikasi mobile">
-				<p class="px-3 pb-2 pt-3 text-[11px] font-bold uppercase tracking-[0.12em] text-[var(--text-tertiary)]">Ringkasan</p>
+				<p class="px-3 pb-2 pt-3 font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">Ringkasan</p>
 				<div class="space-y-1">
 					{#each mainItems as item (item.href)}
 						<a
 							href={resolve(item.href)}
 							onclick={closeMobileSidebar}
 							aria-current={isActive(item.href) ? 'page' : undefined}
-							class="flex min-h-11 items-center gap-3 rounded-xl px-3 text-sm font-semibold transition-colors {isActive(item.href) ? 'bg-primary-50 text-primary-800 dark:bg-primary-900/40 dark:text-primary-200' : 'text-[var(--text-secondary)] hover:bg-[var(--surface-2)] hover:text-[var(--text-primary)]'}"
+							class="flex min-h-11 items-center gap-3 rounded-xl px-3 text-xs font-bold uppercase tracking-wide transition-all {isActive(item.href) ? 'border-[1.5px] border-[var(--border-strong)] bg-emerald-50 text-emerald-950 shadow-[var(--shadow-retro-sm)] dark:bg-emerald-950/60 dark:text-emerald-200' : 'border-[1.5px] border-transparent text-[var(--text-secondary)] hover:border-[var(--border-strong)] hover:bg-[var(--surface-2)] hover:text-[var(--text-primary)] hover:shadow-[var(--shadow-retro-sm)]'}"
 						>
 							<svg class="size-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d={item.icon} /></svg>
 							{item.label}
@@ -228,14 +228,14 @@
 					{/each}
 				</div>
 
-				<p class="px-3 pb-2 pt-6 text-[11px] font-bold uppercase tracking-[0.12em] text-[var(--text-tertiary)]">Kelola</p>
+				<p class="px-3 pb-2 pt-6 font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--text-tertiary)]">Kelola</p>
 				<div class="space-y-1">
 					{#each secondaryItems as item (item.href)}
 						<a
 							href={resolve(item.href)}
 							onclick={closeMobileSidebar}
 							aria-current={isActive(item.href) ? 'page' : undefined}
-							class="flex min-h-11 items-center gap-3 rounded-xl px-3 text-sm font-semibold transition-colors {isActive(item.href) ? 'bg-primary-50 text-primary-800 dark:bg-primary-900/40 dark:text-primary-200' : 'text-[var(--text-secondary)] hover:bg-[var(--surface-2)] hover:text-[var(--text-primary)]'}"
+							class="flex min-h-11 items-center gap-3 rounded-xl px-3 text-xs font-bold uppercase tracking-wide transition-all {isActive(item.href) ? 'border-[1.5px] border-[var(--border-strong)] bg-emerald-50 text-emerald-950 shadow-[var(--shadow-retro-sm)] dark:bg-emerald-950/60 dark:text-emerald-200' : 'border-[1.5px] border-transparent text-[var(--text-secondary)] hover:border-[var(--border-strong)] hover:bg-[var(--surface-2)] hover:text-[var(--text-primary)] hover:shadow-[var(--shadow-retro-sm)]'}"
 						>
 							<svg class="size-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d={item.icon} /></svg>
 							{item.label}

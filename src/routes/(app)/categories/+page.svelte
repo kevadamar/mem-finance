@@ -139,34 +139,47 @@
 	}
 </script>
 
-<svelte:head><title>Kategori — MemFinance</title></svelte:head>
+<svelte:head><title>Kategori · MemFinance</title></svelte:head>
 
 <div class="space-y-5 sm:space-y-6">
-	<header class="rounded-2xl border border-primary-100 bg-gradient-to-br from-white via-primary-50/60 to-sky-50 p-4 sm:p-6 shadow-sm dark:border-primary-900/60 dark:from-gray-900 dark:via-primary-950/40 dark:to-gray-900">
-		<div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-			<div><p class="text-sm font-medium text-primary-700 dark:text-primary-300">Pengelompokan transaksi</p><h1 class="mt-1 text-2xl font-bold tracking-tight text-gray-950 dark:text-white sm:text-3xl">Kategori</h1><p class="mt-1 text-sm text-gray-600 dark:text-gray-300">Buat kategori yang mudah dikenali agar laporan tetap rapi.</p></div>
+	<header class="retro-card p-4 sm:p-6 bg-[var(--surface-1)]">
+		<div class="flex items-center gap-2 text-[11px] font-mono font-bold tracking-widest uppercase text-[var(--brand-primary)]">
+			<span class="inline-block size-1.5 rounded-full bg-[var(--brand-primary)]"></span>
+			Buku Kas · Indeks Kategori
+		</div>
+		<div class="mt-2 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+			<div>
+				<h1 class="text-2xl font-black tracking-tight text-[var(--text-primary)] sm:text-3xl">Kategori</h1>
+				<p class="mt-0.5 text-xs sm:text-sm text-[var(--text-secondary)]">Buat kategori yang mudah dikenali agar laporan tetap rapi.</p>
+			</div>
 			<Button onclick={openCatAdd} class="min-h-11 shrink-0">+ Tambah kategori</Button>
 		</div>
 	</header>
 
-	<div class="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800 overflow-hidden">
+	<div class="retro-card bg-[var(--surface-1)] overflow-hidden">
 		<div class="p-4 sm:p-5">
-			<div class="mb-3 flex items-center justify-between gap-3"><div><p class="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Pengeluaran</p><p class="mt-0.5 text-xs text-gray-400 dark:text-gray-500">Untuk transaksi dana keluar</p></div><span class="rounded-full bg-red-50 px-2 py-1 text-xs font-semibold text-red-600 dark:bg-red-950/30 dark:text-red-300">{expenseCats.length}</span></div>
+			<div class="mb-3 flex items-center justify-between gap-3">
+				<div>
+					<p class="font-mono text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">Pengeluaran</p>
+					<p class="mt-0.5 text-xs text-[var(--text-tertiary)]">Untuk transaksi dana keluar</p>
+				</div>
+				<span class="rounded-md border-[1.5px] border-[var(--border-strong)] bg-danger-50 px-2 py-0.5 font-mono text-xs font-bold text-danger-700 shadow-[1px_1px_0_var(--shadow-retro)] dark:bg-danger-950/40 dark:text-danger-300">{expenseCats.length}</span>
+			</div>
 			{#if expenseCats.length === 0}
-				<p class="text-sm text-gray-400 py-4 text-center">Belum ada kategori pengeluaran</p>
+				<p class="text-sm text-[var(--text-tertiary)] py-4 text-center font-mono">Belum ada kategori pengeluaran</p>
 			{:else}
 				<div class="space-y-1">
 					{#each expenseCats as c (c.id)}
-						<div class="group flex cursor-pointer items-center gap-2.5 rounded-xl px-2.5 py-2 transition hover:bg-gray-50 focus-within:bg-gray-50 dark:hover:bg-gray-800/50 dark:focus-within:bg-gray-800/50 sm:gap-3 sm:px-3 motion-reduce:transition-none" onclick={(e) => { if (e.target === e.currentTarget || !(e.target as HTMLElement).closest('button')) openCatEdit(c); }} role="button" tabindex="0" onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openCatEdit(c); } }}>
-							<div class="flex size-9 shrink-0 items-center justify-center rounded-xl text-base shadow-xs" style="background-color: {c.color}20; border: 1.5px solid {c.color}60">
+						<div class="group flex cursor-pointer items-center gap-2.5 rounded-lg border-[1.5px] border-transparent px-2.5 py-2 transition hover:border-[var(--border-strong)] hover:bg-[var(--surface-2)]/60 focus-within:bg-[var(--surface-2)]/60 sm:gap-3 sm:px-3 motion-reduce:transition-none" onclick={(e) => { if (e.target === e.currentTarget || !(e.target as HTMLElement).closest('button')) openCatEdit(c); }} role="button" tabindex="0" onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openCatEdit(c); } }}>
+							<div class="flex size-9 shrink-0 items-center justify-center rounded-lg border-[1.5px] border-[var(--border-strong)] text-base shadow-[1px_1px_0_var(--shadow-retro)]" style="background-color: {c.color}20">
 								<span>{getCategoryGlyph(c)}</span>
 							</div>
-							<span class="flex-1 min-w-0 text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{c.name}</span>
-							{#if c.isDefault}<span class="shrink-0 text-[10px] text-gray-400 bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded">default</span>{/if}
-							<button onclick={(e) => { e.stopPropagation(); openCatEdit(c); }} class="grid min-h-9 min-w-9 shrink-0 place-items-center rounded-lg text-gray-400 transition hover:bg-gray-100 hover:text-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:hover:bg-gray-700 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100 motion-reduce:transition-none" aria-label={`Edit kategori ${c.name}`}>
+							<span class="flex-1 min-w-0 text-sm font-bold text-[var(--text-primary)] truncate">{c.name}</span>
+							{#if c.isDefault}<span class="shrink-0 font-mono text-[10px] uppercase font-bold text-[var(--text-secondary)] bg-[var(--surface-2)] border border-[var(--border-strong)] px-1.5 py-0.5 rounded">default</span>{/if}
+							<button onclick={(e) => { e.stopPropagation(); openCatEdit(c); }} class="retro-btn-push grid min-h-8 min-w-8 shrink-0 place-items-center rounded-md border-[1.5px] border-transparent text-[var(--text-tertiary)] hover:border-[var(--border-strong)] hover:bg-[var(--surface-1)] hover:text-[var(--brand-primary)] sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100 motion-reduce:transition-none" aria-label={`Edit kategori ${c.name}`}>
 								<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
 							</button>
-							<button onclick={(e) => { e.stopPropagation(); catDeleteConfirm = c.id; }} disabled={c.isDefault} class="grid min-h-9 min-w-9 shrink-0 place-items-center rounded-lg text-gray-400 transition hover:bg-red-50 hover:text-red-500 focus:outline-none focus:ring-2 focus:ring-red-500 disabled:cursor-not-allowed disabled:opacity-30 dark:hover:bg-red-900/20 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100 motion-reduce:transition-none" aria-label={`Nonaktifkan kategori ${c.name}`}>
+							<button onclick={(e) => { e.stopPropagation(); catDeleteConfirm = c.id; }} disabled={c.isDefault} class="retro-btn-push grid min-h-8 min-w-8 shrink-0 place-items-center rounded-md border-[1.5px] border-transparent text-[var(--text-tertiary)] hover:border-[var(--border-strong)] hover:bg-danger-50 hover:text-danger-600 disabled:cursor-not-allowed disabled:opacity-30 dark:hover:bg-danger-950/30 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100 motion-reduce:transition-none" aria-label={`Nonaktifkan kategori ${c.name}`}>
 								<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
 							</button>
 						</div>
@@ -175,23 +188,29 @@
 			{/if}
 		</div>
 
-		<div class="border-t border-gray-200 p-4 dark:border-gray-800 sm:p-5">
-			<div class="mb-3 flex items-center justify-between gap-3"><div><p class="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Pemasukan</p><p class="mt-0.5 text-xs text-gray-400 dark:text-gray-500">Untuk transaksi dana masuk</p></div><span class="rounded-full bg-green-50 px-2 py-1 text-xs font-semibold text-green-600 dark:bg-green-950/30 dark:text-green-300">{incomeCats.length}</span></div>
+		<div class="border-t-[1.5px] border-[var(--border-strong)] p-4 sm:p-5">
+			<div class="mb-3 flex items-center justify-between gap-3">
+				<div>
+					<p class="font-mono text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">Pemasukan</p>
+					<p class="mt-0.5 text-xs text-[var(--text-tertiary)]">Untuk transaksi dana masuk</p>
+				</div>
+				<span class="rounded-md border-[1.5px] border-[var(--border-strong)] bg-emerald-50 px-2 py-0.5 font-mono text-xs font-bold text-emerald-800 shadow-[1px_1px_0_var(--shadow-retro)] dark:bg-emerald-950/40 dark:text-emerald-300">{incomeCats.length}</span>
+			</div>
 			{#if incomeCats.length === 0}
-				<p class="text-sm text-gray-400 py-4 text-center">Belum ada kategori pemasukan</p>
+				<p class="text-sm text-[var(--text-tertiary)] py-4 text-center font-mono">Belum ada kategori pemasukan</p>
 			{:else}
 				<div class="space-y-1">
 					{#each incomeCats as c (c.id)}
-						<div class="group flex cursor-pointer items-center gap-2.5 rounded-xl px-2.5 py-2 transition hover:bg-gray-50 focus-within:bg-gray-50 dark:hover:bg-gray-800/50 dark:focus-within:bg-gray-800/50 sm:gap-3 sm:px-3 motion-reduce:transition-none" onclick={(e) => { if (e.target === e.currentTarget || !(e.target as HTMLElement).closest('button')) openCatEdit(c); }} role="button" tabindex="0" onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openCatEdit(c); } }}>
-							<div class="flex size-9 shrink-0 items-center justify-center rounded-xl text-base shadow-xs" style="background-color: {c.color}20; border: 1.5px solid {c.color}60">
+						<div class="group flex cursor-pointer items-center gap-2.5 rounded-lg border-[1.5px] border-transparent px-2.5 py-2 transition hover:border-[var(--border-strong)] hover:bg-[var(--surface-2)]/60 focus-within:bg-[var(--surface-2)]/60 sm:gap-3 sm:px-3 motion-reduce:transition-none" onclick={(e) => { if (e.target === e.currentTarget || !(e.target as HTMLElement).closest('button')) openCatEdit(c); }} role="button" tabindex="0" onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openCatEdit(c); } }}>
+							<div class="flex size-9 shrink-0 items-center justify-center rounded-lg border-[1.5px] border-[var(--border-strong)] text-base shadow-[1px_1px_0_var(--shadow-retro)]" style="background-color: {c.color}20">
 								<span>{getCategoryGlyph(c)}</span>
 							</div>
-							<span class="flex-1 min-w-0 text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{c.name}</span>
-							{#if c.isDefault}<span class="shrink-0 text-[10px] text-gray-400 bg-gray-100 dark:bg-gray-800 px-1.5 py-0.5 rounded">default</span>{/if}
-							<button onclick={(e) => { e.stopPropagation(); openCatEdit(c); }} class="grid min-h-9 min-w-9 shrink-0 place-items-center rounded-lg text-gray-400 transition hover:bg-gray-100 hover:text-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:hover:bg-gray-700 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100 motion-reduce:transition-none" aria-label={`Edit kategori ${c.name}`}>
+							<span class="flex-1 min-w-0 text-sm font-bold text-[var(--text-primary)] truncate">{c.name}</span>
+							{#if c.isDefault}<span class="shrink-0 font-mono text-[10px] uppercase font-bold text-[var(--text-secondary)] bg-[var(--surface-2)] border border-[var(--border-strong)] px-1.5 py-0.5 rounded">default</span>{/if}
+							<button onclick={(e) => { e.stopPropagation(); openCatEdit(c); }} class="retro-btn-push grid min-h-8 min-w-8 shrink-0 place-items-center rounded-md border-[1.5px] border-transparent text-[var(--text-tertiary)] hover:border-[var(--border-strong)] hover:bg-[var(--surface-1)] hover:text-[var(--brand-primary)] sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100 motion-reduce:transition-none" aria-label={`Edit kategori ${c.name}`}>
 								<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
 							</button>
-							<button onclick={(e) => { e.stopPropagation(); catDeleteConfirm = c.id; }} disabled={c.isDefault} class="grid min-h-9 min-w-9 shrink-0 place-items-center rounded-lg text-gray-400 transition hover:bg-red-50 hover:text-red-500 focus:outline-none focus:ring-2 focus:ring-red-500 disabled:cursor-not-allowed disabled:opacity-30 dark:hover:bg-red-900/20 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100 motion-reduce:transition-none" aria-label={`Nonaktifkan kategori ${c.name}`}>
+							<button onclick={(e) => { e.stopPropagation(); catDeleteConfirm = c.id; }} disabled={c.isDefault} class="retro-btn-push grid min-h-8 min-w-8 shrink-0 place-items-center rounded-md border-[1.5px] border-transparent text-[var(--text-tertiary)] hover:border-[var(--border-strong)] hover:bg-danger-50 hover:text-danger-600 disabled:cursor-not-allowed disabled:opacity-30 dark:hover:bg-danger-950/30 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100 motion-reduce:transition-none" aria-label={`Nonaktifkan kategori ${c.name}`}>
 								<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
 							</button>
 						</div>

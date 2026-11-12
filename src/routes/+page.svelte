@@ -33,17 +33,17 @@
 </script>
 
 <svelte:head>
-	<title>MemFinance — Catat Keuangan Pribadi dengan Lebih Tenang</title>
+	<title>MemFinance · Catat Keuangan Pribadi dengan Lebih Tenang</title>
 	<meta name="description" content="MemFinance membantu Anda mencatat transaksi, memantau anggaran, dan memahami kebiasaan keuangan dengan sederhana, privat, dan tetap berguna saat offline." />
 	<meta name="robots" content="index, follow" />
 	<meta name="theme-color" content="#0f766e" />
 	<meta property="og:type" content="website" />
 	<meta property="og:site_name" content="MemFinance" />
 	<meta property="og:locale" content="id_ID" />
-	<meta property="og:title" content="MemFinance — Keuangan lebih jelas, keputusan lebih tenang" />
+	<meta property="og:title" content="MemFinance · Keuangan lebih jelas, keputusan lebih tenang" />
 	<meta property="og:description" content="Catat transaksi, pantau anggaran, dan pahami kebiasaan keuangan Anda dengan MemFinance." />
 	<meta name="twitter:card" content="summary" />
-	<meta name="twitter:title" content="MemFinance — Keuangan lebih jelas, keputusan lebih tenang" />
+	<meta name="twitter:title" content="MemFinance · Keuangan lebih jelas, keputusan lebih tenang" />
 	<meta name="twitter:description" content="Catat transaksi, pantau anggaran, dan pahami kebiasaan keuangan Anda dengan MemFinance." />
 </svelte:head>
 
@@ -73,7 +73,7 @@
 				<div class="animate-enter text-center lg:text-left">
 					<p class="inline-flex items-center gap-2 rounded-full border border-primary-200 bg-white/80 px-3.5 py-1.5 text-xs font-extrabold tracking-wide text-primary-800 shadow-sm dark:border-primary-900 dark:bg-primary-950/50 dark:text-primary-200"><span class="h-1.5 w-1.5 rounded-full bg-primary-500"></span>KEUANGAN PRIBADI, TANPA RIBET</p>
 					<h1 class="mt-6 max-w-3xl text-4xl font-extrabold leading-[1.08] tracking-[-0.045em] text-gray-950 dark:text-white sm:text-5xl lg:text-6xl">Berhenti menebak. <span class="text-primary-700 dark:text-primary-400">Mulai merasa tenang.</span></h1>
-					<p class="mx-auto mt-6 max-w-xl text-base leading-7 text-gray-600 dark:text-gray-300 sm:text-lg sm:leading-8 lg:mx-0">MemFinance membuat catatan harian, anggaran, dan pola pengeluaran terasa mudah dimengerti—agar uang Anda bisa mendukung hidup yang Anda inginkan.</p>
+					<p class="mx-auto mt-6 max-w-xl text-base leading-7 text-gray-600 dark:text-gray-300 sm:text-lg sm:leading-8 lg:mx-0">MemFinance membuat catatan harian, anggaran, dan pola pengeluaran terasa mudah dimengerti, agar uang Anda bisa mendukung hidup yang Anda inginkan.</p>
 					<div class="mt-8 flex flex-col justify-center gap-3 sm:flex-row lg:justify-start">
 							<a href={resolve('/login')} class="cta-button inline-flex min-h-[3.25rem] items-center justify-center gap-2 rounded-2xl bg-primary-600 px-6 text-sm font-extrabold text-white shadow-xl shadow-primary-600/25 outline-none hover:bg-primary-700 focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2">Mulai gratis <span class="arrow text-lg leading-none" aria-hidden="true">→</span></a>
 						<a href="#cara-kerja" class="inline-flex min-h-[3.25rem] items-center justify-center gap-2 rounded-2xl border border-gray-200 bg-white/80 px-6 text-sm font-extrabold text-gray-700 outline-none transition hover:border-primary-300 hover:text-primary-700 focus-visible:ring-2 focus-visible:ring-primary-500 dark:border-gray-800 dark:bg-gray-900/80 dark:text-gray-200 dark:hover:border-primary-700 dark:hover:text-primary-300">Lihat cara kerjanya <span aria-hidden="true">↓</span></a>
@@ -122,7 +122,7 @@
 		<section class="mx-auto max-w-3xl px-4 pb-20 sm:px-6 lg:px-8"><div class="text-center"><p class="eyebrow">PERTANYAAN SINGKAT</p><h2 class="mt-3 text-3xl font-extrabold tracking-tight text-gray-950 dark:text-white">Yang perlu Anda tahu.</h2></div><div class="mt-8 divide-y divide-gray-200 rounded-2xl border border-gray-200 bg-white px-5 dark:divide-gray-800 dark:border-gray-800 dark:bg-gray-900"><details class="group py-4"><summary class="cursor-pointer list-none pr-8 text-sm font-extrabold text-gray-950 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 dark:text-white">Apakah MemFinance gratis?<span class="float-right text-primary-600 transition group-open:rotate-45" aria-hidden="true">+</span></summary><p class="pt-3 text-sm leading-6 text-gray-600 dark:text-gray-400">Anda dapat mulai menggunakan MemFinance tanpa kartu kredit.</p></details><details class="group py-4"><summary class="cursor-pointer list-none pr-8 text-sm font-extrabold text-gray-950 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 dark:text-white">Dapatkah saya menggunakannya tanpa internet?<span class="float-right text-primary-600 transition group-open:rotate-45" aria-hidden="true">+</span></summary><p class="pt-3 text-sm leading-6 text-gray-600 dark:text-gray-400">Ya. MemFinance dirancang agar catatan keuangan tetap dapat digunakan saat koneksi tidak tersedia.</p></details><details class="group py-4"><summary class="cursor-pointer list-none pr-8 text-sm font-extrabold text-gray-950 outline-none focus-visible:ring-2 focus-visible:ring-primary-500 dark:text-white">Apakah data saya bisa dibawa pergi?<span class="float-right text-primary-600 transition group-open:rotate-45" aria-hidden="true">+</span></summary><p class="pt-3 text-sm leading-6 text-gray-600 dark:text-gray-400">Ya. Anda dapat mengekspor data dari pengaturan aplikasi kapan pun diperlukan.</p></details></div></section>
 	</main>
 
-		<footer class="border-t border-gray-200 bg-white/60 px-4 py-8 dark:border-gray-800 dark:bg-gray-900/40 sm:px-6 lg:px-8"><div class="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 text-center text-xs text-gray-500 sm:flex-row sm:text-left dark:text-gray-400"><p>MemFinance — Kendali keuangan, di tangan Anda.</p><a href={resolve('/login')} class="font-bold text-primary-700 outline-none transition-colors hover:text-primary-800 focus-visible:ring-2 focus-visible:ring-primary-500 dark:text-primary-400">Masuk ke MemFinance <span aria-hidden="true">→</span></a></div></footer>
+		<footer class="border-t border-gray-200 bg-white/60 px-4 py-8 dark:border-gray-800 dark:bg-gray-900/40 sm:px-6 lg:px-8"><div class="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 text-center text-xs text-gray-500 sm:flex-row sm:text-left dark:text-gray-400"><p>MemFinance · Kendali keuangan, di tangan Anda.</p><a href={resolve('/login')} class="font-bold text-primary-700 outline-none transition-colors hover:text-primary-800 focus-visible:ring-2 focus-visible:ring-primary-500 dark:text-primary-400">Masuk ke MemFinance <span aria-hidden="true">→</span></a></div></footer>
 </div>
 
 <style>

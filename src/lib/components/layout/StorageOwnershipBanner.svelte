@@ -163,7 +163,7 @@
 	};
 </script>
 
-<section class="rounded-2xl border {status === 'CHOICE_REQUIRED' || status === 'SETUP_ERROR' ? 'mx-auto mt-8 max-w-2xl p-6 sm:mt-14 sm:p-8' : 'mb-4 p-4 sm:mb-6 sm:flex sm:items-center sm:justify-between sm:gap-5'} {content[status].tone}" aria-labelledby="storage-ownership-title">
+<section class="rounded-xl border-[1.5px] border-[var(--border-strong)] shadow-[var(--shadow-retro-sm)] {status === 'CHOICE_REQUIRED' || status === 'SETUP_ERROR' ? 'mx-auto mt-8 max-w-2xl p-6 sm:mt-14 sm:p-8' : 'mb-4 p-4 sm:mb-6 sm:flex sm:items-center sm:justify-between sm:gap-5'} {content[status].tone}" aria-labelledby="storage-ownership-title">
 	<div class="min-w-0">
 		<h2 id="storage-ownership-title" class="font-extrabold {status === 'CHOICE_REQUIRED' || status === 'SETUP_ERROR' ? 'text-xl sm:text-2xl' : 'text-sm'}">{content[status].title}</h2>
 		<p class="mt-1 max-w-3xl text-sm leading-6 opacity-90">{content[status].description}</p>

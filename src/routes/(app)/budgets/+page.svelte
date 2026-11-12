@@ -275,12 +275,19 @@
 	}
 </script>
 
-<svelte:head><title>Budget — MemFinance</title></svelte:head>
+<svelte:head><title>Budget · MemFinance</title></svelte:head>
 
 <div class="space-y-5 sm:space-y-6">
-	<header class="rounded-2xl border border-primary-100 bg-gradient-to-br from-white via-primary-50/60 to-sky-50 p-4 sm:p-6 shadow-sm dark:border-primary-900/60 dark:from-gray-900 dark:via-primary-950/40 dark:to-gray-900">
-		<div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-			<div><p class="text-sm font-medium text-primary-700 dark:text-primary-300">Rencana pengeluaran</p><h1 class="mt-1 text-2xl font-bold tracking-tight text-gray-950 dark:text-white sm:text-3xl">Budget</h1><p class="mt-1 text-sm text-gray-600 dark:text-gray-300">Atur batas per kategori dan cek progresnya kapan saja.</p></div>
+	<header class="retro-card p-4 sm:p-6 bg-[var(--surface-1)]">
+		<div class="flex items-center gap-2 text-[11px] font-mono font-bold tracking-widest uppercase text-[var(--brand-primary)]">
+			<span class="inline-block size-1.5 rounded-full bg-[var(--brand-primary)]"></span>
+			Buku Kas · Alokasi Anggaran
+		</div>
+		<div class="mt-2 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+			<div>
+				<h1 class="text-2xl font-black tracking-tight text-[var(--text-primary)] sm:text-3xl">Budget</h1>
+				<p class="mt-0.5 text-xs sm:text-sm text-[var(--text-secondary)]">Atur batas per kategori dan cek progresnya kapan saja.</p>
+			</div>
 			<div class="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
 				<Button variant="secondary" onclick={openCopyBudget} class="min-h-11">Salin budget</Button>
 				<Button onclick={openAdd} disabled={unbudgetedCats.length === 0} class="min-h-11"><span class="hidden sm:inline">+ Tambah budget</span><span class="sm:hidden">+ Budget</span></Button>
@@ -289,16 +296,20 @@
 	</header>
 
 	<div class="flex items-center justify-center" aria-label="Pilih periode budget">
-		<div class="inline-flex items-center gap-1 rounded-xl border border-gray-200 bg-white p-1 shadow-sm dark:border-gray-700 dark:bg-gray-900">
-			<button onclick={prevMonth} aria-label="Bulan sebelumnya" class="grid min-h-10 min-w-10 place-items-center rounded-lg text-gray-600 transition hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:text-gray-300 dark:hover:bg-gray-800 motion-reduce:transition-none"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg></button>
-			<span class="min-w-40 px-2 text-center text-sm font-semibold text-gray-900 dark:text-gray-100 sm:text-base" aria-live="polite">{monthNames[month - 1]} {year}</span>
-			<button onclick={nextMonth} aria-label="Bulan berikutnya" class="grid min-h-10 min-w-10 place-items-center rounded-lg text-gray-600 transition hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:text-gray-300 dark:hover:bg-gray-800 motion-reduce:transition-none"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg></button>
+		<div class="retro-card inline-flex items-center gap-1 rounded-lg border-[1.5px] border-[var(--border-strong)] bg-[var(--surface-1)] p-1 shadow-[var(--shadow-retro-sm)]">
+			<button onclick={prevMonth} aria-label="Bulan sebelumnya" class="retro-btn-push grid min-h-9 min-w-9 place-items-center rounded-md border-[1.5px] border-[var(--border-strong)] bg-[var(--surface-2)] text-[var(--text-primary)] shadow-[1px_1px_0_var(--shadow-retro)]">
+				<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" /></svg>
+			</button>
+			<span class="min-w-40 px-3 text-center font-mono text-xs font-bold uppercase tracking-wider text-[var(--text-primary)]" aria-live="polite">{monthNames[month - 1]} {year}</span>
+			<button onclick={nextMonth} aria-label="Bulan berikutnya" class="retro-btn-push grid min-h-9 min-w-9 place-items-center rounded-md border-[1.5px] border-[var(--border-strong)] bg-[var(--surface-2)] text-[var(--text-primary)] shadow-[1px_1px_0_var(--shadow-retro)]">
+				<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" /></svg>
+			</button>
 		</div>
 	</div>
 	{#if app.budgetsStale}
-		<div class="text-center text-xs text-amber-600 dark:text-amber-400">
-			Data tidak dapat dimuat dari server. Menampilkan data tersimpan.
-			<button onclick={load} class="underline ml-1">Coba lagi</button>
+		<div class="text-center font-mono text-xs font-bold text-amber-700 dark:text-amber-400">
+			[OFFLINE] Menampilkan data tersimpan di perangkat.
+			<button onclick={load} class="underline ml-1 font-bold">Coba lagi</button>
 		</div>
 	{/if}
 
@@ -311,30 +322,30 @@
 	{:else}
 		<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
 			{#each summaries as s (s.categoryId)}
-				<Card class="transition hover:-translate-y-0.5 hover:shadow-md motion-reduce:transform-none motion-reduce:transition-none">
+				<Card class="transition hover:-translate-y-0.5 motion-reduce:transform-none">
 					<div>
 						<div class="mb-3 flex items-start justify-between gap-3">
 							<div class="flex items-center gap-2 min-w-0">
-								<div class="h-3.5 w-3.5 rounded-full shrink-0 ring-2 ring-white dark:ring-gray-900" style="background-color: {s.categoryColor}"></div>
-								<div class="min-w-0"><span class="font-semibold text-gray-900 dark:text-gray-100 truncate">{s.categoryName}</span><p class="text-xs text-gray-500 dark:text-gray-400">{s.percentage}% terpakai</p></div>
+								<div class="h-3.5 w-3.5 rounded-full shrink-0 ring-2 ring-black/10 dark:ring-white/20" style="background-color: {s.categoryColor}"></div>
+								<div class="min-w-0"><span class="font-bold text-[var(--text-primary)] truncate">{s.categoryName}</span><p class="font-mono text-xs font-bold text-[var(--text-secondary)]">{s.percentage}% terpakai</p></div>
 							</div>
-							<div class="flex shrink-0 items-center gap-1">
-								<button onclick={() => openDetail(s)} class="min-h-9 rounded-lg px-2 text-xs font-semibold text-primary-600 transition hover:bg-primary-50 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:text-primary-400 dark:hover:bg-primary-950/40 motion-reduce:transition-none" aria-label={`Lihat detail budget ${s.categoryName}`}>Detail</button>
-								<button onclick={() => deleteConfirmCatId = s.categoryId} class="grid min-h-9 min-w-9 place-items-center rounded-lg text-gray-400 transition hover:bg-red-50 hover:text-red-500 focus:outline-none focus:ring-2 focus:ring-red-500 dark:hover:bg-red-950/30 motion-reduce:transition-none" aria-label={`Hapus budget ${s.categoryName}`}>
+							<div class="flex shrink-0 items-center gap-1.5">
+								<button onclick={() => openDetail(s)} class="retro-btn-push min-h-8 rounded-md border-[1.5px] border-[var(--border-strong)] bg-[var(--surface-2)] px-2.5 font-mono text-[11px] font-bold uppercase tracking-wider text-[var(--text-primary)] shadow-[1px_1px_0_var(--shadow-retro)] hover:bg-[var(--surface-1)]" aria-label={`Lihat detail budget ${s.categoryName}`}>Detail</button>
+								<button onclick={() => deleteConfirmCatId = s.categoryId} class="retro-btn-push grid min-h-8 min-w-8 place-items-center rounded-md border-[1.5px] border-transparent text-[var(--text-tertiary)] hover:border-[var(--border-strong)] hover:bg-danger-50 hover:text-danger-600 dark:hover:bg-danger-950/40" aria-label={`Hapus budget ${s.categoryName}`}>
 									<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
 								</button>
 							</div>
 						</div>
 						<ProgressBar value={s.spentAmount} max={s.budgetAmount} class="mb-3" />
-						<div class="flex items-center justify-between gap-2 text-xs text-gray-500 dark:text-gray-400">
-							<span class="truncate">Terpakai <span class="font-semibold text-gray-700 dark:text-gray-200">{formatRupiah(s.spentAmount)}</span></span>
+						<div class="flex items-center justify-between gap-2 font-mono text-xs text-[var(--text-secondary)]">
+							<span class="truncate">Terpakai <span class="font-bold text-[var(--text-primary)]">{formatRupiah(s.spentAmount)}</span></span>
 							{#if s.remainingAmount < 0}
-								<span class="shrink-0 font-bold text-red-600 dark:text-red-400">Over {formatRupiah(Math.abs(s.remainingAmount))}</span>
+								<span class="shrink-0 font-bold text-danger-700 dark:text-danger-400">Over {formatRupiah(Math.abs(s.remainingAmount))}</span>
 							{:else}
-								<span class="shrink-0">Sisa {formatRupiah(s.remainingAmount)}</span>
+								<span class="shrink-0 font-bold text-[var(--text-primary)]">Sisa {formatRupiah(s.remainingAmount)}</span>
 							{/if}
 						</div>
-						<p class="mt-1 text-right text-xs text-gray-400">dari {formatRupiah(s.budgetAmount)}</p>
+						<p class="mt-1 font-mono text-right text-[11px] text-[var(--text-tertiary)]">dari {formatRupiah(s.budgetAmount)}</p>
 					</div>
 				</Card>
 			{/each}

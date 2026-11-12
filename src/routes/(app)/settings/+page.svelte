@@ -290,48 +290,55 @@
 	}
 </script>
 
-<svelte:head><title>Pengaturan — MemFinance</title></svelte:head>
+<svelte:head><title>Pengaturan · MemFinance</title></svelte:head>
 
 <div class="mx-auto max-w-3xl space-y-5 sm:space-y-7">
-	<header><p class="text-sm font-medium text-primary-700 dark:text-primary-300">Preferensi aplikasi</p><h1 class="mt-1 text-2xl font-bold tracking-tight text-gray-950 dark:text-white sm:text-3xl">Pengaturan</h1><p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Atur tampilan dan kelola data Anda dengan aman.</p></header>
+	<header>
+		<div class="flex items-center gap-2 text-[11px] font-mono font-bold tracking-widest uppercase text-[var(--brand-primary)]">
+			<span class="inline-block size-1.5 rounded-full bg-[var(--brand-primary)]"></span>
+			Sistem · Konfigurasi
+		</div>
+		<h1 class="mt-1 text-2xl font-black tracking-tight text-[var(--text-primary)] sm:text-3xl">Pengaturan</h1>
+		<p class="mt-0.5 text-xs sm:text-sm text-[var(--text-secondary)]">Atur preferensi tampilan dan kelola data Anda secara aman.</p>
+	</header>
 
 	{#if message}
-		<div class="rounded-xl border border-primary-200 bg-primary-50 px-4 py-3 text-sm text-primary-800 dark:border-primary-900 dark:bg-primary-950/40 dark:text-primary-200" role="status" transition:fade={{ duration: 180 }}>{message}</div>
+		<div class="rounded-lg border-[1.5px] border-[var(--border-strong)] bg-primary-50 px-4 py-3 font-mono text-xs font-bold text-primary-900 shadow-[var(--shadow-retro-sm)] dark:bg-primary-950/60 dark:text-primary-200" role="status" transition:fade={{ duration: 180 }}>{message}</div>
 	{/if}
 
 	{#if app.user}
-		<section class="overflow-hidden rounded-2xl border border-gray-200 bg-white p-4 shadow-sm sm:p-5 dark:border-gray-800 dark:bg-gray-900" aria-label="Informasi akun">
+		<section class="retro-card overflow-hidden bg-[var(--surface-1)] p-4 sm:p-5" aria-label="Informasi akun">
 			<div class="flex items-center gap-3.5">
 				{#if app.user.user_metadata?.avatar_url}
-					<img src={app.user.user_metadata.avatar_url} alt={app.user.user_metadata.name || 'User'} class="size-12 shrink-0 rounded-full ring-2 ring-primary-500/20 object-cover" />
+					<img src={app.user.user_metadata.avatar_url} alt={app.user.user_metadata.name || 'User'} class="size-12 shrink-0 rounded-lg border-[1.5px] border-[var(--border-strong)] object-cover shadow-[var(--shadow-retro-sm)]" />
 				{:else}
-					<div class="grid size-12 shrink-0 place-items-center rounded-full bg-primary-100 text-base font-bold text-primary-700 dark:bg-primary-950 dark:text-primary-300">
+					<div class="grid size-12 shrink-0 place-items-center rounded-lg border-[1.5px] border-[var(--border-strong)] bg-[var(--surface-2)] text-base font-black text-[var(--text-primary)] shadow-[var(--shadow-retro-sm)]">
 						{(app.user.user_metadata?.name || app.user.email || 'U').charAt(0).toUpperCase()}
 					</div>
 				{/if}
 				<div class="min-w-0 flex-1">
 					<div class="flex flex-wrap items-center gap-2">
-						<p class="font-bold text-gray-950 dark:text-white">{app.user.user_metadata?.name || 'Pengguna'}</p>
-						<span class="rounded-md bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">{app.user.app_metadata?.provider === 'google' ? 'Google' : 'Email'}</span>
+						<p class="font-bold text-[var(--text-primary)]">{app.user.user_metadata?.name || 'Pengguna'}</p>
+						<span class="rounded-md border border-[var(--border-strong)] bg-emerald-50 px-2 py-0.5 font-mono text-[10px] font-bold uppercase text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300">{app.user.app_metadata?.provider === 'google' ? 'Google' : 'Email'}</span>
 					</div>
-					<p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400 truncate">{app.user.email}</p>
-					<p class="mt-1 font-mono text-[10px] text-gray-400 dark:text-gray-500 truncate">User ID: {app.user.id}</p>
+					<p class="mt-0.5 font-mono text-xs text-[var(--text-secondary)] truncate">{app.user.email}</p>
+					<p class="mt-1 font-mono text-[10px] text-[var(--text-tertiary)] truncate">USER ID: {app.user.id}</p>
 				</div>
 			</div>
 		</section>
 	{/if}
 
 	{#if data.personalStorageEnabled}
-		<section class="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm sm:p-5 dark:border-gray-800 dark:bg-gray-900" aria-label="Kepemilikan spreadsheet">
-			<h2 class="font-bold text-gray-950 dark:text-white">Kepemilikan spreadsheet</h2>
-			<p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
+		<section class="retro-card bg-[var(--surface-1)] p-4 sm:p-5" aria-label="Kepemilikan spreadsheet">
+			<h2 class="font-bold text-[var(--text-primary)]">Kepemilikan Spreadsheet</h2>
+			<p class="mt-1 text-sm text-[var(--text-secondary)]">
 				{data.storageStatus === 'USER_OWNED_ADMIN_EDITOR' ? 'Spreadsheet ini milik akun Google Anda.' : 'Spreadsheet ini belum terverifikasi sebagai milik akun Google Anda.'}
 			</p>
 			{#if data.storageStatus === 'USER_OWNED_ADMIN_EDITOR'}
-				<p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Admin aplikasi tetap memiliki akses editor agar sinkronisasi melalui Apps Script berjalan.</p>
+				<p class="mt-1 text-xs text-[var(--text-tertiary)]">Admin aplikasi tetap memiliki akses editor agar sinkronisasi melalui Apps Script berjalan.</p>
 			{/if}
 			{#if data.storageStatus === 'USER_OWNED_ADMIN_EDITOR' || data.storageStatus === 'TRANSFER_PENDING'}
-				<button type="button" class="mt-3 text-sm font-semibold text-primary-700 underline dark:text-primary-300" onclick={() => void refreshStorageStatus()}>Periksa status Google Drive</button>
+				<button type="button" class="mt-3 font-mono text-xs font-bold uppercase tracking-wider text-[var(--brand-primary)] underline" onclick={() => void refreshStorageStatus()}>Periksa status Google Drive →</button>
 			{/if}
 		</section>
 	{/if}
@@ -358,14 +365,14 @@
 		</section>
 	{/if}
 
-	<section class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm divide-y divide-gray-200 dark:border-gray-800 dark:bg-gray-900 dark:divide-gray-800">
+	<section class="retro-card overflow-hidden bg-[var(--surface-1)] divide-y-[1.5px] divide-[var(--border-strong)]" aria-label="Preferensi aplikasi">
 		<div class="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
 			<div>
-				<p class="font-medium text-gray-900 dark:text-gray-100">Zona Waktu (GMT)</p>
-				<p class="text-sm text-gray-500 dark:text-gray-400">Atur tampilan waktu sesuai zona Anda</p>
+				<p class="font-bold text-[var(--text-primary)]">Zona Waktu (GMT)</p>
+				<p class="text-xs text-[var(--text-secondary)]">Atur tampilan waktu sesuai zona Anda</p>
 			</div>
 			<select aria-label="Pilih zona waktu" value={app.gmtOffset} onchange={(e) => { const v = Number((e.target as HTMLSelectElement).value); app.gmtOffset = v; setGmtOffset(v); }}
-				class="min-h-11 rounded-xl border border-gray-300 bg-white pl-3.5 pr-10 text-sm font-medium text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500/30 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100">
+				class="min-h-11 rounded-lg border-[1.5px] border-[var(--border-strong)] bg-[var(--surface-1)] pl-3.5 pr-10 font-mono text-xs font-bold uppercase tracking-wider text-[var(--text-primary)] shadow-[var(--shadow-retro-sm)] focus:outline-none">
 					{#each gmtOptions as opt (opt.value)}
 					<option value={opt.value}>{opt.label}</option>
 				{/each}
@@ -374,58 +381,58 @@
 
 		<div class="flex items-center justify-between gap-4 p-4 sm:p-5">
 			<div>
-				<p class="font-medium text-gray-900 dark:text-gray-100">Mode Gelap</p>
-				<p class="text-sm text-gray-500 dark:text-gray-400">Ubah tampilan aplikasi</p>
+				<p class="font-bold text-[var(--text-primary)]">Mode Tampilan</p>
+				<p class="text-xs text-[var(--text-secondary)]">Kertas Gading Hangat / Fosfor Vintage</p>
 			</div>
 			<button
 				onclick={toggleDarkMode}
-				class="relative h-7 w-12 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 {darkMode ? 'bg-primary-600' : 'bg-gray-300 dark:bg-gray-600'}"
+				class="relative h-7 w-12 rounded-full border-[1.5px] border-[var(--border-strong)] transition-colors focus:outline-none shadow-[var(--shadow-retro-sm)] {darkMode ? 'bg-[var(--brand-primary)]' : 'bg-[var(--surface-2)]'}"
 				role="switch"
 				aria-checked={darkMode}
 				aria-label="{darkMode ? 'Nonaktifkan' : 'Aktifkan'} mode gelap"
 			>
-				<span class="absolute left-1 top-1 h-5 w-5 rounded-full bg-white shadow transition-transform motion-reduce:transition-none {darkMode ? 'translate-x-5' : 'translate-x-0'}"></span>
+				<span class="absolute left-0.5 top-0.5 h-5 w-5 rounded-full border border-[var(--border-strong)] bg-white shadow transition-transform motion-reduce:transition-none {darkMode ? 'translate-x-5' : 'translate-x-0'}"></span>
 			</button>
 		</div>
 
 		<div class="p-4 sm:p-5">
-			<p class="font-medium text-gray-900 dark:text-gray-100 mb-1">Manajemen Data</p>
-			<p class="text-sm text-gray-500 dark:text-gray-400 mb-4">Ekspor atau impor preferensi perangkat. Untuk data keuangan, gunakan ekspor CSV atau SQLite di bawah.</p>
+			<p class="font-bold text-[var(--text-primary)] mb-0.5">Manajemen Data</p>
+			<p class="text-xs text-[var(--text-secondary)] mb-4">Ekspor atau impor preferensi perangkat. Untuk data keuangan, gunakan ekspor CSV atau SQLite di bawah.</p>
 			<div class="grid gap-2.5 sm:grid-cols-2">
-				<button onclick={exportPreferences} class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary-600 px-4 text-sm font-semibold text-white transition-colors hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2">
-					<svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-					Ekspor preferensi JSON
+				<button onclick={exportPreferences} class="retro-btn-push inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border-[1.5px] border-[var(--border-strong)] bg-[var(--brand-primary)] px-4 font-mono text-xs font-bold uppercase tracking-wider text-white shadow-[var(--shadow-retro-sm)]">
+					<svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+					Ekspor JSON
 				</button>
-				<button onclick={importPreferences} class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-gray-100 px-4 text-sm font-semibold text-gray-800 transition-colors hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-primary-500/30 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700">
-					<svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
-					Impor preferensi JSON
+				<button onclick={importPreferences} class="retro-btn-push inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border-[1.5px] border-[var(--border-strong)] bg-[var(--surface-2)] px-4 font-mono text-xs font-bold uppercase tracking-wider text-[var(--text-primary)] shadow-[var(--shadow-retro-sm)]">
+					<svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+					Impor JSON
 				</button>
 			</div>
-			<div class="mt-5 border-t border-gray-200 pt-4 dark:border-gray-700">
-				<p class="mb-2 text-xs font-bold uppercase tracking-wide text-gray-500">Format data spreadsheet & database</p>
+			<div class="mt-5 border-t-[1.5px] border-[var(--border-strong)] pt-4">
+				<p class="mb-2.5 font-mono text-[11px] font-bold uppercase tracking-widest text-[var(--brand-primary)]">Format Tabel & Database</p>
 				<div class="grid gap-2 sm:grid-cols-2">
-					<button onclick={handleExportCSV} disabled={csvBusy} class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-gray-300 px-4 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500/30 disabled:opacity-50 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800">
-						<svg class="size-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+					<button onclick={handleExportCSV} disabled={csvBusy} class="retro-btn-push inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border-[1.5px] border-[var(--border-strong)] bg-[var(--surface-1)] px-4 font-mono text-xs font-bold uppercase tracking-wider text-[var(--text-primary)] shadow-[var(--shadow-retro-sm)] disabled:opacity-50">
+						<svg class="size-4 text-[var(--text-secondary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
 						{csvBusy ? 'Memproses...' : 'Ekspor CSV'}
 					</button>
-					<button onclick={handleImportCSV} disabled={csvBusy} class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-gray-300 px-4 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500/30 disabled:opacity-50 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800">
-						<svg class="size-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+					<button onclick={handleImportCSV} disabled={csvBusy} class="retro-btn-push inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border-[1.5px] border-[var(--border-strong)] bg-[var(--surface-1)] px-4 font-mono text-xs font-bold uppercase tracking-wider text-[var(--text-primary)] shadow-[var(--shadow-retro-sm)] disabled:opacity-50">
+						<svg class="size-4 text-[var(--text-secondary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
 						{csvBusy ? 'Memproses...' : 'Impor CSV'}
 					</button>
-					<button onclick={handleExportSQLite} disabled={sqliteBusy} class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-gray-300 px-4 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500/30 disabled:opacity-50 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800">
-						<svg class="size-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+					<button onclick={handleExportSQLite} disabled={sqliteBusy} class="retro-btn-push inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border-[1.5px] border-[var(--border-strong)] bg-[var(--surface-1)] px-4 font-mono text-xs font-bold uppercase tracking-wider text-[var(--text-primary)] shadow-[var(--shadow-retro-sm)] disabled:opacity-50">
+						<svg class="size-4 text-[var(--text-secondary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
 						{sqliteBusy ? 'Memproses...' : 'Ekspor SQLite'}
 					</button>
-					<button onclick={handleImportSQLite} disabled={sqliteBusy} class="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-gray-300 px-4 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500/30 disabled:opacity-50 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800">
-						<svg class="size-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+					<button onclick={handleImportSQLite} disabled={sqliteBusy} class="retro-btn-push inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border-[1.5px] border-[var(--border-strong)] bg-[var(--surface-1)] px-4 font-mono text-xs font-bold uppercase tracking-wider text-[var(--text-primary)] shadow-[var(--shadow-retro-sm)] disabled:opacity-50">
+						<svg class="size-4 text-[var(--text-secondary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
 						{sqliteBusy ? 'Memproses...' : 'Impor SQLite'}
 					</button>
 				</div>
 			</div>
-			<div class="mt-5 rounded-2xl border border-red-200 bg-red-50/70 p-4 dark:border-red-950 dark:bg-red-950/20">
-				<p class="font-semibold text-red-900 dark:text-red-200">Atur ulang preferensi perangkat</p>
-				<p class="mt-1 text-sm text-red-800/80 dark:text-red-300/80">Tema, zona waktu, dan tampilan sidebar akan kembali ke pengaturan awal. Data keuangan tidak dihapus.</p>
-				<button onclick={() => resetConfirmOpen = true} class="mt-3 inline-flex min-h-10 items-center justify-center rounded-xl bg-red-600 px-4 text-sm font-semibold text-white transition-colors hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">Atur ulang preferensi</button>
+			<div class="mt-5 rounded-xl border-[1.5px] border-[var(--border-strong)] bg-danger-50/60 p-4 shadow-[var(--shadow-retro-sm)] dark:bg-danger-950/20">
+				<p class="font-bold text-danger-800 dark:text-danger-300">Atur ulang preferensi perangkat</p>
+				<p class="mt-0.5 text-xs text-danger-700/80 dark:text-danger-400/80">Tema, zona waktu, dan tampilan sidebar akan kembali ke pengaturan awal. Data keuangan tidak dihapus.</p>
+				<button onclick={() => resetConfirmOpen = true} class="retro-btn-push mt-3 inline-flex min-h-10 items-center justify-center rounded-lg border-[1.5px] border-[var(--border-strong)] bg-danger-600 px-4 font-mono text-xs font-bold uppercase tracking-wider text-white shadow-[var(--shadow-retro-sm)] hover:bg-danger-700">Atur ulang preferensi</button>
 			</div>
 		</div>
 

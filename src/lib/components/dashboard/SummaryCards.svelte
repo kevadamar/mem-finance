@@ -37,7 +37,7 @@
 
 <div class="space-y-3">
 	<StaleIndicator />
-	<div class="grid grid-cols-2 gap-2.5 sm:gap-3 lg:grid-cols-4 lg:gap-4" aria-label="Ringkasan keuangan">
+	<div class="grid grid-cols-2 gap-2.5 sm:gap-3.5 lg:grid-cols-4 lg:gap-4" aria-label="Ringkasan buku kas">
 		{#if app.transactionsLoading && app.transactions.length === 0}
 			{#each [1, 2, 3, 4] as _ (_)}
 				<Card padding="sm">
@@ -46,48 +46,71 @@
 				</Card>
 			{/each}
 		{:else}
-			<Card padding="sm" class="group border-primary-100 bg-gradient-to-br from-white to-primary-50/70 transition hover:-translate-y-0.5 hover:shadow-md motion-reduce:transform-none motion-reduce:transition-none dark:border-primary-900/50 dark:from-gray-900 dark:to-primary-950/20">
-				<div class="flex items-start justify-between gap-2 p-1">
+			<!-- Saldo Saat Ini (Layar Kalkulator Retro) -->
+			<Card padding="sm" interactive={true} class="border-emerald-800/40 bg-emerald-50/60 dark:border-emerald-600/40 dark:bg-emerald-950/20">
+				<div class="flex items-start justify-between gap-1.5 p-1">
 					<div class="min-w-0 flex-1">
-						<p class="truncate text-xs font-medium text-[var(--text-secondary)] sm:text-sm">Saldo saat ini</p>
-						<p class="mt-1.5 truncate text-sm font-bold tracking-tight tabular-nums min-[370px]:text-base sm:text-xl {summary.balance >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}">
+						<span class="block text-[10px] sm:text-xs font-bold uppercase tracking-wider text-emerald-900 dark:text-emerald-200">
+							Sisa Saldo
+						</span>
+						<p class="mt-1.5 truncate font-mono text-sm font-bold tracking-tight min-[370px]:text-base sm:text-xl {summary.balance >= 0 ? 'text-emerald-800 dark:text-emerald-300' : 'text-danger-600 dark:text-danger-500'}">
 							{formatRupiah(summary.balance)}
 						</p>
 					</div>
-					<span class="grid size-7 shrink-0 place-items-center rounded-lg bg-primary-100 text-xs font-semibold text-primary-700 dark:bg-primary-900/50 dark:text-primary-300 sm:size-9 sm:rounded-xl sm:text-sm" aria-hidden="true">Rp</span>
+					<span class="grid size-7 shrink-0 place-items-center rounded-lg border-[1.5px] border-emerald-800/40 bg-white font-mono text-xs font-bold text-emerald-900 dark:border-emerald-500/40 dark:bg-emerald-900/50 dark:text-emerald-100 sm:size-8" aria-hidden="true">
+						Rp
+					</span>
 				</div>
 			</Card>
-			<Card padding="sm" class="transition hover:-translate-y-0.5 hover:shadow-md motion-reduce:transform-none motion-reduce:transition-none">
-				<div class="flex items-start justify-between gap-2 p-1">
+
+			<!-- Pemasukan Bulan Ini -->
+			<Card padding="sm" interactive={true}>
+				<div class="flex items-start justify-between gap-1.5 p-1">
 					<div class="min-w-0 flex-1">
-						<p class="truncate text-xs font-medium text-[var(--text-secondary)] sm:text-sm">Pemasukan bulan ini</p>
-						<p class="mt-1.5 truncate text-sm font-bold tracking-tight tabular-nums text-green-600 dark:text-green-400 min-[370px]:text-base sm:text-xl">
-							{formatRupiah(summary.monthIncome)}
+						<span class="block text-[10px] sm:text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
+							Kas Masuk (Bulan Ini)
+						</span>
+						<p class="mt-1.5 truncate font-mono text-sm font-bold tracking-tight text-emerald-700 dark:text-emerald-400 min-[370px]:text-base sm:text-xl">
+							+{formatRupiah(summary.monthIncome)}
 						</p>
 					</div>
-					<span class="grid size-7 shrink-0 place-items-center rounded-lg bg-green-100 text-sm font-bold text-green-700 dark:bg-green-900/30 dark:text-green-300 sm:size-9 sm:rounded-xl sm:text-base" aria-hidden="true">↑</span>
+					<span class="grid size-7 shrink-0 place-items-center rounded-lg border-[1.5px] border-[var(--border-strong)] bg-emerald-100/80 font-mono text-xs font-bold text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-200 sm:size-8" aria-hidden="true">
+						↑
+					</span>
 				</div>
 			</Card>
-			<Card padding="sm" class="transition hover:-translate-y-0.5 hover:shadow-md motion-reduce:transform-none motion-reduce:transition-none">
-				<div class="flex items-start justify-between gap-2 p-1">
+
+			<!-- Pengeluaran Bulan Ini -->
+			<Card padding="sm" interactive={true}>
+				<div class="flex items-start justify-between gap-1.5 p-1">
 					<div class="min-w-0 flex-1">
-						<p class="truncate text-xs font-medium text-[var(--text-secondary)] sm:text-sm">Pengeluaran bulan ini</p>
-						<p class="mt-1.5 truncate text-sm font-bold tracking-tight tabular-nums text-red-600 dark:text-red-400 min-[370px]:text-base sm:text-xl">
-							{formatRupiah(summary.monthExpense)}
+						<span class="block text-[10px] sm:text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
+							Kas Keluar (Bulan Ini)
+						</span>
+						<p class="mt-1.5 truncate font-mono text-sm font-bold tracking-tight text-danger-600 dark:text-danger-500 min-[370px]:text-base sm:text-xl">
+							-{formatRupiah(summary.monthExpense)}
 						</p>
 					</div>
-					<span class="grid size-7 shrink-0 place-items-center rounded-lg bg-red-100 text-sm font-bold text-red-700 dark:bg-red-900/30 dark:text-red-300 sm:size-9 sm:rounded-xl sm:text-base" aria-hidden="true">↓</span>
+					<span class="grid size-7 shrink-0 place-items-center rounded-lg border-[1.5px] border-[var(--border-strong)] bg-danger-50 font-mono text-xs font-bold text-danger-700 dark:bg-danger-900/30 dark:text-danger-300 sm:size-8" aria-hidden="true">
+						↓
+					</span>
 				</div>
 			</Card>
-			<Card padding="sm" class="transition hover:-translate-y-0.5 hover:shadow-md motion-reduce:transform-none motion-reduce:transition-none">
-				<div class="flex items-start justify-between gap-2 p-1">
+
+			<!-- Total Transaksi -->
+			<Card padding="sm" interactive={true}>
+				<div class="flex items-start justify-between gap-1.5 p-1">
 					<div class="min-w-0 flex-1">
-						<p class="truncate text-xs font-medium text-[var(--text-secondary)] sm:text-sm">Total transaksi</p>
-						<p class="mt-1.5 truncate text-sm font-bold tracking-tight tabular-nums text-primary-600 dark:text-primary-400 min-[370px]:text-base sm:text-xl">
+						<span class="block text-[10px] sm:text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">
+							Total Catatan
+						</span>
+						<p class="mt-1.5 truncate font-mono text-sm font-bold tracking-tight text-[var(--text-primary)] min-[370px]:text-base sm:text-xl">
 							{summary.transactionCount.toLocaleString('id-ID')}
 						</p>
 					</div>
-					<span class="grid size-7 shrink-0 place-items-center rounded-lg bg-primary-100 text-xs font-bold text-primary-700 dark:bg-primary-900/50 dark:text-primary-300 sm:size-9 sm:rounded-xl sm:text-sm" aria-hidden="true">#</span>
+					<span class="grid size-7 shrink-0 place-items-center rounded-lg border-[1.5px] border-[var(--border-strong)] bg-[var(--surface-2)] font-mono text-xs font-bold text-[var(--text-secondary)] sm:size-8" aria-hidden="true">
+						#
+					</span>
 				</div>
 			</Card>
 		{/if}

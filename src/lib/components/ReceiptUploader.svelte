@@ -117,16 +117,19 @@
 	}
 </script>
 
-<section class="app-surface overflow-hidden rounded-2xl border shadow-[var(--shadow-card)]" aria-labelledby="receipt-ocr-title">
-	<div class="border-b px-5 py-4">
-		<p class="text-xs font-bold uppercase tracking-wide text-primary-700 dark:text-primary-300">Receipt OCR</p>
-		<h2 id="receipt-ocr-title" class="mt-1 text-lg font-bold tracking-tight text-[var(--text-primary)]">Scan struk transaksi</h2>
+<section class="retro-card overflow-hidden bg-[var(--surface-1)]" aria-labelledby="receipt-ocr-title">
+	<div class="border-b-[1.5px] border-[var(--border-strong)] bg-[var(--surface-2)] px-5 py-4">
+		<div class="flex items-center gap-2 text-[11px] font-mono font-bold tracking-widest uppercase text-[var(--brand-primary)]">
+			<span class="inline-block size-1.5 rounded-full bg-[var(--brand-primary)]"></span>
+			OCR Scanner
+		</div>
+		<h2 id="receipt-ocr-title" class="mt-1 text-lg font-black tracking-tight text-[var(--text-primary)]">Scan Struk Transaksi</h2>
 	</div>
 
 	<div class="space-y-5 p-5">
 		<label
 			for="receipt-file"
-			class="flex cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed px-4 py-8 text-center transition-[background-color,border-color,box-shadow] focus-within:ring-2 focus-within:ring-primary-500 {isDragging ? 'border-primary-500 bg-primary-50 dark:bg-primary-950/40' : 'border-gray-300 bg-[var(--surface-2)] hover:border-primary-400 dark:border-gray-700'}"
+			class="flex cursor-pointer flex-col items-center justify-center rounded-xl border-[1.5px] border-dashed px-4 py-8 text-center transition-[background-color,border-color,box-shadow] focus-within:ring-2 focus-within:ring-primary-500 {isDragging ? 'border-primary-600 bg-primary-50 dark:bg-primary-950/40' : 'border-[var(--border-strong)] bg-[var(--surface-2)] hover:bg-[var(--surface-1)]'}"
 			ondragover={(event) => {
 				event.preventDefault();
 				isDragging = true;
@@ -134,15 +137,15 @@
 			ondragleave={() => (isDragging = false)}
 			ondrop={handleDrop}
 		>
-			<span class="grid size-12 place-items-center rounded-2xl bg-white text-primary-700 shadow-sm dark:bg-gray-900 dark:text-primary-300" aria-hidden="true">
+			<span class="grid size-12 place-items-center rounded-lg border-[1.5px] border-[var(--border-strong)] bg-[var(--surface-1)] text-[var(--brand-primary)] shadow-[var(--shadow-retro-sm)]" aria-hidden="true">
 				<svg class="size-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01.88-7.9A5 5 0 0117.9 9.6 3.5 3.5 0 0117.5 16H15m-3-7v9m0-9-3 3m3-3 3 3" />
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M7 16a4 4 0 01.88-7.9A5 5 0 0117.9 9.6 3.5 3.5 0 0117.5 16H15m-3-7v9m0-9-3 3m3-3 3 3" />
 				</svg>
 			</span>
-			<span class="mt-3 text-sm font-semibold text-[var(--text-primary)]">
+			<span class="mt-3 text-sm font-bold text-[var(--text-primary)]">
 				{selectedFile ? selectedFile.name : 'Pilih atau tarik file struk'}
 			</span>
-			<span class="mt-1 text-xs text-[var(--text-secondary)]">
+			<span class="mt-1 font-mono text-xs text-[var(--text-secondary)]">
 				JPEG, PNG, atau WEBP sampai 10MB{selectedFile ? ` (${formatBytes(selectedFile.size)})` : ''}
 			</span>
 			<input
@@ -168,26 +171,26 @@
 		</div>
 
 		{#if uploadState === 'error'}
-			<div class="rounded-xl border border-danger-500/25 bg-danger-50 px-4 py-3 text-sm font-medium text-rose-800 dark:bg-rose-950/40 dark:text-rose-200" role="alert" transition:fade>
+			<div class="rounded-lg border-[1.5px] border-[var(--border-strong)] bg-danger-50 px-4 py-3 font-mono text-xs font-bold text-danger-800 shadow-[var(--shadow-retro-sm)] dark:bg-rose-950/40 dark:text-rose-200" role="alert" transition:fade>
 				{errorMessage}
 			</div>
 		{/if}
 
 		{#if uploadState === 'success' && result}
 			<div class="grid gap-4 lg:grid-cols-[minmax(0,0.75fr)_minmax(0,1.25fr)]" transition:fade>
-				<div class="rounded-2xl border border-gray-200 bg-[var(--surface-2)] p-4 dark:border-gray-800">
-					<p class="text-sm font-semibold text-[var(--text-secondary)]">Total terdeteksi</p>
-					<p class="mt-2 text-2xl font-bold tabular-nums text-[var(--text-primary)]">
+				<div class="retro-card p-4 bg-[var(--surface-2)]">
+					<p class="font-mono text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">Total Terdeteksi</p>
+					<p class="mt-2 font-mono text-2xl font-black tabular-nums text-[var(--text-primary)]">
 						{result.extracted.totalAmount === null ? 'Belum ditemukan' : formatRupiah(result.extracted.totalAmount)}
 					</p>
 					{#if result.extracted.totalKeyword}
-						<p class="mt-2 text-xs text-[var(--text-secondary)]">
+						<p class="mt-2 font-mono text-xs text-[var(--text-tertiary)]">
 							Dari kata kunci "{result.extracted.totalKeyword}" dan teks "{result.extracted.totalAmountText}".
 						</p>
 					{/if}
 				</div>
 
-				<div class="rounded-2xl border border-gray-200 dark:border-gray-800">
+				<div class="retro-card p-4 bg-[var(--surface-2)]">
 					<div class="border-b px-4 py-3">
 						<p class="text-sm font-semibold text-[var(--text-primary)]">Raw read items</p>
 					</div>

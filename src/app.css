@@ -2,73 +2,100 @@
 
 @variant dark (&:where(.dark, .dark *));
 
-/* Tailwind's tokens keep existing utility usage working while the semantic
- * variables below make new components independent from raw colour choices. */
+/* Tailwind v4 tokens - Retro Analog Ledger & Mechanical Computing */
 @theme {
-	--font-sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-	--color-primary-50: #effcf8;
-	--color-primary-100: #d6f5e8;
-	--color-primary-200: #adebd4;
-	--color-primary-300: #79dbb9;
-	--color-primary-400: #43c699;
-	--color-primary-500: #1da77d;
-	--color-primary-600: #087f5b;
-	--color-primary-700: #08694d;
-	--color-primary-800: #07543f;
-	--color-primary-900: #064534;
-	--color-primary-950: #042a1f;
-	--color-danger-50: #fff1f1;
-	--color-danger-500: #d9485f;
-	--color-warning-50: #fff8e7;
-	--color-warning-500: #b7791f;
-	--color-success-50: #effcf5;
-	--color-success-500: #16805c;
+	--font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+	--font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+	/* Olivine Green - Classic Mechanical Calculator & Ink Stamp */
+	--color-primary-50: #f2f9f4;
+	--color-primary-100: #e0f2e7;
+	--color-primary-200: #c2e5d1;
+	--color-primary-300: #94d2b2;
+	--color-primary-400: #5eb68d;
+	--color-primary-500: #389a6f;
+	--color-primary-600: #1b6848;
+	--color-primary-700: #16533b;
+	--color-primary-800: #144331;
+	--color-primary-900: #123729;
+	--color-primary-950: #061f16;
+
+	--color-danger-50: #fef2f2;
+	--color-danger-500: #dc2626;
+	--color-danger-600: #b91c1c;
+	--color-danger-700: #991b1b;
+
+	--color-warning-50: #fffbeb;
+	--color-warning-500: #d97706;
+	--color-warning-600: #b45309;
+
+	--color-success-50: #f0fdf4;
+	--color-success-500: #16a34a;
+	--color-success-600: #15803d;
+
 	--ease-gentle: cubic-bezier(0.22, 1, 0.36, 1);
 	--ease-productive: cubic-bezier(0.2, 0, 0, 1);
-	--animate-enter: enter 220ms var(--ease-gentle) both;
+	--animate-enter: enter 180ms var(--ease-gentle) both;
 }
 
 :root {
 	color-scheme: light;
-	--canvas: #f6f8f6;
+	/* Warm Ivory Ledger Parchment */
+	--canvas: #fbf9f4;
 	--surface-1: #ffffff;
-	--surface-2: #edf1ee;
+	--surface-2: #f4efe6;
 	--surface-raised: #ffffff;
-	--text-primary: #16231f;
-	--text-secondary: #5e6b66;
-	--text-tertiary: #78847f;
-	--border-subtle: #dbe3de;
-	--border-strong: #b7c7bf;
-	--focus-ring: #087f5b;
-	--shadow-card: 0 1px 2px rgb(17 34 27 / 0.04), 0 8px 24px rgb(17 34 27 / 0.05);
-	--shadow-float: 0 16px 48px rgb(10 34 24 / 0.18), 0 3px 12px rgb(10 34 24 / 0.08);
+	--text-primary: #1c1917;
+	--text-secondary: #57534e;
+	--text-tertiary: #78716c;
+	--border-subtle: #e6dfd3;
+	--border-strong: #292524;
+	--ink-border: #292524;
+	--focus-ring: #166534;
+
+	/* Tactile Solid Offset Shadows */
+	--shadow-retro-sm: 1.5px 1.5px 0px #292524;
+	--shadow-retro: 2.5px 2.5px 0px #292524;
+	--shadow-retro-lg: 4px 4px 0px #292524;
+	--shadow-card: 2.5px 2.5px 0px #292524;
+	--shadow-float: 4px 4px 0px #292524;
 }
 
 :root.dark {
 	color-scheme: dark;
-	--canvas: #101715;
-	--surface-1: #17211d;
-	--surface-2: #202d27;
-	--surface-raised: #1b2721;
-	--text-primary: #f3f8f5;
-	--text-secondary: #b7c5bd;
-	--text-tertiary: #8fa198;
-	--border-subtle: #2b3a33;
-	--border-strong: #4a5e53;
-	--focus-ring: #43c699;
-	--shadow-card: 0 1px 1px rgb(0 0 0 / 0.18), 0 12px 28px rgb(0 0 0 / 0.16);
-	--shadow-float: 0 20px 56px rgb(0 0 0 / 0.4), 0 4px 12px rgb(0 0 0 / 0.25);
+	/* Vintage Phosphor Dark Slate */
+	--canvas: #121514;
+	--surface-1: #1a1f1d;
+	--surface-2: #242b28;
+	--surface-raised: #1f2623;
+	--text-primary: #f5f5f4;
+	--text-secondary: #a8a29e;
+	--text-tertiary: #78716c;
+	--border-subtle: #2d3732;
+	--border-strong: #44534c;
+	--ink-border: #44534c;
+	--focus-ring: #34d399;
+
+	/* Dark Mode Solid Shadows */
+	--shadow-retro-sm: 1.5px 1.5px 0px #080a09;
+	--shadow-retro: 2.5px 2.5px 0px #080a09;
+	--shadow-retro-lg: 4px 4px 0px #080a09;
+	--shadow-card: 2.5px 2.5px 0px #080a09;
+	--shadow-float: 4px 4px 0px #080a09;
 }
 
 @keyframes enter {
-	from { opacity: 0; transform: translateY(6px); }
+	from { opacity: 0; transform: translateY(4px); }
 	to { opacity: 1; transform: translateY(0); }
 }
 
 @layer base {
 	* { border-color: var(--border-subtle); }
 
-	html { background: var(--canvas); scroll-behavior: smooth; }
+	html {
+		background: var(--canvas);
+		scroll-behavior: smooth;
+	}
 
 	body {
 		min-width: 320px;
@@ -79,17 +106,26 @@
 		-moz-osx-font-smoothing: grayscale;
 	}
 
-	button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
-	button, [role='button'], a, input, select, textarea { touch-action: manipulation; }
-	button:not(:disabled), [role='button']:not([aria-disabled='true']) { cursor: pointer; }
-	:focus-visible { outline: 3px solid color-mix(in srgb, var(--focus-ring) 72%, transparent); outline-offset: 3px; }
-	input, select, textarea { font-size: max(16px, 1em); }
+	button, a, input, select, textarea {
+		-webkit-tap-highlight-color: transparent;
+		touch-action: manipulation;
+	}
+	button:not(:disabled), [role='button']:not([aria-disabled='true']) {
+		cursor: pointer;
+	}
+	:focus-visible {
+		outline: 2.5px solid var(--focus-ring);
+		outline-offset: 2.5px;
+	}
+	input, select, textarea {
+		font-size: max(16px, 1em);
+	}
 
 	select {
 		appearance: none;
 		-webkit-appearance: none;
 		-moz-appearance: none;
-		background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+		background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2344403c' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
 		background-position: right 0.875rem center;
 		background-repeat: no-repeat;
 		background-size: 1.125rem 1.125rem;
@@ -97,7 +133,7 @@
 	}
 
 	:root.dark select {
-		background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+		background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23a8a29e' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
 	}
 
 	@media (prefers-reduced-motion: reduce) {
@@ -112,9 +148,62 @@
 }
 
 @layer components {
-	.app-surface { background: var(--surface-1); border-color: var(--border-subtle); }
-	.app-muted-surface { background: var(--surface-2); border-color: var(--border-subtle); }
+	.app-surface {
+		background: var(--surface-1);
+		border-color: var(--border-subtle);
+	}
+	.app-muted-surface {
+		background: var(--surface-2);
+		border-color: var(--border-subtle);
+	}
 	.app-text { color: var(--text-primary); }
 	.app-text-muted { color: var(--text-secondary); }
 	.tabular-nums { font-variant-numeric: tabular-nums; }
+
+	/* Retro Tactile Primitives */
+	.retro-card {
+		background: var(--surface-1);
+		border: 1.5px solid var(--border-strong);
+		box-shadow: var(--shadow-retro);
+		border-radius: 1rem;
+	}
+
+	.retro-card-interactive {
+		background: var(--surface-1);
+		border: 1.5px solid var(--border-strong);
+		box-shadow: var(--shadow-retro);
+		border-radius: 1rem;
+		transition: transform 100ms var(--ease-productive), box-shadow 100ms var(--ease-productive);
+	}
+	.retro-card-interactive:hover {
+		transform: translate(-1px, -1px);
+		box-shadow: var(--shadow-retro-lg);
+	}
+
+	.retro-btn-push {
+		border: 1.5px solid var(--border-strong);
+		box-shadow: var(--shadow-retro-sm);
+		transition: transform 80ms var(--ease-productive), box-shadow 80ms var(--ease-productive);
+	}
+	.retro-btn-push:hover:not(:disabled) {
+		transform: translate(-0.5px, -0.5px);
+		box-shadow: var(--shadow-retro);
+	}
+	.retro-btn-push:active:not(:disabled) {
+		transform: translate(1.5px, 1.5px);
+		box-shadow: 0px 0px 0px transparent;
+	}
+
+	.retro-stamp {
+		font-family: var(--font-mono);
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+		border: 1.5px dashed currentColor;
+		border-radius: 0.375rem;
+		padding: 0.15rem 0.45rem;
+		display: inline-flex;
+		align-items: center;
+		line-height: 1;
+	}
 }

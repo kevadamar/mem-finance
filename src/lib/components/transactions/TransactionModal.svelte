@@ -106,25 +106,41 @@
 
 <Modal {open} title={type === 'expense' ? 'Catat Pengeluaran' : 'Catat Pemasukan'} onclose={handleClose}>
 	<form onsubmit={(e) => { e.preventDefault(); handleSubmit(); }} class="space-y-4">
-		<div class="grid grid-cols-2 gap-2 rounded-xl bg-gray-100 p-1 dark:bg-gray-800" aria-label="Tipe transaksi">
-			<button type="button" onclick={() => type = 'expense'} class="min-h-10 rounded-lg text-sm font-semibold transition-colors {type === 'expense' ? 'bg-white text-red-700 shadow-sm dark:bg-gray-700 dark:text-red-300' : 'text-gray-600 dark:text-gray-400'}">Pengeluaran</button>
-			<button type="button" onclick={() => type = 'income'} class="min-h-10 rounded-lg text-sm font-semibold transition-colors {type === 'income' ? 'bg-white text-green-700 shadow-sm dark:bg-gray-700 dark:text-green-300' : 'text-gray-600 dark:text-gray-400'}">Pemasukan</button>
+		<div class="grid grid-cols-2 gap-2 rounded-xl border-[1.5px] border-[var(--border-strong)] bg-[var(--surface-2)] p-1.5 shadow-[var(--shadow-retro-sm)]" aria-label="Tipe transaksi">
+			<button
+				type="button"
+				onclick={() => { type = 'expense'; categoryId = ''; }}
+				class="min-h-10 rounded-lg text-xs font-bold uppercase tracking-wider transition-all {type === 'expense' ? 'border-[1.5px] border-[var(--border-strong)] bg-danger-50 text-danger-700 shadow-[var(--shadow-retro-sm)] dark:bg-danger-950/60 dark:text-danger-300' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}"
+			>
+				↓ Pengeluaran
+			</button>
+			<button
+				type="button"
+				onclick={() => { type = 'income'; categoryId = ''; }}
+				class="min-h-10 rounded-lg text-xs font-bold uppercase tracking-wider transition-all {type === 'income' ? 'border-[1.5px] border-[var(--border-strong)] bg-emerald-50 text-emerald-800 shadow-[var(--shadow-retro-sm)] dark:bg-emerald-950/60 dark:text-emerald-300' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}"
+			>
+				↑ Pemasukan
+			</button>
 		</div>
 
 		<div>
-			<label for="quick-transaction-amount" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Jumlah <span class="text-red-500">*</span></label>
+			<label for="quick-transaction-amount" class="mb-1.5 block text-xs font-bold uppercase tracking-wider text-[var(--text-primary)]">
+				Nominal Transaksi <span class="text-danger-600 font-bold">*</span>
+			</label>
 			<div class="relative">
-				<span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">Rp</span>
-				<input id="quick-transaction-amount"
+				<span class="absolute left-3.5 top-1/2 -translate-y-1/2 font-mono text-sm font-bold text-[var(--text-tertiary)]">Rp</span>
+				<input
+					id="quick-transaction-amount"
 					type="text"
 					inputmode="numeric"
 					placeholder="0"
 					value={amount ? parseInt(amount).toLocaleString('id-ID') : ''}
 					oninput={handleAmountInput}
-					aria-invalid={errors.amount ? 'true' : undefined} class="min-h-11 w-full rounded-xl border bg-white py-2 pl-10 pr-3 text-sm text-gray-900 transition-colors dark:bg-gray-800 dark:text-gray-100 {errors.amount ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 dark:border-gray-600'} focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+					aria-invalid={errors.amount ? 'true' : undefined}
+					class="min-h-11 w-full rounded-xl border-[1.5px] bg-[var(--surface-1)] py-2 pl-11 pr-3 font-mono text-base sm:text-lg font-bold text-[var(--text-primary)] shadow-[var(--shadow-retro-sm)] transition-[border-color,box-shadow] {errors.amount ? 'border-danger-600 ring-1 ring-danger-600/30' : 'border-[var(--border-strong)] focus:border-primary-600 focus:outline-none focus:shadow-[var(--shadow-retro)]'}"
 				/>
 			</div>
-			{#if errors.amount}<p class="mt-1 text-xs text-red-500">{errors.amount}</p>{/if}
+			{#if errors.amount}<p class="mt-1 text-xs font-bold text-danger-600">{errors.amount}</p>{/if}
 		</div>
 
 		<Select

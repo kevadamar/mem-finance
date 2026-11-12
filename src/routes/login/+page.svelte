@@ -183,37 +183,48 @@
 	}
 </script>
 
-<svelte:head><title>Login — MemFinance</title></svelte:head>
+<svelte:head><title>Login · MemFinance</title></svelte:head>
 
 
-<div class="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#f8faf8] p-4 dark:bg-gray-950">
-	<div class="absolute -left-24 top-0 h-72 w-72 rounded-full bg-primary-100/70 blur-3xl dark:bg-primary-950/40" aria-hidden="true"></div>
+<div class="relative flex min-h-screen items-center justify-center overflow-hidden bg-[var(--canvas)] p-4">
 	<div class="relative w-full max-w-md" transition:fade={{ duration: 180 }}>
 		<div class="mb-7 text-center" transition:fly={{ y: -8, duration: 220 }}>
-				<a href={resolve('/')} class="inline-flex items-center gap-2 text-xl font-bold tracking-tight text-gray-950 dark:text-white"><span class="flex h-9 w-9 items-center justify-center rounded-xl bg-primary-600 text-white" aria-hidden="true"><svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 19V7l7-3 7 3v12l-7 3-7-3Z" /><path d="M8 9h8M8 13h5" /></svg></span>MemFinance</a>
-			<p class="mt-3 text-sm text-gray-600 dark:text-gray-400">Masuk untuk melanjutkan pencatatan Anda.</p>
+			<a href={resolve('/')} class="inline-flex items-center gap-2.5 text-2xl font-black tracking-tight text-[var(--text-primary)]">
+				<span class="flex h-10 w-10 items-center justify-center rounded-lg border-[1.5px] border-[var(--border-strong)] bg-[var(--brand-primary)] text-white shadow-[var(--shadow-retro-sm)]" aria-hidden="true">
+					<svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 19V7l7-3 7 3v12l-7 3-7-3Z" /><path d="M8 9h8M8 13h5" /></svg>
+				</span>
+				MemFinance
+			</a>
+			<p class="mt-2 font-mono text-xs text-[var(--text-secondary)]">Sistem Pencatatan Keuangan Pribadi</p>
 		</div>
 
 		{#if !supabaseConfigured}
-			<div class="space-y-3 rounded-2xl border border-gray-200 bg-white p-6 text-center shadow-sm dark:border-gray-800 dark:bg-gray-900">
-				<p class="text-sm font-semibold text-gray-900 dark:text-gray-100">Autentikasi belum dikonfigurasi</p>
-				<p class="text-xs text-gray-500 dark:text-gray-400">Gunakan mode lokal tanpa koneksi Supabase.</p>
+			<div class="retro-card space-y-3 p-6 text-center bg-[var(--surface-1)]">
+				<p class="font-bold text-[var(--text-primary)]">Autentikasi Belum Dikonfigurasi</p>
+				<p class="text-xs text-[var(--text-secondary)]">Gunakan mode lokal tanpa koneksi Supabase.</p>
 				<a
-						href={resolve('/dashboard')}
-					class="mt-2 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-primary-600 px-4 text-sm font-semibold text-white transition hover:bg-primary-700"
+					href={resolve('/dashboard')}
+					class="retro-btn-push mt-2 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border-[1.5px] border-[var(--border-strong)] bg-[var(--brand-primary)] px-4 font-mono text-xs font-bold uppercase tracking-wider text-white shadow-[var(--shadow-retro-sm)]"
 				>
 					Lanjut ke Dashboard (Mode Lokal) →
 				</a>
 			</div>
 		{:else}
 
-		<div class="space-y-5 rounded-2xl border border-gray-200 bg-white p-4 shadow-xl shadow-gray-200/60 sm:p-7 dark:border-gray-800 dark:bg-gray-900 dark:shadow-black/20">
-			<div><h1 class="text-xl font-bold tracking-tight text-gray-950 dark:text-white">Selamat datang</h1><p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Pilih cara yang paling nyaman untuk masuk.</p></div>
+		<div class="retro-card space-y-5 p-5 sm:p-7 bg-[var(--surface-1)]">
+			<div>
+				<div class="flex items-center gap-2 text-[11px] font-mono font-bold tracking-widest uppercase text-[var(--brand-primary)]">
+					<span class="inline-block size-1.5 rounded-full bg-[var(--brand-primary)]"></span>
+					Autentikasi Akun
+				</div>
+				<h1 class="mt-1 text-xl font-black tracking-tight text-[var(--text-primary)]">Selamat Datang</h1>
+				<p class="mt-0.5 text-xs text-[var(--text-secondary)]">Pilih cara yang paling nyaman untuk masuk.</p>
+			</div>
 
 			{#if error}
-				<div class="rounded-xl border border-red-200 bg-red-50 p-3 text-xs text-red-700 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-400" transition:fade>
+				<div class="rounded-lg border-[1.5px] border-[var(--border-strong)] bg-danger-50 p-3 font-mono text-xs font-bold text-danger-800 shadow-[var(--shadow-retro-sm)] dark:bg-danger-950/40 dark:text-danger-300" transition:fade>
 					<div class="flex items-start gap-2">
-						<svg class="h-4 w-4 shrink-0 text-red-500 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+						<svg class="h-4 w-4 shrink-0 text-danger-600 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
 							<path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
 						</svg>
 						<span>{error}</span>
@@ -224,7 +235,7 @@
 			<button
 				onclick={handleGoogleLogin}
 				disabled={loading}
-				class="flex min-h-11 w-full items-center justify-center gap-3 rounded-xl border border-gray-300 bg-white px-4 py-2.5 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500/30 disabled:opacity-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
+				class="retro-btn-push flex min-h-11 w-full items-center justify-center gap-3 rounded-lg border-[1.5px] border-[var(--border-strong)] bg-[var(--surface-1)] px-4 py-2.5 font-sans text-sm font-bold text-[var(--text-primary)] shadow-[var(--shadow-retro-sm)] disabled:opacity-50"
 			>
 				<svg class="w-5 h-5" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/><path fill="none" d="M1 1h22v22H1z"/></svg>
 				{loading ? 'Memproses...' : 'Login dengan Google'}
@@ -232,31 +243,31 @@
 
 			{#if data?.canBypass}
 				<a
-						href={resolve('/dashboard')}
-					class="flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-dashed border-gray-300 bg-gray-50/80 px-4 text-sm font-semibold text-gray-700 transition hover:bg-gray-100 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500/30 dark:border-gray-700 dark:bg-gray-800/60 dark:text-gray-300 dark:hover:bg-gray-800"
+					href={resolve('/dashboard')}
+					class="retro-btn-push flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border-[1.5px] border-dashed border-[var(--border-strong)] bg-[var(--surface-2)] px-4 font-mono text-xs font-bold uppercase tracking-wider text-[var(--text-primary)] shadow-[var(--shadow-retro-sm)]"
 				>
-					<svg class="size-4 shrink-0 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+					<svg class="size-4 shrink-0 text-[var(--text-secondary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
 					Bypass Login (Lanjut ke Dashboard)
 				</a>
 			{/if}
 
 			<div class="flex items-center gap-3">
-				<hr class="flex-1 border-gray-200 dark:border-gray-700" />
-				<span class="text-xs text-gray-400">atau</span>
-				<hr class="flex-1 border-gray-200 dark:border-gray-700" />
+				<hr class="flex-1 border-t-[1.5px] border-[var(--border-subtle)]" />
+				<span class="font-mono text-xs uppercase font-bold text-[var(--text-tertiary)]">atau</span>
+				<hr class="flex-1 border-t-[1.5px] border-[var(--border-subtle)]" />
 			</div>
 
 			{#if step === 'email'}
 				<div class="space-y-3">
 					<div>
-						<label for="login-email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
+						<label for="login-email" class="mb-1 block font-mono text-xs font-bold uppercase tracking-wider text-[var(--text-primary)]">Alamat Email</label>
 						<input
 							id="login-email"
 							type="email"
 							placeholder="anda@email.com"
 							bind:value={email}
 							oninput={resetError}
-							class="min-h-11 w-full rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 transition-colors placeholder:text-gray-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/30 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
+							class="min-h-11 w-full rounded-lg border-[1.5px] border-[var(--border-strong)] bg-[var(--surface-1)] px-3 py-2 font-mono text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] shadow-[var(--shadow-retro-sm)] focus:outline-none focus:ring-2 focus:ring-primary-500/20"
 						/>
 					</div>
 					<div id="turnstile-widget" class="flex justify-center"></div>

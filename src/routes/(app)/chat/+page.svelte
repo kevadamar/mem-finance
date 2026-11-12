@@ -639,7 +639,7 @@
 </script>
 
 <svelte:window onclick={handleWindowClick} onkeydown={handleWindowKeydown} />
-<svelte:head><title>Chat — MemFinance</title></svelte:head>
+<svelte:head><title>Chat · MemFinance</title></svelte:head>
 
 {#if cameraOpen}
 	<div class="fixed inset-0 z-50 flex items-end justify-center bg-black/70 p-0 backdrop-blur-sm sm:items-center sm:p-4" role="dialog" aria-modal="true" aria-labelledby="camera-capture-title" transition:fade={{ duration: 140 }}>
@@ -762,14 +762,18 @@
 	</div>
 {/if}
 
-<div class="mx-auto flex h-[calc(100dvh-12rem)] min-h-[24rem] max-w-4xl flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900 sm:h-[calc(100dvh-10rem)] lg:h-[calc(100dvh-7.5rem)]">
-	<header class="flex items-start gap-3 border-b border-gray-100 px-4 py-3 sm:px-5 sm:py-4 dark:border-gray-800">
-		<div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary-100 text-primary-700 dark:bg-primary-950 dark:text-primary-300" aria-hidden="true">
-			<svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 9h10M7 13h6M6 19l-3 2 1-4a8 8 0 1 1 3 2Z" /></svg>
+<div class="retro-card mx-auto flex h-[calc(100dvh-12rem)] min-h-[24rem] max-w-4xl flex-col overflow-hidden bg-[var(--surface-1)] sm:h-[calc(100dvh-10rem)] lg:h-[calc(100dvh-7.5rem)]">
+	<header class="flex items-start gap-3 border-b-[1.5px] border-[var(--border-strong)] bg-[var(--surface-2)] px-4 py-3 sm:px-5 sm:py-4">
+		<div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border-[1.5px] border-[var(--border-strong)] bg-[var(--brand-primary)] text-white shadow-[var(--shadow-retro-sm)]" aria-hidden="true">
+			<svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 9h10M7 13h6M6 19l-3 2 1-4a8 8 0 1 1 3 2Z" /></svg>
 		</div>
 		<div class="min-w-0">
-			<h1 class="font-semibold text-gray-950 dark:text-white">Catat dengan AI</h1>
-			<p class="mt-0.5 text-xs text-gray-600 dark:text-gray-400 sm:text-sm">Tulis seperti biasa; selalu tinjau detail sebelum menyimpan.</p>
+			<div class="flex items-center gap-2 text-[11px] font-mono font-bold tracking-widest uppercase text-[var(--brand-primary)]">
+				<span class="inline-block size-1.5 rounded-full bg-[var(--brand-primary)] animate-pulse"></span>
+				Pencatatan Cerdas
+			</div>
+			<h1 class="font-bold text-[var(--text-primary)]">Catat dengan AI</h1>
+			<p class="mt-0.5 text-xs text-[var(--text-secondary)] sm:text-sm">Tulis seperti biasa; selalu tinjau detail sebelum menyimpan.</p>
 		</div>
 	</header>
 
@@ -777,25 +781,25 @@
 		{#each messages as msg (msg.id)}
 			{#if msg.role === 'user'}
 				<div class="flex justify-end motion-reduce:transition-none" transition:slide={{ duration: 180 }}>
-					<div class="max-w-[85%] rounded-2xl rounded-br-md bg-primary-600 px-4 py-3 text-sm leading-6 text-white shadow-sm whitespace-pre-wrap break-words">{msg.content}</div>
+					<div class="max-w-[85%] rounded-xl rounded-br-none border-[1.5px] border-[var(--border-strong)] bg-[var(--brand-primary)] px-4 py-3 font-sans text-sm leading-6 text-white shadow-[var(--shadow-retro-sm)] whitespace-pre-wrap break-words">{msg.content}</div>
 				</div>
 			{:else if msg.draft}
 				<div class="flex justify-start motion-reduce:transition-none" transition:slide={{ duration: 180 }}>
-					<div class="w-full max-w-[94%] sm:max-w-[88%] rounded-2xl rounded-bl-md bg-gray-100 p-3.5 sm:p-4 text-sm space-y-3 dark:bg-gray-800">
+					<div class="w-full max-w-[94%] sm:max-w-[88%] rounded-xl rounded-bl-none border-[1.5px] border-[var(--border-strong)] bg-[var(--surface-2)] p-3.5 sm:p-4 text-sm space-y-3 shadow-[var(--shadow-retro-sm)]">
 						{#if msg.content}
-							<p class="text-gray-700 dark:text-gray-300 whitespace-pre-wrap break-words">{msg.content}</p>
+							<p class="text-[var(--text-primary)] whitespace-pre-wrap break-words">{msg.content}</p>
 						{/if}
 						<TransactionDraftCard
 							bind:draft={msg.draft}
 							{categories}
-							onSave={(d) => handleSaveDraft(msg, d)}
-							onCancel={(d) => handleCancelDraft(msg, d)}
+							onSave={(d: TransactionDraft) => handleSaveDraft(msg, d)}
+							onCancel={(d: TransactionDraft) => handleCancelDraft(msg, d)}
 						/>
 					</div>
 				</div>
 			{:else if msg.confirmation && !msg.confirmed}
 				<div class="flex justify-start motion-reduce:transition-none" transition:slide={{ duration: 180 }}>
-					<div class="max-w-[92%] rounded-2xl rounded-bl-md bg-gray-100 px-4 py-3 text-sm space-y-3 dark:bg-gray-800">
+					<div class="max-w-[92%] rounded-xl rounded-bl-none border-[1.5px] border-[var(--border-strong)] bg-[var(--surface-2)] px-4 py-3 text-sm space-y-3 shadow-[var(--shadow-retro-sm)]">
 						<p class="text-gray-700 dark:text-gray-300 whitespace-pre-wrap break-words">{msg.content}</p>
 						<div class="rounded-xl border border-gray-200 bg-white p-3.5 space-y-3 dark:border-gray-700 dark:bg-gray-900">
 							<div class="flex items-center justify-between gap-3 text-xs text-gray-500">
@@ -934,12 +938,12 @@
 					placeholder={attachedImage ? 'Tambahkan konteks opsional...' : 'Ketik transaksi atau upload struk...'}
 					disabled={loading}
 					onkeydown={handleKeydown}
-					class="min-h-12 w-full rounded-2xl border border-gray-300 bg-gray-50 py-3 pl-12 pr-4 text-sm text-gray-900 placeholder:text-gray-400 transition-[border-color,box-shadow,background-color,padding] focus:border-primary-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/30 disabled:opacity-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:focus:bg-gray-900 {isComposerDirty ? 'pr-14' : ''}"
+					class="min-h-12 w-full rounded-xl border-[1.5px] border-[var(--border-strong)] bg-[var(--surface-1)] py-3 pl-12 pr-4 text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] shadow-[var(--shadow-retro-sm)] transition-[border-color,box-shadow,background-color] focus:border-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500/20 disabled:opacity-50 {isComposerDirty ? 'pr-14' : ''}"
 				/>
 				{#if isComposerDirty}
 					<button
 						type="submit"
-						class="absolute right-1.5 top-1/2 grid size-9 -translate-y-1/2 place-items-center rounded-xl bg-primary-600 text-white shadow-sm transition-[background-color,transform,opacity] hover:bg-primary-700 active:scale-95 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 dark:bg-primary-500 dark:hover:bg-primary-400"
+						class="retro-btn-push absolute right-1.5 top-1/2 grid size-9 -translate-y-1/2 place-items-center rounded-lg border-[1.5px] border-[var(--border-strong)] bg-[var(--brand-primary)] text-white shadow-[var(--shadow-retro-sm)] focus:outline-none disabled:opacity-50"
 						disabled={loading}
 						aria-label={loading ? 'Memproses transaksi' : 'Kirim transaksi'}
 						transition:scale={{ duration: 140, start: 0.92 }}

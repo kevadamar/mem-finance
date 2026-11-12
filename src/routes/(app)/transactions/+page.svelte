@@ -208,16 +208,19 @@
 	});
 </script>
 
-<svelte:head><title>Transaksi — MemFinance</title></svelte:head>
+<svelte:head><title>Transaksi · MemFinance</title></svelte:head>
 
 <div class="mx-auto max-w-5xl space-y-5 sm:space-y-7">
 	<header class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
 		<div>
-			<p class="text-sm font-medium text-primary-700 dark:text-primary-300">Catatan keuangan</p>
-			<h1 class="mt-1 text-2xl font-bold tracking-tight text-gray-950 dark:text-white sm:text-3xl">Transaksi</h1>
-			<p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Telusuri, perbarui, atau tambahkan catatan baru.</p>
+			<div class="flex items-center gap-2 text-[11px] font-mono font-bold tracking-widest uppercase text-[var(--brand-primary)]">
+				<span class="inline-block size-1.5 rounded-full bg-[var(--brand-primary)]"></span>
+				Buku Kas · Catatan
+			</div>
+			<h1 class="mt-1 text-2xl font-black tracking-tight text-[var(--text-primary)] sm:text-3xl">Transaksi</h1>
+			<p class="mt-0.5 text-xs sm:text-sm text-[var(--text-secondary)]">Telusuri, perbarui, atau tambahkan catatan baru.</p>
 		</div>
-		<Button size="lg" class="min-h-11 shadow-sm" onclick={openCreate}>
+		<Button size="lg" class="min-h-11 shadow-[var(--shadow-retro-sm)]" onclick={openCreate}>
 			<svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
 			Tambah transaksi
 		</Button>
@@ -225,62 +228,62 @@
 
 	<StaleIndicator />
 
-	<section class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900" aria-label="Cari dan filter transaksi">
-		<div class="space-y-3 p-3 sm:p-5">
+	<section class="retro-card overflow-hidden bg-[var(--surface-1)] p-3 sm:p-5" aria-label="Cari dan filter transaksi">
+		<div class="space-y-3">
 			<div class="flex items-center gap-2 sm:gap-3">
 				<div class="relative flex-1 min-w-0">
 					<label class="sr-only" for="transaction-search">Cari transaksi</label>
-					<input id="transaction-search" type="search" placeholder="Cari kategori atau catatan" bind:value={filterSearch}
-						class="min-h-11 w-full rounded-xl border border-gray-300 bg-gray-50 py-2.5 pl-10 pr-3 text-sm text-gray-900 transition-colors placeholder:text-gray-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/30 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100" />
-					<svg class="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+					<input id="transaction-search" type="search" placeholder="Cari kategori atau catatan..." bind:value={filterSearch}
+						class="min-h-11 w-full rounded-lg border-[1.5px] border-[var(--border-strong)] bg-[var(--surface-2)] py-2.5 pl-10 pr-3 font-sans text-sm text-[var(--text-primary)] placeholder:text-[var(--text-tertiary)] shadow-[var(--shadow-retro-sm)] focus:outline-none focus:ring-2 focus:ring-primary-500/30" />
+					<svg class="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--text-secondary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
 				</div>
 				<div class="flex shrink-0 items-center gap-2">
 					<select value={sortBy} onchange={(e) => sortBy = (e.target as HTMLSelectElement).value as typeof sortBy}
-						aria-label="Urutkan transaksi" class="hidden min-h-11 rounded-xl border border-gray-300 bg-white pl-3.5 pr-10 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500/30 sm:block dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100">
+						aria-label="Urutkan transaksi" class="hidden min-h-11 rounded-lg border-[1.5px] border-[var(--border-strong)] bg-[var(--surface-1)] pl-3.5 pr-10 font-mono text-xs font-bold uppercase tracking-wider text-[var(--text-primary)] shadow-[var(--shadow-retro-sm)] focus:outline-none sm:block">
 						<option value="date-desc">Terbaru</option>
 						<option value="date-asc">Terlama</option>
 						<option value="amount-desc">Terbesar</option>
 						<option value="amount-asc">Terkecil</option>
 					</select>
 					<button onclick={load} disabled={app.transactionsRefreshing}
-						class="grid size-11 place-items-center rounded-xl border border-gray-300 text-gray-600 transition-colors hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500/30 disabled:opacity-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
+						class="retro-btn-push grid size-11 place-items-center rounded-lg border-[1.5px] border-[var(--border-strong)] bg-[var(--surface-1)] text-[var(--text-primary)] shadow-[var(--shadow-retro-sm)] disabled:opacity-50"
 						aria-label="Segarkan transaksi"
 						title="Segarkan transaksi">
-						<svg class="size-5 text-gray-600 dark:text-gray-400 {app.transactionsRefreshing ? 'animate-spin motion-reduce:animate-none' : ''}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+						<svg class="size-5 text-[var(--text-secondary)] {app.transactionsRefreshing ? 'animate-spin motion-reduce:animate-none' : ''}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
 					</button>
 					<button onclick={() => showFilters = !showFilters}
-						class="relative grid size-11 place-items-center rounded-xl border transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500/30 sm:hidden {showFilters || filterCount > 0 ? 'border-primary-300 bg-primary-50 text-primary-700 dark:border-primary-700 dark:bg-primary-950/40 dark:text-primary-300' : 'border-gray-300 text-gray-600 hover:bg-gray-100 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800'}"
+						class="retro-btn-push relative grid size-11 place-items-center rounded-lg border-[1.5px] border-[var(--border-strong)] shadow-[var(--shadow-retro-sm)] sm:hidden {showFilters || filterCount > 0 ? 'bg-primary-50 text-primary-700 dark:bg-primary-950/60 dark:text-primary-300' : 'bg-[var(--surface-1)] text-[var(--text-secondary)]'}"
 						aria-label="{showFilters ? 'Sembunyikan' : 'Tampilkan'} filter"
 						aria-expanded={showFilters}
 						title="{showFilters ? 'Sembunyikan' : 'Tampilkan'} filter">
 						<svg class="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" /></svg>
 						{#if filterCount > 0}
-							<span class="absolute -top-1.5 -right-1.5 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-primary-600 px-1 text-[10px] font-bold text-white shadow-xs">{filterCount}</span>
+							<span class="absolute -top-1.5 -right-1.5 flex h-4.5 min-w-4.5 items-center justify-center rounded-full border border-[var(--border-strong)] bg-[var(--brand-primary)] px-1 font-mono text-[10px] font-bold text-white shadow-xs">{filterCount}</span>
 						{/if}
 					</button>
 				</div>
 			</div>
 
-			<div class="hidden gap-3 border-t border-gray-100 pt-3 sm:grid sm:grid-cols-4 dark:border-gray-800">
+			<div class="hidden gap-3 border-t-[1.5px] border-[var(--border-subtle)] pt-3 sm:grid sm:grid-cols-4">
 				<Select label="Tipe" options={[{ value: '', label: 'Semua' }, { value: 'expense', label: 'Pengeluaran' }, { value: 'income', label: 'Pemasukan' }]} value={filterType} onchange={(e) => setFilterType((e.target as HTMLSelectElement).value as '' | TransactionType)} />
 				<Select label="Kategori" options={[{ value: '', label: 'Semua' }, ...app.categories.filter((c) => !filterType || c.type === filterType).map((c) => ({ value: c.id, label: c.name }))]} value={filterCategory} onchange={(e) => filterCategory = (e.target as HTMLSelectElement).value} />
 				<Input label="Dari" type="date" value={filterStart} onchange={(e) => filterStart = (e.target as HTMLInputElement).value} />
 				<Input label="Sampai" type="date" value={filterEnd} onchange={(e) => filterEnd = (e.target as HTMLInputElement).value} />
-				{#if filterDateError}<p class="col-span-4 text-xs text-red-600 dark:text-red-400">Tanggal mulai harus lebih awal atau sama dengan tanggal akhir.</p>{/if}
+				{#if filterDateError}<p class="col-span-4 font-mono text-xs font-bold text-danger-600 dark:text-danger-400">Tanggal mulai harus lebih awal atau sama dengan tanggal akhir.</p>{/if}
 			</div>
 
 			{#if showFilters}
-				<div class="border-t border-gray-100 pt-3 sm:hidden dark:border-gray-800" transition:slide={{ duration: 180 }}>
+				<div class="border-t-[1.5px] border-[var(--border-subtle)] pt-3 sm:hidden" transition:slide={{ duration: 180 }}>
 					<div class="grid grid-cols-1 min-[360px]:grid-cols-2 gap-2.5 sm:gap-3 pb-3">
 						<Select label="Tipe" options={[{ value: '', label: 'Semua' }, { value: 'expense', label: 'Pengeluaran' }, { value: 'income', label: 'Pemasukan' }]} value={filterType} onchange={(e) => setFilterType((e.target as HTMLSelectElement).value as '' | TransactionType)} />
 						<Select label="Kategori" options={[{ value: '', label: 'Semua' }, ...app.categories.filter((c) => !filterType || c.type === filterType).map((c) => ({ value: c.id, label: c.name }))]} value={filterCategory} onchange={(e) => filterCategory = (e.target as HTMLSelectElement).value} />
 						<Input label="Dari" type="date" value={filterStart} onchange={(e) => filterStart = (e.target as HTMLInputElement).value} />
 						<Input label="Sampai" type="date" value={filterEnd} onchange={(e) => filterEnd = (e.target as HTMLInputElement).value} />
-						{#if filterDateError}<p class="col-span-1 min-[360px]:col-span-2 text-xs text-red-600 dark:text-red-400">Tanggal mulai harus lebih awal atau sama dengan tanggal akhir.</p>{/if}
+						{#if filterDateError}<p class="col-span-1 min-[360px]:col-span-2 font-mono text-xs font-bold text-danger-600 dark:text-danger-400">Tanggal mulai harus lebih awal atau sama dengan tanggal akhir.</p>{/if}
 					</div>
 					<div class="flex items-center gap-2">
 						<select value={sortBy} onchange={(e) => sortBy = (e.target as HTMLSelectElement).value as typeof sortBy}
-						class="min-h-11 flex-1 rounded-xl border border-gray-300 bg-white pl-3.5 pr-10 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500/30 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100">
+						class="min-h-11 flex-1 rounded-lg border-[1.5px] border-[var(--border-strong)] bg-[var(--surface-1)] pl-3.5 pr-10 font-mono text-xs font-bold uppercase tracking-wider text-[var(--text-primary)] shadow-[var(--shadow-retro-sm)] focus:outline-none">
 							<option value="date-desc">Urut: Terbaru</option>
 							<option value="date-asc">Urut: Terlama</option>
 							<option value="amount-desc">Urut: Terbesar</option>
@@ -295,16 +298,16 @@
 		</div>
 	</section>
 
-	<section class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900" aria-label="Daftar transaksi">
-		<div class="flex items-center justify-between border-b border-gray-100 px-4 py-3 sm:px-5 dark:border-gray-800">
-			<p class="text-sm font-semibold text-gray-900 dark:text-gray-100">{filteredTransactions.length} transaksi</p>
-			{#if filterCount > 0 || filterSearch}<button class="text-sm font-medium text-primary-700 hover:text-primary-800 focus:outline-none focus:underline dark:text-primary-300" onclick={clearFilters}>Bersihkan filter</button>{/if}
+	<section class="retro-card overflow-hidden bg-[var(--surface-1)]" aria-label="Daftar transaksi">
+		<div class="flex items-center justify-between border-b-[1.5px] border-[var(--border-strong)] bg-[var(--surface-2)] px-4 py-3 sm:px-5">
+			<p class="font-mono text-xs font-bold uppercase tracking-wider text-[var(--text-secondary)]">Daftar Transaksi · {filteredTransactions.length} Total</p>
+			{#if filterCount > 0 || filterSearch}<button class="font-mono text-xs font-bold uppercase tracking-wider text-[var(--brand-primary)] hover:underline focus:outline-none" onclick={clearFilters}>Reset Filter</button>{/if}
 		</div>
 		{#if app.transactionsLoading && app.transactions.length === 0}
 			<div class="space-y-4 p-5">
 				{#each [1,2,3,4,5] as _ (_)}
 					<div class="flex items-center gap-4" transition:fly={{ y: 8, duration: 200 }}>
-						<Skeleton width="w-10" height="h-10" class="rounded-full" />
+						<Skeleton width="w-10" height="h-10" class="rounded-lg" />
 						<div class="flex-1"><Skeleton height="h-4" class="w-1/3 mb-1" /><Skeleton height="h-3" class="w-1/4" /></div>
 						<Skeleton height="h-4" class="w-24" />
 					</div>
@@ -315,57 +318,79 @@
 				<EmptyState title={app.transactions.length === 0 ? 'Belum ada transaksi' : 'Tidak ditemukan'} description={app.transactions.length === 0 ? 'Yuk catat transaksi pertama kamu!' : 'Coba ubah filter pencarian'} actionLabel={app.transactions.length === 0 ? 'Tambah Transaksi' : undefined} onaction={openCreate} />
 			</div>
 		{:else}
-			<div class="divide-y divide-gray-100 dark:divide-gray-800">
+			<div class="divide-y divide-dashed divide-[var(--border-subtle)]">
 				{#each filteredTransactions as t (t.id)}
 					{@const category = app.categories.find((c) => c.id === t.categoryId)}
-					<div class="group flex cursor-pointer items-center gap-3 p-3 transition-colors hover:bg-gray-50 focus-within:bg-gray-50 sm:gap-4 sm:p-4 dark:hover:bg-gray-800/50 dark:focus-within:bg-gray-800/50" onclick={(e) => e.target === e.currentTarget || !(e.target as HTMLElement).closest('button') ? openEdit(t) : undefined} role="button" tabindex="0" onkeydown={(e) => {
+					<div class="group flex cursor-pointer items-center gap-3 p-3 transition-colors hover:bg-[var(--surface-2)]/60 focus-within:bg-[var(--surface-2)]/60 sm:gap-4 sm:p-4" onclick={(e) => e.target === e.currentTarget || !(e.target as HTMLElement).closest('button') ? openEdit(t) : undefined} role="button" tabindex="0" onkeydown={(e) => {
 						if (e.target !== e.currentTarget || (e.key !== 'Enter' && e.key !== ' ')) return;
 						e.preventDefault();
 						openEdit(t);
 					}}>
-						<div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-base sm:h-11 sm:w-11" style="background-color: {t.type === 'expense' ? '#FEE2E2' : '#DCFCE7'}">
-							<span style="color: {t.type === 'expense' ? '#DC2626' : '#16A34A'}">{t.type === 'expense' ? '↓' : '↑'}</span>
+						<div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border-[1.5px] border-[var(--border-strong)] font-mono text-sm font-black shadow-[1px_1px_0_var(--shadow-retro)] sm:h-11 sm:w-11" style="background-color: {t.type === 'expense' ? 'var(--color-danger-50, #fee2e2)' : 'var(--color-success-50, #dcfce7)'}">
+							<span style="color: {t.type === 'expense' ? 'var(--brand-danger)' : 'var(--brand-success)'}">{t.type === 'expense' ? '↓' : '↑'}</span>
 						</div>
 						<div class="flex-1 min-w-0">
 							<div class="flex items-center gap-1.5">
 								{#if category?.color}
-									<span class="inline-block size-2 rounded-full shrink-0 ring-1 ring-black/5 dark:ring-white/10" style="background-color: {category.color}"></span>
+									<span class="inline-block size-2 rounded-full shrink-0 ring-1 ring-black/10 dark:ring-white/10" style="background-color: {category.color}"></span>
 								{/if}
-								<p class="truncate text-sm font-semibold text-gray-900 dark:text-gray-100">
+								<p class="truncate text-sm font-bold text-[var(--text-primary)]">
 									{category?.name ?? 'Lainnya'}
-									{#if t.id.startsWith('local_')}<span class="ml-1 text-[10px] font-normal text-amber-600 dark:text-amber-400">(belum sync)</span>{/if}
+									{#if t.id.startsWith('local_')}<span class="ml-1 font-mono text-[10px] font-normal text-amber-600 dark:text-amber-400">(belum sync)</span>{/if}
 								</p>
 							</div>
-							<p class="mt-0.5 truncate text-xs text-gray-500 dark:text-gray-400">{t.note || formatDateTime(t.createdAt)}</p>
+							<p class="mt-0.5 truncate font-mono text-xs text-[var(--text-tertiary)]">{t.note || formatDateTime(t.createdAt)}</p>
 						</div>
 						<div class="text-right shrink-0">
-							<p class="whitespace-nowrap text-sm font-bold tabular-nums {t.type === 'expense' ? 'text-red-600 dark:text-red-400' : 'text-green-700 dark:text-green-400'}">{t.type === 'expense' ? '-' : '+'}{formatRupiah(t.amount)}</p>
-							<p class="mt-0.5 text-[11px] text-gray-400 dark:text-gray-500">{t.date || formatDateTime(t.createdAt)}</p>
+							<p class="whitespace-nowrap font-mono text-sm font-bold tabular-nums tracking-tight {t.type === 'expense' ? 'text-danger-700 dark:text-danger-400' : 'text-emerald-800 dark:text-emerald-400'}">{t.type === 'expense' ? '-' : '+'}{formatRupiah(t.amount)}</p>
+							<p class="mt-0.5 font-mono text-[11px] text-[var(--text-tertiary)]">{t.date || formatDateTime(t.createdAt)}</p>
 						</div>
-						<button onclick={(e) => { e.stopPropagation(); deleteConfirm = t.id; }} class="hidden sm:grid min-h-9 min-w-9 shrink-0 place-items-center rounded-xl text-gray-400 transition-colors hover:bg-red-50 hover:text-red-600 focus:outline-none focus:ring-2 focus:ring-red-400 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100 dark:hover:bg-red-900/20" aria-label="Hapus transaksi">
+						<button onclick={(e) => { e.stopPropagation(); deleteConfirm = t.id; }} class="retro-btn-push hidden sm:grid min-h-8 min-w-8 shrink-0 place-items-center rounded-md border-[1.5px] border-transparent text-[var(--text-tertiary)] transition-colors hover:border-[var(--border-strong)] hover:bg-danger-50 hover:text-danger-600 focus:outline-none sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100 dark:hover:bg-danger-950/40" aria-label="Hapus transaksi">
 							<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
 						</button>
 					</div>
 				{/each}
 			</div>
 		{/if}
-</section>
+	</section>
 </div>
 
 <Modal open={modalOpen} title={editMode ? 'Edit Transaksi' : 'Catat Transaksi'} onclose={() => modalOpen = false}>
 	<form onsubmit={(e) => { e.preventDefault(); handleSubmit(); }} class="space-y-4">
-		<div class="grid grid-cols-2 gap-2 rounded-xl bg-gray-100 p-1 dark:bg-gray-800" aria-label="Tipe transaksi">
-			<button type="button" onclick={() => formType = 'expense'} class="min-h-10 rounded-lg text-sm font-semibold transition-colors {formType === 'expense' ? 'bg-white text-red-700 shadow-sm dark:bg-gray-700 dark:text-red-300' : 'text-gray-600 dark:text-gray-400'}">Pengeluaran</button>
-			<button type="button" onclick={() => formType = 'income'} class="min-h-10 rounded-lg text-sm font-semibold transition-colors {formType === 'income' ? 'bg-white text-green-700 shadow-sm dark:bg-gray-700 dark:text-green-300' : 'text-gray-600 dark:text-gray-400'}">Pemasukan</button>
+		<div class="grid grid-cols-2 gap-2 rounded-xl border-[1.5px] border-[var(--border-strong)] bg-[var(--surface-2)] p-1.5 shadow-[var(--shadow-retro-sm)]" aria-label="Tipe transaksi">
+			<button
+				type="button"
+				onclick={() => { formType = 'expense'; formCategory = ''; }}
+				class="min-h-10 rounded-lg text-xs font-mono font-bold uppercase tracking-wider transition-all {formType === 'expense' ? 'border-[1.5px] border-[var(--border-strong)] bg-danger-50 text-danger-700 shadow-[var(--shadow-retro-sm)] dark:bg-danger-950/60 dark:text-danger-300' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}"
+			>
+				↓ Pengeluaran
+			</button>
+			<button
+				type="button"
+				onclick={() => { formType = 'income'; formCategory = ''; }}
+				class="min-h-10 rounded-lg text-xs font-mono font-bold uppercase tracking-wider transition-all {formType === 'income' ? 'border-[1.5px] border-[var(--border-strong)] bg-emerald-50 text-emerald-800 shadow-[var(--shadow-retro-sm)] dark:bg-emerald-950/60 dark:text-emerald-300' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}"
+			>
+				↑ Pemasukan
+			</button>
 		</div>
 		<div>
-			<label for="transaction-amount" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Jumlah <span class="text-red-500">*</span></label>
+			<label for="transaction-amount" class="mb-1.5 block font-mono text-xs font-bold uppercase tracking-wider text-[var(--text-primary)]">
+				Nominal Transaksi <span class="font-bold text-danger-600">*</span>
+			</label>
 			<div class="relative">
-				<span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm font-medium">Rp</span>
-				<input id="transaction-amount" type="text" inputmode="numeric" aria-invalid={formErrors.amount ? 'true' : undefined} placeholder="0" value={formAmount ? parseInt(formAmount).toLocaleString('id-ID') : ''} oninput={formatAmountInput}
-					class="min-h-11 w-full rounded-xl border bg-white py-2 pl-10 pr-3 text-sm font-semibold text-gray-900 transition-colors dark:bg-gray-800 dark:text-gray-100 {formErrors.amount ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'} focus:outline-none focus:ring-2 focus:ring-primary-500" />
+				<span class="absolute left-3.5 top-1/2 -translate-y-1/2 font-mono text-sm font-bold text-[var(--text-tertiary)]">Rp</span>
+				<input
+					id="transaction-amount"
+					type="text"
+					inputmode="numeric"
+					aria-invalid={formErrors.amount ? 'true' : undefined}
+					placeholder="0"
+					value={formAmount ? parseInt(formAmount).toLocaleString('id-ID') : ''}
+					oninput={formatAmountInput}
+					class="min-h-11 w-full rounded-xl border-[1.5px] bg-[var(--surface-1)] py-2 pl-11 pr-3 font-mono text-base font-bold text-[var(--text-primary)] shadow-[var(--shadow-retro-sm)] transition-[border-color,box-shadow] {formErrors.amount ? 'border-danger-600 ring-1 ring-danger-600/30' : 'border-[var(--border-strong)] focus:border-primary-600 focus:outline-none focus:shadow-[var(--shadow-retro)]'} sm:text-lg"
+				/>
 			</div>
-			{#if formErrors.amount}<p class="mt-1 text-xs text-red-500">{formErrors.amount}</p>{/if}
+			{#if formErrors.amount}<p class="mt-1 font-mono text-xs font-bold text-danger-600">{formErrors.amount}</p>{/if}
 		</div>
 		<Select label="Kategori" options={filteredCatOptions.map((c) => ({ value: c.id, label: c.name }))} value={formCategory} error={formErrors.categoryId} required onchange={(e) => formCategory = (e.target as HTMLSelectElement).value} />
 		<Input label="Tanggal" type="date" value={formDate} error={formErrors.date} required onchange={(e) => formDate = (e.target as HTMLInputElement).value} />

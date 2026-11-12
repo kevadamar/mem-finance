@@ -25,13 +25,16 @@
 </script>
 
 <dialog bind:this={dialog} class="logout-dialog m-auto w-[calc(100%-2rem)] max-w-md overflow-visible bg-transparent p-0 text-left" aria-labelledby="logout-title" aria-describedby="logout-description" oncancel={handleCancel} onclick={(event) => event.target === dialog && closeDialog()}>
-	<div class="logout-card app-surface relative overflow-hidden rounded-3xl border p-6 shadow-[var(--shadow-float)] sm:p-7">
-		<div class="pointer-events-none absolute -right-14 -top-16 size-40 rounded-full bg-danger-500/10 blur-2xl" aria-hidden="true"></div>
+	<div class="logout-card relative overflow-hidden rounded-xl border-[1.5px] border-[var(--border-strong)] bg-[var(--surface-1)] p-6 shadow-[var(--shadow-retro)] sm:p-7">
 		<div class="relative">
-			<div class="mb-5 grid size-12 place-items-center rounded-2xl bg-danger-50 text-danger-500 ring-1 ring-danger-500/15 dark:bg-rose-950/70">
-				<svg class="size-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
+			<div class="mb-5 grid size-12 place-items-center rounded-lg border-[1.5px] border-[var(--border-strong)] bg-danger-50 text-danger-600 shadow-[var(--shadow-retro-sm)] dark:bg-rose-950/70">
+				<svg class="size-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 16l4-4m0 0-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
 			</div>
-			<h2 id="logout-title" class="text-xl font-extrabold tracking-tight text-[var(--text-primary)]">Keluar dari MemFinance?</h2>
+			<div class="flex items-center gap-2 text-[11px] font-mono font-bold tracking-widest uppercase text-danger-700 dark:text-danger-400">
+				<span class="inline-block size-1.5 rounded-full bg-danger-600"></span>
+				Konfirmasi Keluar
+			</div>
+			<h2 id="logout-title" class="mt-1 text-xl font-black tracking-tight text-[var(--text-primary)]">Keluar dari MemFinance?</h2>
 			<p id="logout-description" class="mt-2 text-sm leading-6 text-[var(--text-secondary)]">
 				Anda perlu masuk kembali untuk melihat dan mengelola data keuangan.
 				{#if app.pendingSync > 0 || getNeedsAttentionCount() > 0}
@@ -41,9 +44,9 @@
 				{/if}
 			</p>
 			<div class="mt-7 flex flex-col-reverse gap-2.5 sm:flex-row sm:justify-end">
-				<button type="button" onclick={closeDialog} class="min-h-12 rounded-xl border px-5 text-sm font-bold text-[var(--text-secondary)] transition hover:bg-[var(--surface-2)] hover:text-[var(--text-primary)] active:scale-[0.98] sm:min-w-28">Tetap masuk</button>
+				<button type="button" onclick={closeDialog} class="retro-btn-push min-h-11 rounded-lg border-[1.5px] border-[var(--border-strong)] bg-[var(--surface-2)] px-5 font-mono text-xs font-bold uppercase tracking-wider text-[var(--text-primary)] shadow-[var(--shadow-retro-sm)] hover:bg-[var(--surface-1)] sm:min-w-28">Batal</button>
 				<form method="POST" action="/logout" class="sm:min-w-28">
-					<button type="submit" class="flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-danger-500 px-5 text-sm font-bold text-white shadow-md shadow-rose-900/15 transition hover:-translate-y-0.5 hover:brightness-95 active:translate-y-0 active:scale-[0.98]">Keluar <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0-5 5m5-5H6" /></svg></button>
+					<button type="submit" class="retro-btn-push flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border-[1.5px] border-[var(--border-strong)] bg-danger-600 px-5 font-mono text-xs font-bold uppercase tracking-wider text-white shadow-[var(--shadow-retro-sm)] hover:bg-danger-700">Keluar <svg class="size-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7l5 5m0 0-5 5m5-5H6" /></svg></button>
 				</form>
 			</div>
 		</div>
